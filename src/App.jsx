@@ -1,4 +1,9 @@
 import { useState, useEffect, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const SUPABASE_URL = "https://pmkfrzpyqcgkfujpdkdf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_bMU1GrxhDzwSV2P3eggzog_iltkZU9i";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const GOOGLE_FONTS = `@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');`;
 
@@ -137,6 +142,34 @@ const STYLES = `
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+
+  /* Auth Screen */
+  .auth-card {
+    background: #fff9ed; border: 4px solid #1a1a1a; border-radius: 20px;
+    box-shadow: 8px 8px 0 #1a1a1a; padding: 40px; width: 100%; max-width: 440px;
+  }
+  .auth-tab {
+    flex: 1; padding: 10px; font-family: 'Fredoka One', cursive; font-size: 16px;
+    border: 3px solid #1a1a1a; cursor: pointer; transition: all 0.1s;
+  }
+  .auth-tab.active { background: #ff5252; color: #fff; }
+  .auth-tab:not(.active) { background: #fff; color: #1a1a1a; }
+  .auth-tab:first-child { border-radius: 10px 0 0 10px; }
+  .auth-tab:last-child { border-radius: 0 10px 10px 0; }
+  .google-btn {
+    width: 100%; padding: 12px; background: #fff; border: 3px solid #1a1a1a;
+    border-radius: 10px; box-shadow: 3px 3px 0 #1a1a1a; font-family: 'Fredoka One', cursive;
+    font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 10px; transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .google-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #1a1a1a; }
+  .divider {
+    display: flex; align-items: center; gap: 12px; margin: 18px 0;
+    font-family: 'Nunito', sans-serif; font-size: 13px; color: #7a5c3a; font-weight: 700;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; border-top: 2px solid #c8b89a;
+  }
   ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: #f5e6c8; }
   ::-webkit-scrollbar-thumb { background: #ff5252; border: 2px solid #1a1a1a; border-radius: 4px; }
@@ -691,11 +724,96 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
   );
 }
 
+
+// ── Auth Screen ──
+function AuthScreen({ onAuth }) {
+  const [authTab, setAuthTab] = useState("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleEmail = async () => {
+    if (!email.trim() || !password.trim()) { setError("Please fill in all fields."); return; }
+    setLoading(true); setError(""); setMessage("");
+    try {
+      if (authTab === "login") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        setMessage("✅ Check your email to confirm your account, then log in!");
+        setLoading(false); return;
+      }
+    } catch (e) { setError(e.message || "Something went wrong."); }
+    setLoading(false);
+  };
+
+  const handleGoogle = async () => {
+    setLoading(true); setError("");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) { setError(error.message); setLoading(false); }
+  };
+
+  return (
+    <>
+      <style>{GOOGLE_FONTS}</style>
+      <style>{STYLES}</style>
+      <div style={{ minHeight:"100vh", background:"#f5e6c8", backgroundImage:"radial-gradient(#d4c4a0 1px, transparent 1px)", backgroundSize:"24px 24px", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
+        <div className="auth-card">
+          <div style={{ textAlign:"center", marginBottom:"28px" }}>
+            <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
+            <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"32px", color:"#1a1a1a", textShadow:"2px 2px 0 #ff5252" }}>RecipeVault</h1>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", fontWeight:700, marginTop:"4px" }}>Your recipes, your way.</p>
+          </div>
+
+          {/* Google login */}
+          <button className="google-btn" onClick={handleGoogle} disabled={loading}>
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+
+          <div className="divider">or</div>
+
+          {/* Email/password tabs */}
+          <div style={{ display:"flex", marginBottom:"18px", borderRadius:"10px", overflow:"hidden", border:"3px solid #1a1a1a", boxShadow:"3px 3px 0 #1a1a1a" }}>
+            <button className={`auth-tab ${authTab === "login" ? "active" : ""}`} onClick={() => { setAuthTab("login"); setError(""); setMessage(""); }}>Log In</button>
+            <button className={`auth-tab ${authTab === "signup" ? "active" : ""}`} onClick={() => { setAuthTab("signup"); setError(""); setMessage(""); }}>Sign Up</button>
+          </div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" type="email"
+              className="pm-input" style={{ width:"100%" }} onKeyDown={e => e.key === "Enter" && handleEmail()} />
+            <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" type="password"
+              className="pm-input" style={{ width:"100%" }} onKeyDown={e => e.key === "Enter" && handleEmail()} />
+
+            {error && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#ff5252", fontWeight:700, textAlign:"center" }}>{error}</p>}
+            {message && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#06d6a0", fontWeight:700, textAlign:"center" }}>{message}</p>}
+
+            <button onClick={handleEmail} disabled={loading} className="pm-btn"
+              style={{ width:"100%", padding:"14px", background:"#ff5252", color:"#fff", fontSize:"18px" }}>
+              {loading ? "..." : authTab === "login" ? "🔑 Log In" : "🎉 Create Account"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Main App ──
 export default function RecipeVault() {
-  const [recipes, setRecipes] = useState(() => load(KEYS.recipes, []));
-  const [mealPlan, setMealPlan] = useState(() => load(KEYS.mealPlan, { weekOf: getWeekOf(), days: {}, easyNights: [] }));
-  const [groceryList, setGroceryList] = useState(() => load(KEYS.groceryList, { items: [] }));
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  const [recipes, setRecipes] = useState([]);
+  const [mealPlan, setMealPlan] = useState({ weekOf: getWeekOf(), days: {}, easyNights: [] });
+  const [groceryList, setGroceryList] = useState({ items: [] });
   const [mealHistory, setMealHistory] = useState(() => load(KEYS.mealHistory, []));
 
   const [input, setInput] = useState("");
@@ -709,11 +827,61 @@ export default function RecipeVault() {
   const [dragRecipe, setDragRecipe] = useState(null);
   const { msg: toastMsg, show: toastShow, toast } = useToast();
 
-  // Persist all state
-  useEffect(() => save(KEYS.recipes, recipes), [recipes]);
-  useEffect(() => save(KEYS.mealPlan, mealPlan), [mealPlan]);
-  useEffect(() => save(KEYS.groceryList, groceryList), [groceryList]);
+  // ── Auth listener ──
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // ── Load recipes from Supabase when user logs in ──
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("recipes").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setRecipes(data.map(r => ({
+          id: r.id, title: r.title, description: r.description,
+          prepTime: r.prep_time, cookTime: r.cook_time, servings: r.servings,
+          category: r.category, ingredients: r.ingredients, steps: r.steps,
+          tags: r.tags, website: r.website, _saved: true
+        })));
+      });
+    supabase.from("meal_plans").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
+      .then(({ data }) => { if (data) setMealPlan({ weekOf: data.week_of, days: data.days || {}, easyNights: data.easy_mode_nights || [] }); });
+    supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
+      .then(({ data }) => { if (data) setGroceryList({ items: data.items || [] }); });
+  }, [user]);
+
+  // ── Persist meal history locally ──
   useEffect(() => save(KEYS.mealHistory, mealHistory), [mealHistory]);
+
+  // ── Sync meal plan to Supabase ──
+  useEffect(() => {
+    if (!user || !mealPlan.weekOf) return;
+    supabase.from("meal_plans").upsert({
+      user_id: user.id, week_of: mealPlan.weekOf,
+      days: mealPlan.days || {}, easy_mode_nights: mealPlan.easyNights || []
+    }, { onConflict: "user_id,week_of" });
+  }, [mealPlan, user]);
+
+  // ── Sync grocery list to Supabase ──
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("grocery_lists").upsert({
+      user_id: user.id, week_of: getWeekOf(), items: groceryList.items || []
+    }, { onConflict: "user_id,week_of" });
+  }, [groceryList, user]);
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setRecipes([]); setMealPlan({ weekOf: getWeekOf(), days: {}, easyNights: [] }); setGroceryList({ items: [] });
+    toast("👋 Signed out!");
+  };
 
   // Check for shared grocery list in URL
   useEffect(() => {
@@ -742,15 +910,28 @@ export default function RecipeVault() {
     setLoading(false);
   };
 
-  const handleSave = (recipe) => {
-    setRecipes(prev => {
-      const exists = prev.find(r => r.id === recipe.id);
-      return exists ? prev.map(r => r.id === recipe.id ? recipe : r) : [recipe, ...prev];
-    });
-    toast("✅ Recipe saved!");
+  const handleSave = async (recipe) => {
+    if (!user) return;
+    const dbRecipe = {
+      user_id: user.id, title: recipe.title, description: recipe.description,
+      prep_time: recipe.prepTime, cook_time: recipe.cookTime, servings: recipe.servings,
+      category: recipe.category, ingredients: recipe.ingredients || [],
+      steps: recipe.steps || [], tags: recipe.tags || [], website: recipe.website || ""
+    };
+    const { data, error } = await supabase.from("recipes").insert(dbRecipe).select().single();
+    if (!error && data) {
+      const saved = { id: data.id, ...recipe, _saved: true };
+      setRecipes(prev => [saved, ...prev.filter(r => r.id !== recipe.id)]);
+      toast("✅ Recipe saved!");
+    } else { toast("❌ Failed to save recipe."); }
   };
 
-  const handleDelete = (id) => { setRecipes(prev => prev.filter(r => r.id !== id)); toast("🗑️ Recipe deleted."); };
+  const handleDelete = async (id) => {
+    if (!user) return;
+    await supabase.from("recipes").delete().eq("id", id).eq("user_id", user.id);
+    setRecipes(prev => prev.filter(r => r.id !== id));
+    toast("🗑️ Recipe deleted.");
+  };
   const filtered = filterCat === "All" ? recipes : recipes.filter(r => r.category === filterCat);
 
   const TABS = [
@@ -759,6 +940,24 @@ export default function RecipeVault() {
     { id: "calendar", label: "📅 Meal Plan" },
     { id: "grocery", label: "🛒 Grocery List" },
   ];
+
+  // Auth gate
+  if (authLoading) {
+    return (
+      <>
+        <style>{GOOGLE_FONTS}</style>
+        <style>{STYLES}</style>
+        <div style={{ minHeight:"100vh", background:"#f5e6c8", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ textAlign:"center" }}>
+            <div className="cooking-anim">🍳</div>
+            <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"20px", color:"#1a1a1a", marginTop:"14px" }}>Loading...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (!user) return <AuthScreen />;
 
   return (
     <>
@@ -773,13 +972,17 @@ export default function RecipeVault() {
               <span style={{ fontSize:"28px" }}>🍳</span>
               <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"26px", color:"#fff", letterSpacing:"1px", textShadow:"2px 2px 0 #1a1a1a" }}>RecipeVault</h1>
             </div>
-            <nav style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
+            <nav style={{ display:"flex", gap:"6px", flexWrap:"wrap", alignItems:"center" }}>
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)} className="pm-btn"
                   style={{ padding:"8px 14px", background: tab === t.id ? "#ffd166" : "#fff", color:"#1a1a1a", fontSize:"13px" }}>
                   {t.label}
                 </button>
               ))}
+              <button onClick={signOut} className="pm-btn"
+                style={{ padding:"8px 14px", background:"#1a1a1a", color:"#fff", fontSize:"13px", marginLeft:"6px" }}>
+                Sign Out
+              </button>
             </nav>
           </div>
         </header>
