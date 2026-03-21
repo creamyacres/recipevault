@@ -5,175 +5,217 @@ const SUPABASE_URL = "https://pmkfrzpyqcgkfujpdkdf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_bMU1GrxhDzwSV2P3eggzog_iltkZU9i";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const GOOGLE_FONTS = `@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');`;
+const GOOGLE_FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,700;0,800;1,700&display=swap');`;
 
 const STYLES = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #f5e6c8; }
+  body { background: #FFF5E6; font-family: 'Nunito', sans-serif; }
 
-  .pm-card {
-    background: #fff9ed; border: 3px solid #1a1a1a; border-radius: 12px;
-    box-shadow: 4px 4px 0px #1a1a1a; transition: transform 0.15s, box-shadow 0.15s;
-    cursor: pointer; position: relative;
+  /* ── Core tokens ── */
+  :root {
+    --cream: #FFF5E6;
+    --cream-dark: #F5EAD4;
+    --ink: #1A0A00;
+    --red: #E8421A;
+    --yellow: #FFD166;
+    --muted: #7A5A3A;
+    --border: 3px solid #1A0A00;
   }
-  .pm-card:hover { transform: translate(-2px,-2px) rotate(-0.5deg); box-shadow: 6px 6px 0px #1a1a1a; }
 
+  /* ── Buttons ── */
   .pm-btn {
-    border: 3px solid #1a1a1a; border-radius: 10px; box-shadow: 3px 3px 0px #1a1a1a;
-    font-family: 'Fredoka One', cursive; font-size: 15px; cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s; letter-spacing: 0.5px;
+    border: 3px solid #1A0A00; font-family: 'Nunito', sans-serif; font-size: 13px;
+    font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; transition: background 0.1s, color 0.1s; padding: 10px 20px;
   }
-  .pm-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0px #1a1a1a; }
-  .pm-btn:disabled { opacity: 0.6; cursor: default; }
+  .pm-btn:disabled { opacity: 0.5; cursor: default; }
+  .pm-btn-primary { background: #E8421A; color: #fff; border-color: #E8421A; }
+  .pm-btn-yellow { background: #FFD166; color: #1A0A00; }
+  .pm-btn-ghost { background: #FFF5E6; color: #1A0A00; }
+  .pm-btn-ghost:hover { background: #1A0A00; color: #FFF5E6; }
+  .pm-btn-dark { background: #1A0A00; color: #FFF5E6; }
 
+  /* ── Inputs ── */
   .pm-input {
-    border: 3px solid #1a1a1a; border-radius: 10px; box-shadow: 3px 3px 0px #1a1a1a;
-    font-family: 'Nunito', sans-serif; font-size: 14px; background: #fffdf6;
-    color: #1a1a1a; padding: 12px 16px; outline: none; transition: box-shadow 0.1s;
+    border: 3px solid #1A0A00; font-family: 'Nunito', sans-serif; font-size: 14px;
+    font-weight: 700; background: #fff; color: #1A0A00; padding: 12px 16px; outline: none;
   }
-  .pm-input:focus { box-shadow: 5px 5px 0px #1a1a1a; }
+  .pm-input::placeholder { color: #C4A882; }
+  .pm-input:focus { border-color: #E8421A; }
 
+  /* ── Tags ── */
   .pm-tag {
-    border: 2px solid #1a1a1a; border-radius: 20px; font-family: 'Fredoka One', cursive;
-    font-size: 12px; padding: 2px 10px; box-shadow: 2px 2px 0px #1a1a1a; letter-spacing: 0.3px;
+    border: 2px solid #1A0A00; font-family: 'Nunito', sans-serif;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; padding: 2px 10px;
   }
 
+  /* ── Header ── */
   .pm-header {
-    background: #ff5252; border-bottom: 4px solid #1a1a1a;
-    position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 0 #1a1a1a;
+    background: #FFF5E6; border-bottom: 3px solid #1A0A00;
+    position: sticky; top: 0; z-index: 100;
   }
 
+  /* ── Ticker ── */
+  .cc-ticker {
+    background: #E8421A; border-bottom: 3px solid #1A0A00;
+    padding: 9px 0; overflow: hidden; white-space: nowrap;
+  }
+  .cc-ticker-inner {
+    display: inline-flex; animation: ticker 22s linear infinite;
+  }
+  .cc-ticker-item {
+    font-family: 'Bebas Neue', cursive; font-size: 16px;
+    letter-spacing: 2.5px; color: #FFF5E6; padding: 0 24px;
+  }
+  .cc-ticker-dot { color: #FFD166; padding: 0 4px; font-size: 16px; }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── Cards ── */
+  .pm-card {
+    background: #FFF5E6; border: 3px solid #1A0A00;
+    cursor: pointer; position: relative; transition: background 0.1s;
+  }
+  .pm-card:hover { background: #FFD166; }
+
+  /* ── Sections ── */
   .pm-section {
-    background: #fff9ed; border: 3px solid #1a1a1a; border-radius: 16px;
-    box-shadow: 5px 5px 0 #1a1a1a; padding: 20px; margin-bottom: 20px;
+    background: #FFF5E6; border: 3px solid #1A0A00;
+    padding: 20px; margin-bottom: 20px;
   }
 
+  /* ── Modal ── */
   .pm-modal-bg {
-    position: fixed; inset: 0; background: rgba(26,10,0,0.55);
+    position: fixed; inset: 0; background: rgba(26,10,0,0.6);
     z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;
   }
-
   .pm-modal {
-    background: #fffdf6; border: 4px solid #1a1a1a; border-radius: 20px;
-    box-shadow: 8px 8px 0 #1a1a1a; max-width: 640px; width: 100%;
+    background: #FFF5E6; border: 4px solid #1A0A00;
+    max-width: 640px; width: 100%;
     max-height: 88vh; overflow-y: auto; padding: 36px; position: relative;
   }
 
+  /* ── Stat box ── */
   .pm-stat-box {
-    background: #ffd166; border: 3px solid #1a1a1a; border-radius: 10px;
-    box-shadow: 3px 3px 0 #1a1a1a; text-align: center; padding: 10px 18px;
+    background: #FFD166; border: 3px solid #1A0A00;
+    text-align: center; padding: 10px 18px;
   }
 
-  .wobble-1 { transform: rotate(-1deg); }
-  .wobble-2 { transform: rotate(0.8deg); }
-  .wobble-3 { transform: rotate(-0.5deg); }
-
+  /* ── Loading anim ── */
   @keyframes bounce {
     0%,100% { transform: translateY(0) rotate(0deg); }
     50% { transform: translateY(-8px) rotate(5deg); }
   }
   .cooking-anim { animation: bounce 0.8s ease-in-out infinite; display: inline-block; font-size: 44px; }
 
-  /* Calendar */
-  .cal-grid {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;
-  }
+  /* ── Calendar ── */
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; border: 3px solid #1A0A00; }
   .cal-day {
-    background: #fff9ed; border: 3px solid #1a1a1a; border-radius: 12px;
-    box-shadow: 3px 3px 0 #1a1a1a; min-height: 140px; padding: 8px;
-    display: flex; flex-direction: column; gap: 4px; transition: box-shadow 0.15s;
+    background: #FFF5E6; border-right: 3px solid #1A0A00;
+    min-height: 140px; padding: 8px;
+    display: flex; flex-direction: column; gap: 4px;
   }
-  .cal-day.easy-mode { background: #e8f5ff; border-color: #457b9d; box-shadow: 3px 3px 0 #457b9d; }
-  .cal-day.drag-over { background: #fff0c8; border-color: #ff9f1c; box-shadow: 3px 3px 0 #ff9f1c; transform: scale(1.02); }
+  .cal-day:last-child { border-right: none; }
+  .cal-day.easy-mode { background: #FFF9E6; }
+  .cal-day.drag-over { background: #FFD166; }
   .cal-day-header {
-    font-family: 'Fredoka One', cursive; font-size: 13px; color: #1a1a1a;
-    text-align: center; margin-bottom: 2px;
+    font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1px;
+    color: #1A0A00; text-align: center; margin-bottom: 2px;
+    border-bottom: 2px solid #1A0A00; padding-bottom: 4px;
   }
   .cal-meal-slot {
-    border: 2px dashed #c8b89a; border-radius: 8px; padding: 4px 6px;
-    font-family: 'Nunito', sans-serif; font-size: 11px; color: #9a7a5a;
+    border: 2px dashed #C4A882; padding: 4px 6px;
+    font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 700; color: #C4A882;
     text-align: center; cursor: pointer; transition: all 0.1s; min-height: 32px;
     display: flex; align-items: center; justify-content: center;
   }
-  .cal-meal-slot:hover { border-color: #ff5252; color: #ff5252; }
+  .cal-meal-slot:hover { border-color: #E8421A; color: #E8421A; }
   .cal-meal-slot.filled {
-    background: #fff9ed; border: 2px solid #1a1a1a; color: #1a1a1a;
-    font-weight: 700; border-style: solid; cursor: default;
+    background: #FFD166; border: 2px solid #1A0A00; color: #1A0A00;
+    font-weight: 800; cursor: default;
   }
   .cal-meal-slot.filled .remove-meal {
     display: none; position: absolute; top: 2px; right: 2px;
-    background: #ff5252; border: 1px solid #1a1a1a; border-radius: 50%;
+    background: #E8421A; border: 1px solid #1A0A00; border-radius: 50%;
     width: 14px; height: 14px; font-size: 8px; color: #fff;
     cursor: pointer; align-items: center; justify-content: center; line-height: 1;
   }
   .cal-meal-slot.filled:hover .remove-meal { display: flex; }
   .cal-meal-slot-wrap { position: relative; }
-  .meal-label { font-family: 'Fredoka One', cursive; font-size: 10px; color: #7a5c3a; margin-bottom: 2px; }
+  .meal-label {
+    font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 1px;
+    color: #7A5A3A; margin-bottom: 2px;
+  }
 
-  /* Grocery list */
-  .grocery-section { margin-bottom: 20px; }
+  /* ── Grocery ── */
+  .grocery-section { margin-bottom: 0; border-bottom: 3px solid #1A0A00; }
+  .grocery-section:last-child { border-bottom: none; }
   .grocery-section-header {
-    font-family: 'Fredoka One', cursive; font-size: 18px; color: #fff;
-    background: #1a1a1a; border-radius: 8px 8px 0 0; padding: 8px 16px;
-    border: 3px solid #1a1a1a;
+    font-family: 'Bebas Neue', cursive; font-size: 18px; letter-spacing: 2px; color: #FFD166;
+    background: #1A0A00; padding: 8px 16px;
   }
   .grocery-item {
     display: flex; align-items: center; gap: 10px; padding: 10px 16px;
-    background: #fff9ed; border-left: 3px solid #1a1a1a; border-right: 3px solid #1a1a1a;
-    border-bottom: 2px dashed #e2c89a; transition: background 0.1s;
+    background: #FFF5E6; border-bottom: 2px dashed #E0D0BC; transition: background 0.1s;
   }
-  .grocery-item:last-child { border-bottom: 3px solid #1a1a1a; border-radius: 0 0 8px 8px; }
-  .grocery-item.checked { background: #f0f0f0; }
+  .grocery-item:last-child { border-bottom: none; }
+  .grocery-item.checked { background: #F5EFE5; }
   .grocery-item.skipped { opacity: 0.4; }
-  .grocery-item-name { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; flex: 1; }
-  .grocery-item.checked .grocery-item-name { text-decoration: line-through; color: #888; }
-  .grocery-item-qty { font-family: 'Fredoka One', cursive; font-size: 13px; color: #ff5252; }
+  .grocery-item-name { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; flex: 1; color: #1A0A00; }
+  .grocery-item.checked .grocery-item-name { text-decoration: line-through; color: #C4A882; }
 
-  /* Drag source */
+  /* ── Drag ── */
   .dragging { opacity: 0.5; }
 
-  /* Toast */
+  /* ── Toast ── */
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 100px;
-    font-family: 'Fredoka One', cursive; font-size: 15px;
-    box-shadow: 4px 4px 0 #ff5252; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    background: #1A0A00; color: #FFF5E6; padding: 12px 28px;
+    font-family: 'Bebas Neue', cursive; font-size: 17px; letter-spacing: 2px;
+    border: 3px solid #E8421A;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
     z-index: 9999; pointer-events: none;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
-
-  /* Auth Screen */
+  /* ── Auth ── */
   .auth-card {
-    background: #fff9ed; border: 4px solid #1a1a1a; border-radius: 20px;
-    box-shadow: 8px 8px 0 #1a1a1a; padding: 40px; width: 100%; max-width: 440px;
+    background: #FFF5E6; border: 4px solid #1A0A00;
+    padding: 40px; width: 100%; max-width: 440px;
+    box-shadow: 8px 8px 0 #1A0A00;
   }
   .auth-tab {
-    flex: 1; padding: 10px; font-family: 'Fredoka One', cursive; font-size: 16px;
-    border: 3px solid #1a1a1a; cursor: pointer; transition: all 0.1s;
+    flex: 1; padding: 10px; font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+    border: 3px solid #1A0A00; cursor: pointer; transition: all 0.1s;
   }
-  .auth-tab.active { background: #ff5252; color: #fff; }
-  .auth-tab:not(.active) { background: #fff; color: #1a1a1a; }
-  .auth-tab:first-child { border-radius: 10px 0 0 10px; }
-  .auth-tab:last-child { border-radius: 0 10px 10px 0; }
+  .auth-tab.active { background: #E8421A; color: #fff; border-color: #E8421A; }
+  .auth-tab:not(.active) { background: #fff; color: #1A0A00; }
+  .auth-tab:first-child { border-radius: 0; }
+  .auth-tab:last-child { border-radius: 0; }
   .google-btn {
-    width: 100%; padding: 12px; background: #fff; border: 3px solid #1a1a1a;
-    border-radius: 10px; box-shadow: 3px 3px 0 #1a1a1a; font-family: 'Fredoka One', cursive;
-    font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 10px; transition: transform 0.1s, box-shadow 0.1s;
+    width: 100%; padding: 12px; background: #fff; border: 3px solid #1A0A00;
+    font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 10px; transition: background 0.1s;
   }
-  .google-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 #1a1a1a; }
+  .google-btn:hover { background: #F5EFE5; }
   .divider {
     display: flex; align-items: center; gap: 12px; margin: 18px 0;
-    font-family: 'Nunito', sans-serif; font-size: 13px; color: #7a5c3a; font-weight: 700;
+    font-family: 'Nunito', sans-serif; font-size: 13px; color: #7A5A3A; font-weight: 700;
   }
-  .divider::before, .divider::after {
-    content: ''; flex: 1; border-top: 2px solid #c8b89a;
+  .divider::before, .divider::after { content: ''; flex: 1; border-top: 2px solid #C4A882; }
+
+  /* ── Responsive mobile ── */
+  @media (max-width: 768px) {
+    .cal-grid { grid-template-columns: 1fr; }
+    .cal-day { border-right: none; border-bottom: 3px solid #1A0A00; min-height: auto; }
+    .cal-day:last-child { border-bottom: none; }
   }
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: #f5e6c8; }
-  ::-webkit-scrollbar-thumb { background: #ff5252; border: 2px solid #1a1a1a; border-radius: 4px; }
-`;
+`
 
 // ── Constants ──
 const CATEGORIES = ["Breakfast","Lunch","Dinner","Dessert","Snacks","Drinks","Other"];
@@ -203,9 +245,15 @@ const load = (key, def) => { try { return JSON.parse(localStorage.getItem(key)) 
 const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
 
 // ── Claude API ──
+// Requests go through our Cloudflare Worker proxy (worker/index.js) so the
+// Anthropic API key is never exposed client-side and CORS is handled server-side.
+// Set VITE_AI_PROXY_URL in Cloudflare Pages environment variables after deploying the worker.
+const AI_PROXY_URL = import.meta.env.VITE_AI_PROXY_URL || "http://localhost:8787";
+
 async function callClaude(system, user, maxTokens = 1500) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST", headers: { "Content-Type": "application/json" },
+  const res = await fetch(AI_PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: maxTokens, system, messages: [{ role: "user", content: user }] })
   });
   const data = await res.json();
@@ -265,17 +313,17 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
       onClick={() => onClick(recipe)}
       style={{ padding: "18px", cursor: draggable ? "grab" : "pointer" }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"8px" }}>
-        <span className="pm-tag" style={{ background: colors.bg, color: colors.text }}>{cat}</span>
+        <span className="pm-tag" style={{ background: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#FFD166" : "#1A0A00", color: cat === "Dessert" ? "#1A0A00" : "#fff", borderColor: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#1A0A00" : "#1A0A00" }}>{cat}</span>
         <button onClick={e => { e.stopPropagation(); onDelete(recipe.id); }}
-          style={{ background:"#ff5252", border:"2px solid #1a1a1a", borderRadius:"50%", width:"26px", height:"26px", cursor:"pointer", fontSize:"12px", color:"#fff", fontWeight:700, lineHeight:1, boxShadow:"2px 2px 0 #1a1a1a", flexShrink:0 }}>✕</button>
+          style={{ background:"#E8421A", border:"2px solid #1A0A00", width:"26px", height:"26px", cursor:"pointer", fontSize:"12px", color:"#fff", fontWeight:800, lineHeight:1, flexShrink:0 }}>✕</button>
       </div>
-      <h3 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"18px", color:"#1a1a1a", margin:"6px 0 4px", lineHeight:1.2 }}>{recipe.title}</h3>
-      <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"#4a3a2a", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
+      <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
+      <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7A5A3A", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
       <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
-        {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", background:"#ffd166", border:"2px solid #1a1a1a", borderRadius:"6px", padding:"1px 7px", fontWeight:700 }}>⏱ {recipe.prepTime}</span>}
-        {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", background:"#ef476f", border:"2px solid #1a1a1a", borderRadius:"6px", padding:"1px 7px", fontWeight:700, color:"#fff" }}>🔥 {recipe.cookTime}</span>}
+        {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", padding:"1px 7px" }}>⏱ {recipe.prepTime}</span>}
+        {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", padding:"1px 7px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
       </div>
-      {draggable && <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", color:"#9a7a5a", marginTop:"6px", textAlign:"center" }}>drag to calendar ↑</div>}
+      {draggable && <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, color:"#C4A882", marginTop:"6px", textAlign:"center", textTransform:"uppercase", letterSpacing:"0.5px" }}>drag to calendar ↑</div>}
     </div>
   );
 }
@@ -291,21 +339,21 @@ function RecipeModal({ recipe, onClose, onSave }) {
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"12px" }}>
           {recipe.tags?.map(t => <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"#1a1a1a" }}>{t}</span>)}
         </div>
-        <h2 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"28px", color:"#1a1a1a", margin:"0 0 8px", lineHeight:1.2, paddingRight:"40px" }}>{recipe.title}</h2>
-        <p style={{ fontFamily:"'Nunito',sans-serif", color:"#4a3a2a", margin:"0 0 20px", fontSize:"14px", lineHeight:1.6 }}>{recipe.description}</p>
+        <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"36px", letterSpacing:"1px", color:"#1A0A00", margin:"0 0 8px", lineHeight:1, paddingRight:"40px" }}>{recipe.title}</h2>
+        <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7A5A3A", fontWeight:700, margin:"0 0 20px", fontSize:"14px", lineHeight:1.6 }}>{recipe.description}</p>
         <div style={{ display:"flex", gap:"10px", flexWrap:"wrap", marginBottom:"20px" }}>
-          {recipe.prepTime && <div className="pm-stat-box"><div style={{ fontFamily:"'Fredoka One',cursive", fontSize:"18px" }}>{recipe.prepTime}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px" }}>Prep</div></div>}
-          {recipe.cookTime && <div className="pm-stat-box" style={{ background:"#ef476f" }}><div style={{ fontFamily:"'Fredoka One',cursive", fontSize:"18px", color:"#fff" }}>{recipe.cookTime}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px", color:"#fff" }}>Cook</div></div>}
-          {recipe.servings && <div className="pm-stat-box" style={{ background:"#06d6a0" }}><div style={{ fontFamily:"'Fredoka One',cursive", fontSize:"18px" }}>{recipe.servings}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px" }}>Servings</div></div>}
+          {recipe.prepTime && <div className="pm-stat-box"><div style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px" }}>{recipe.prepTime}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"1px" }}>Prep</div></div>}
+          {recipe.cookTime && <div className="pm-stat-box" style={{ background:"#E8421A" }}><div style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#fff" }}>{recipe.cookTime}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"1px", color:"#fff" }}>Cook</div></div>}
+          {recipe.servings && <div className="pm-stat-box" style={{ background:"#FFD166" }}><div style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px" }}>{recipe.servings}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"1px" }}>Servings</div></div>}
         </div>
         <div className="pm-section wobble-1" style={{ marginBottom:"14px" }}>
-          <h4 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"18px", color:"#1a1a1a", marginBottom:"10px" }}>📝 Ingredients</h4>
+          <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>Ingredients</h4>
           <ul style={{ fontFamily:"'Nunito',sans-serif", color:"#1a1a1a", lineHeight:1.9, paddingLeft:"20px" }}>
             {recipe.ingredients?.map((ing,i) => <li key={i} style={{ fontSize:"13px", fontWeight:600 }}>{ing}</li>)}
           </ul>
         </div>
         <div className="pm-section wobble-2" style={{ marginBottom:"18px" }}>
-          <h4 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"18px", color:"#1a1a1a", marginBottom:"10px" }}>👨‍🍳 Instructions</h4>
+          <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>Instructions</h4>
           <ol style={{ fontFamily:"'Nunito',sans-serif", color:"#1a1a1a", lineHeight:1.8, paddingLeft:"22px" }}>
             {recipe.steps?.map((step,i) => <li key={i} style={{ fontSize:"13px", fontWeight:600, marginBottom:"8px" }}>{step}</li>)}
           </ol>
@@ -317,7 +365,7 @@ function RecipeModal({ recipe, onClose, onSave }) {
                 {CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
               <button onClick={() => { onSave({ ...recipe, category, _saved:true }); setSaved(true); }} className="pm-btn"
-                style={{ background: saved ? "#06d6a0" : "#ff5252", color: saved ? "#1a1a1a" : "#fff", padding:"10px 24px", flex:1 }}>
+                style={{ background: saved ? "#FFD166" : "#E8421A", color: saved ? "#1A0A00" : "#fff", padding:"10px 24px", flex:1, borderColor: saved ? "#1A0A00" : "#E8421A" }}>
                 {saved ? "✓ Saved!" : "Save Recipe!"}
               </button>
             </div>
@@ -698,7 +746,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       ) : (
         <div style={{ textAlign:"center", padding:"80px 20px" }}>
           <div style={{ fontSize:"52px", marginBottom:"16px" }}>🛒</div>
-          <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"22px", color:"#1a1a1a", marginBottom:"8px" }}>No grocery list yet!</p>
+          <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"8px" }}>No grocery list yet!</p>
           <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"#7a5c3a" }}>
             {uniqueRecipes.length === 0 ? "Plan some meals in the 📅 Meal Plan tab first!" : "Hit \"Generate from Meal Plan\" to build your list!"}
           </p>
@@ -764,12 +812,12 @@ function AuthScreen({ onAuth }) {
     <>
       <style>{GOOGLE_FONTS}</style>
       <style>{STYLES}</style>
-      <div style={{ minHeight:"100vh", background:"#f5e6c8", backgroundImage:"radial-gradient(#d4c4a0 1px, transparent 1px)", backgroundSize:"24px 24px", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
+      <div style={{ minHeight:"100vh", background:"#FFF5E6", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
         <div className="auth-card">
           <div style={{ textAlign:"center", marginBottom:"28px" }}>
             <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
             <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"32px", color:"#1a1a1a", textShadow:"2px 2px 0 #ff5252" }}>CooCheena</h1>
-            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", fontWeight:700, marginTop:"4px" }}>Your kitchen, your recipes.</p>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#7A5A3A", fontWeight:800, marginTop:"4px", textTransform:"uppercase", letterSpacing:"1px" }}>Your kitchen, your recipes.</p>
           </div>
 
           {/* Google login */}
@@ -796,7 +844,7 @@ function AuthScreen({ onAuth }) {
             {message && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#06d6a0", fontWeight:700, textAlign:"center" }}>{message}</p>}
 
             <button onClick={handleEmail} disabled={loading} className="pm-btn"
-              style={{ width:"100%", padding:"14px", background:"#ff5252", color:"#fff", fontSize:"18px" }}>
+              style={{ width:"100%", padding:"14px", background:"#E8421A", color:"#fff", fontSize:"15px", borderColor:"#E8421A" }}>
               {loading ? "..." : authTab === "login" ? "🔑 Log In" : "🎉 Create Account"}
             </button>
           </div>
@@ -947,10 +995,10 @@ export default function CooCheena() {
       <>
         <style>{GOOGLE_FONTS}</style>
         <style>{STYLES}</style>
-        <div style={{ minHeight:"100vh", background:"#f5e6c8", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ minHeight:"100vh", background:"#FFF5E6", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <div style={{ textAlign:"center" }}>
             <div className="cooking-anim">🍳</div>
-            <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"20px", color:"#1a1a1a", marginTop:"14px" }}>Loading...</p>
+            <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Loading...</p>
           </div>
         </div>
       </>
@@ -963,7 +1011,7 @@ export default function CooCheena() {
     <>
       <style>{GOOGLE_FONTS}</style>
       <style>{STYLES}</style>
-      <div style={{ minHeight:"100vh", background:"#f5e6c8", backgroundImage:"radial-gradient(#d4c4a0 1px, transparent 1px)", backgroundSize:"24px 24px" }}>
+      <div style={{ minHeight:"100vh", background:"#FFF5E6" }}>
 
         {/* Header */}
         <header className="pm-header">
@@ -987,41 +1035,57 @@ export default function CooCheena() {
           </div>
         </header>
 
-        <main style={{ maxWidth:"1100px", margin:"0 auto", padding:"36px 24px" }}>
+        {/* Ticker */}
+        <div className="cc-ticker">
+          <div className="cc-ticker-inner">
+            <span className="cc-ticker-item">WHAT'S FOR DINNER</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">YOUR KITCHEN YOUR RULES</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">WHAT'S FOR DINNER</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">YOUR KITCHEN YOUR RULES</span><span className="cc-ticker-dot">✦</span>
+          </div>
+        </div>
+
+        <main style={{ maxWidth:"1200px", margin:"0 auto", padding:"40px 32px" }}>
 
           {/* ADD RECIPE TAB */}
           {tab === "add" && (
             <div style={{ maxWidth:"640px", margin:"0 auto" }}>
-              <div style={{ textAlign:"center", marginBottom:"32px" }}>
-                <div style={{ display:"inline-block", background:"#ffd166", border:"4px solid #1a1a1a", borderRadius:"16px", boxShadow:"5px 5px 0 #1a1a1a", padding:"18px 32px", transform:"rotate(-1deg)", marginBottom:"8px" }}>
-                  <h2 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"30px", color:"#1a1a1a", lineHeight:1 }}>What are you cooking? 🍽️</h2>
-                </div>
-                <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7a5c3a", fontSize:"14px", fontWeight:700, marginTop:"10px" }}>Paste a URL or describe what you want to make!</p>
+              <div style={{ marginBottom:"32px" }}>
+                <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"80px", lineHeight:0.9, letterSpacing:"2px", color:"#1A0A00", marginBottom:"24px" }}>
+                  <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span style={{WebkitTextStroke:"3px #1A0A00", color:"transparent"}}>Cooking?</span>
+                </h2>
+                <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7A5A3A", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>Paste a URL or describe what you want to make!</p>
               </div>
-              <div style={{ display:"flex", gap:"10px", justifyContent:"center", marginBottom:"18px" }}>
+              <div style={{ display:"flex", gap:"10px", marginBottom:"16px" }}>
                 {[{ val:"generate", label:"💡 From Idea" }, { val:"url", label:"🔗 From URL" }].map(m => (
                   <button key={m.val} onClick={() => setMode(m.val)} className="pm-btn"
-                    style={{ padding:"10px 22px", background: mode === m.val ? "#ff5252" : "#fff", color: mode === m.val ? "#fff" : "#1a1a1a" }}>
+                    style={{ padding:"11px 28px", background: mode === m.val ? "#E8421A" : "#FFF5E6", color: mode === m.val ? "#fff" : "#1A0A00", borderColor: mode === m.val ? "#E8421A" : "#1A0A00" }}>
                     {m.label}
                   </button>
                 ))}
               </div>
-              <div style={{ display:"flex", gap:"10px", marginBottom:"28px" }}>
+              <div style={{ display:"flex", marginBottom:"28px", border:"3px solid #1A0A00", maxWidth:"560px" }}>
                 <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
                   placeholder={mode === "url" ? "https://www.allrecipes.com/recipe/..." : "e.g. lemon pasta, chicken + spinach..."}
-                  className="pm-input" style={{ flex:1 }} />
+                  className="pm-input" style={{ flex:1, border:"none", outline:"none" }} />
                 <button onClick={handleSubmit} disabled={loading || !input.trim()} className="pm-btn"
-                  style={{ padding:"12px 20px", background: loading ? "#c8b89a" : "#ff5252", color:"#fff", whiteSpace:"nowrap" }}>
+                  style={{ padding:"12px 24px", background: loading ? "#C4A882" : "#FFD166", color:"#1A0A00", whiteSpace:"nowrap", border:"none", borderLeft:"3px solid #1A0A00", fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"2px" }}>
                   {loading ? "Cooking..." : mode === "url" ? "Parse!" : "Generate!"}
                 </button>
               </div>
-              {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Fredoka One',cursive", color:"#ff5252", fontSize:"14px", background:"#fff", border:"3px solid #ff5252", borderRadius:"10px", padding:"6px 16px", boxShadow:"3px 3px 0 #1a1a1a", display:"inline-block" }}>{error}</span></div>}
-              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"20px", color:"#1a1a1a", marginTop:"14px" }}>Crafting your recipe...</p></div>}
+              {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", fontSize:"14px", background:"#fff", border:"3px solid #E8421A", padding:"6px 16px", display:"inline-block" }}>{error}</span></div>}
+              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Crafting your recipe...</p></div>}
               {preview && !loading && (
                 <div>
                   <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"17px", color:"#1a1a1a", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I whipped up!</p>
                   <RecipeCard recipe={preview} onClick={() => setSelected(preview)} onDelete={() => setPreview(null)} wobble="wobble-1" />
-                  <p style={{ textAlign:"center", fontSize:"12px", fontFamily:"'Nunito',sans-serif", fontWeight:700, color:"#7a5c3a", marginTop:"8px" }}>Click the card to view details & save!</p>
+                  <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#7A5A3A", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click the card to view details & save!</p>
                 </div>
               )}
             </div>
@@ -1031,16 +1095,14 @@ export default function CooCheena() {
           {tab === "library" && (
             <div>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"18px", flexWrap:"wrap", gap:"10px" }}>
-                <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"4px 4px 0 #1a1a1a", padding:"8px 18px" }}>
-                  <h2 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"24px", color:"#1a1a1a" }}>My Recipes 📖</h2>
-                </div>
+                <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"2px", color:"#1A0A00", borderBottom:"3px solid #1A0A00", paddingBottom:"8px" }}>Your Library</h2>
                 <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
                   {["All", ...CATEGORIES].map(c => {
                     const active = filterCat === c;
                     const col = CAT_COLORS[c] || { bg:"#ffd166", text:"#1a1a1a" };
                     return (
                       <button key={c} onClick={() => setFilterCat(c)} className="pm-btn"
-                        style={{ padding:"5px 10px", fontSize:"12px", background: active ? col.bg : "#fff", color: active ? col.text : "#1a1a1a" }}>
+                        style={{ padding:"6px 14px", fontSize:"11px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.8px", background: active ? "#1A0A00" : "#FFF5E6", color: active ? "#FFF5E6" : "#1A0A00", borderColor:"#1A0A00", borderRadius:"0" }}>
                         {c}
                       </button>
                     );
@@ -1050,13 +1112,13 @@ export default function CooCheena() {
               {filtered.length === 0 ? (
                 <div style={{ textAlign:"center", padding:"80px 20px" }}>
                   <div style={{ fontSize:"52px", marginBottom:"16px" }}>📖</div>
-                  <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"22px", color:"#1a1a1a", marginBottom:"8px" }}>No recipes yet!</p>
+                  <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"8px" }}>No recipes yet!</p>
                   <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"#7a5c3a" }}>Head to "✏️ Add" to get started</p>
                 </div>
               ) : (
                 <>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7a5c3a", marginBottom:"12px" }}>💡 Drag any recipe card onto the 📅 Meal Plan calendar!</p>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px" }}>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, color:"#7A5A3A", marginBottom:"12px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Drag any recipe card onto the Meal Plan calendar</p>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"0", border:"3px solid #1A0A00" }}>
                     {filtered.map((r,i) => (
                       <RecipeCard key={r.id} recipe={r} onClick={setSelected} onDelete={handleDelete}
                         wobble={["wobble-1","wobble-2","wobble-3"][i%3]}
