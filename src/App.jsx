@@ -768,8 +768,8 @@ function AuthScreen({ onAuth }) {
         <div className="auth-card">
           <div style={{ textAlign:"center", marginBottom:"28px" }}>
             <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
-            <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"32px", color:"#1a1a1a", textShadow:"2px 2px 0 #ff5252" }}>RecipeVault</h1>
-            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", fontWeight:700, marginTop:"4px" }}>Your recipes, your way.</p>
+            <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"32px", color:"#1a1a1a", textShadow:"2px 2px 0 #ff5252" }}>CooCheena</h1>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", fontWeight:700, marginTop:"4px" }}>Your kitchen, your recipes.</p>
           </div>
 
           {/* Google login */}
@@ -807,7 +807,7 @@ function AuthScreen({ onAuth }) {
 }
 
 // ── Main App ──
-export default function RecipeVault() {
+export default function CooCheena() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -970,7 +970,7 @@ export default function RecipeVault() {
           <div style={{ maxWidth:"1100px", margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", height:"68px", padding:"0 24px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
               <span style={{ fontSize:"28px" }}>🍳</span>
-              <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"26px", color:"#fff", letterSpacing:"1px", textShadow:"2px 2px 0 #1a1a1a" }}>RecipeVault</h1>
+              <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"26px", color:"#fff", letterSpacing:"1px", textShadow:"2px 2px 0 #1a1a1a" }}>CooCheena</h1>
             </div>
             <nav style={{ display:"flex", gap:"6px", flexWrap:"wrap", alignItems:"center" }}>
               {TABS.map(t => (
