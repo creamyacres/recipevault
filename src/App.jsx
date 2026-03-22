@@ -261,6 +261,18 @@ async function callClaude(system, user, maxTokens = 1500) {
   try { return JSON.parse(text.replace(/```json|```/g, "").trim()); } catch { return null; }
 }
 
+// For URL parsing: worker fetches the page content, then Claude parses it
+async function callClaudeWithUrl(system, url, maxTokens = 1500) {
+  const res = await fetch(AI_PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: maxTokens, system, fetchUrl: url })
+  });
+  const data = await res.json();
+  const text = data.content?.map(b => b.text || "").join("") || "";
+  try { return JSON.parse(text.replace(/```json|```/g, "").trim()); } catch { return null; }
+}
+
 const SYS_RECIPE_PARSE = `You are a recipe parser. Return ONLY a JSON object:
 {"title":"...","description":"One sentence.","prepTime":"15 min","cookTime":"30 min","servings":"4","category":"Dinner","ingredients":["..."],"steps":["..."],"tags":["..."]}`;
 
@@ -950,8 +962,9 @@ export default function CooCheena() {
     setLoading(true); setError(""); setPreview(null);
     try {
       const isUrl = input.trim().startsWith("http");
-      const result = await callClaude(isUrl ? SYS_RECIPE_PARSE : SYS_RECIPE_GEN,
-        isUrl ? `Parse this recipe URL: ${input.trim()}` : `Create a recipe for: ${input.trim()}`);
+      const result = isUrl
+        ? await callClaudeWithUrl(SYS_RECIPE_PARSE, input.trim())
+        : await callClaude(SYS_RECIPE_GEN, `Create a recipe for: ${input.trim()}`);
       if (!result?.title) throw new Error();
       setPreview({ ...result, id: Date.now() });
     } catch { setError("Something went wrong! Try a different idea."); }

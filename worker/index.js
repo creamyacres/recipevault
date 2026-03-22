@@ -56,6 +56,28 @@ export default {
       );
     }
 
+    // If a fetchUrl is provided, fetch the page content via Jina Reader
+    // and inject it into the Claude prompt instead of just passing the URL string.
+    if (body.fetchUrl) {
+      const jinaRes = await fetch(`https://r.jina.ai/${body.fetchUrl}`, {
+        headers: { "Accept": "text/plain" },
+      });
+      if (!jinaRes.ok) {
+        return new Response(
+          JSON.stringify({ error: "Failed to fetch recipe URL" }),
+          { status: 502, headers: { "Content-Type": "application/json", ...corsHeaders(origin) } }
+        );
+      }
+      const pageText = await jinaRes.text();
+      // Swap fetchUrl for a real messages array with the page content
+      body = {
+        model: body.model,
+        max_tokens: body.max_tokens,
+        system: body.system,
+        messages: [{ role: "user", content: `Parse the recipe from this page content:\n\n${pageText.slice(0, 20000)}` }],
+      };
+    }
+
     // Forward to Anthropic
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
