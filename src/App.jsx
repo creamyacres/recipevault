@@ -828,7 +828,9 @@ function AuthScreen({ onAuth }) {
         <div className="auth-card">
           <div style={{ textAlign:"center", marginBottom:"28px" }}>
             <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
-            <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"3px", color:"#1A0A00", textShadow:"3px 3px 0 #E8421A" }}>CooCheena</h1>
+            <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"3px" }}>
+              <span style={{ color:"#1A0A00" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
+            </h1>
             <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#7A5A3A", fontWeight:800, marginTop:"4px", textTransform:"uppercase", letterSpacing:"1px" }}>Your kitchen, your recipes.</p>
           </div>
 
@@ -1031,7 +1033,9 @@ export default function CooCheena() {
           <div style={{ maxWidth:"1100px", margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", height:"68px", padding:"0 24px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
               <span style={{ fontSize:"28px" }}>🍳</span>
-              <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", color:"#FFF5E6", letterSpacing:"3px", textShadow:"2px 2px 0 #1A0A00" }}>CooCheena</h1>
+              <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"3px" }}>
+                <span style={{ color:"#FFF5E6" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
+              </h1>
             </div>
             <nav style={{ display:"flex", gap:"6px", flexWrap:"wrap", alignItems:"center" }}>
               {TABS.map(t => (
