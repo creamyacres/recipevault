@@ -209,6 +209,53 @@ const STYLES = `
   }
   .divider::before, .divider::after { content: ''; flex: 1; border-top: 2px solid #C4A882; }
 
+  /* ── Recipe Books Shelf ── */
+  .rb-shelf {
+    display: flex; gap: 12px; overflow-x: auto; padding: 4px 0 20px;
+    scrollbar-width: thin; scrollbar-color: #1A0A00 #FFF5E6;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rb-shelf::-webkit-scrollbar { height: 4px; }
+  .rb-shelf::-webkit-scrollbar-track { background: #FFF5E6; }
+  .rb-shelf::-webkit-scrollbar-thumb { background: #1A0A00; }
+  .rb-book-card {
+    flex-shrink: 0; width: 112px; background: #FFF5E6; border: 3px solid #1A0A00;
+    padding: 14px 10px; cursor: pointer; transition: background 0.1s, transform 0.1s;
+    display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;
+    position: relative;
+  }
+  .rb-book-card:hover { background: #FFD166; transform: translateY(-2px); }
+  .rb-book-card.active { background: #1A0A00; }
+  .rb-book-card.active .rb-book-name { color: #FFF5E6; }
+  .rb-book-card.active .rb-book-count { color: #FFD166; }
+  .rb-book-emoji { font-size: 30px; line-height: 1; }
+  .rb-book-name {
+    font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px;
+    color: #1A0A00; line-height: 1.2; word-break: break-word; width: 100%;
+  }
+  .rb-book-count {
+    font-family: 'Nunito', sans-serif; font-size: 10px; font-weight: 800;
+    color: #7A5A3A; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .rb-book-delete {
+    position: absolute; top: 4px; right: 4px;
+    background: #E8421A; border: 1px solid #1A0A00; width: 18px; height: 18px;
+    font-size: 9px; color: #fff; cursor: pointer; display: none;
+    align-items: center; justify-content: center; font-weight: 800;
+  }
+  .rb-book-card:not(.active):hover .rb-book-delete { display: flex; }
+  .rb-new-book-btn {
+    flex-shrink: 0; width: 90px; background: #FFF5E6; border: 3px dashed #C4A882;
+    padding: 14px 10px; cursor: pointer; transition: all 0.1s;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1px; color: #C4A882;
+  }
+  .rb-new-book-btn:hover { border-color: #1A0A00; color: #1A0A00; background: #FFD166; }
+  .rb-new-book-form {
+    flex-shrink: 0; background: #FFF5E6; border: 3px solid #1A0A00;
+    padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; width: 200px;
+  }
+
   /* ── Responsive mobile ── */
   @media (max-width: 768px) {
     .cal-grid { grid-template-columns: 1fr; }
@@ -392,7 +439,7 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
 }
 
 // ── RecipeModal ──
-function RecipeModal({ recipe, onClose, onSave }) {
+function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
   const [category, setCategory] = useState(recipe.category || "Other");
   const [saved, setSaved] = useState(recipe._saved || false);
   return (
@@ -431,6 +478,22 @@ function RecipeModal({ recipe, onClose, onSave }) {
                 style={{ background: saved ? "#FFD166" : "#E8421A", color: saved ? "#1A0A00" : "#fff", padding:"10px 24px", flex:1, borderColor: saved ? "#1A0A00" : "#E8421A" }}>
                 {saved ? "✓ Saved!" : "Save Recipe!"}
               </button>
+            </div>
+          </div>
+        )}
+        {recipe._saved && books.length > 0 && onToggleBook && (
+          <div style={{ borderTop:"3px dashed #1a1a1a", paddingTop:"18px", marginTop:"6px" }}>
+            <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>📚 Add to Book</h4>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:"8px" }}>
+              {books.map(book => {
+                const inBook = book.recipeIds.includes(recipe.id);
+                return (
+                  <button key={book.id} onClick={() => onToggleBook(book.id, recipe.id)} className="pm-btn"
+                    style={{ padding:"7px 14px", fontSize:"12px", background: inBook ? "#1A0A00" : "#FFF5E6", color: inBook ? "#FFF5E6" : "#1A0A00" }}>
+                    {inBook ? "✓ " : ""}{book.emoji} {book.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -929,6 +992,12 @@ export default function CooCheena() {
   const [groceryList, setGroceryList] = useState({ items: [] });
   const [mealHistory, setMealHistory] = useState(() => load(KEYS.mealHistory, []));
 
+  const [books, setBooks] = useState([]);
+  const [activeBook, setActiveBook] = useState(null);
+  const [showNewBook, setShowNewBook] = useState(false);
+  const [newBookName, setNewBookName] = useState("");
+  const [newBookEmoji, setNewBookEmoji] = useState("📖");
+
   const [input, setInput] = useState("");
   const [mode, setMode] = useState("generate");
   const [loading, setLoading] = useState(false);
@@ -953,22 +1022,63 @@ export default function CooCheena() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // ── Load recipes from Supabase when user logs in ──
+  // ── Load all user data when user logs in ──
   useEffect(() => {
     if (!user) return;
-    supabase.from("recipes").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
-      .then(({ data }) => {
-        if (data) setRecipes(data.map(r => ({
+    const loadUserData = async () => {
+      // Load recipes
+      const { data: recipesData } = await supabase.from("recipes")
+        .select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+      if (recipesData) {
+        setRecipes(recipesData.map(r => ({
           id: r.id, title: r.title, description: r.description,
           prepTime: r.prep_time, cookTime: r.cook_time, servings: r.servings,
           category: r.category, ingredients: r.ingredients, steps: r.steps,
           tags: r.tags, website: r.website, _saved: true
         })));
-      });
-    supabase.from("meal_plans").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
-      .then(({ data }) => { if (data) setMealPlan({ weekOf: data.week_of, days: data.days || {}, easyNights: data.easy_mode_nights || [] }); });
-    supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
-      .then(({ data }) => { if (data) setGroceryList({ items: data.items || [] }); });
+      }
+
+      // Load meal plan + grocery list (non-blocking)
+      supabase.from("meal_plans").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
+        .then(({ data }) => { if (data) setMealPlan({ weekOf: data.week_of, days: data.days || {}, easyNights: data.easy_mode_nights || [] }); });
+      supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
+        .then(({ data }) => { if (data) setGroceryList({ items: data.items || [] }); });
+
+      // Load recipe books
+      const { data: booksData } = await supabase.from("recipe_books")
+        .select("*").eq("user_id", user.id).order("created_at");
+
+      const seededKey = `rv2_seeded_${user.id}`;
+      if (booksData && booksData.length === 0 && !localStorage.getItem(seededKey)) {
+        // New user — seed a starter recipe + "Getting Started" book
+        localStorage.setItem(seededKey, "1");
+        const starterRecipe = await callClaude(SYS_RECIPE_GEN,
+          "Create a recipe for: Classic Spaghetti Carbonara");
+        if (starterRecipe?.title) {
+          const { data: savedRecipe } = await supabase.from("recipes").insert({
+            user_id: user.id, title: starterRecipe.title, description: starterRecipe.description,
+            prep_time: starterRecipe.prepTime, cook_time: starterRecipe.cookTime,
+            servings: starterRecipe.servings, category: starterRecipe.category || "Dinner",
+            ingredients: starterRecipe.ingredients || [], steps: starterRecipe.steps || [],
+            tags: starterRecipe.tags || [], website: ""
+          }).select().single();
+          if (savedRecipe) {
+            setRecipes(prev => [{ id: savedRecipe.id, ...starterRecipe, _saved: true }, ...prev]);
+            const { data: newBook } = await supabase.from("recipe_books").insert({
+              user_id: user.id, name: "Getting Started", emoji: "⭐",
+              recipe_ids: [savedRecipe.id]
+            }).select().single();
+            if (newBook) {
+              setBooks([{ id: newBook.id, name: newBook.name, emoji: newBook.emoji, recipeIds: newBook.recipe_ids || [] }]);
+              toast("🎉 Welcome! Your Getting Started book is ready!");
+            }
+          }
+        }
+      } else if (booksData) {
+        setBooks(booksData.map(b => ({ id: b.id, name: b.name, emoji: b.emoji, recipeIds: b.recipe_ids || [] })));
+      }
+    };
+    loadUserData();
   }, [user]);
 
   // ── Persist meal history locally ──
@@ -993,8 +1103,43 @@ export default function CooCheena() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setRecipes([]); setMealPlan({ weekOf: getWeekOf(), days: {}, easyNights: [] }); setGroceryList({ items: [] });
+    setRecipes([]); setMealPlan({ weekOf: getWeekOf(), days: {}, easyNights: [] });
+    setGroceryList({ items: [] }); setBooks([]); setActiveBook(null);
     toast("👋 Signed out!");
+  };
+
+  // ── Book helpers ──
+  const createBook = async () => {
+    if (!newBookName.trim() || !user) return;
+    const { data, error: err } = await supabase.from("recipe_books").insert({
+      user_id: user.id, name: newBookName.trim(), emoji: newBookEmoji, recipe_ids: []
+    }).select().single();
+    if (!err && data) {
+      setBooks(prev => [...prev, { id: data.id, name: data.name, emoji: data.emoji, recipeIds: data.recipe_ids || [] }]);
+      setNewBookName(""); setNewBookEmoji("📖"); setShowNewBook(false);
+      toast("📚 Book created!");
+    }
+  };
+
+  const deleteBook = async (bookId) => {
+    if (!user) return;
+    await supabase.from("recipe_books").delete().eq("id", bookId).eq("user_id", user.id);
+    setBooks(prev => prev.filter(b => b.id !== bookId));
+    if (activeBook === bookId) setActiveBook(null);
+    toast("🗑️ Book deleted.");
+  };
+
+  const toggleRecipeInBook = async (bookId, recipeId) => {
+    if (!user) return;
+    const book = books.find(b => b.id === bookId);
+    if (!book) return;
+    const inBook = book.recipeIds.includes(recipeId);
+    const newIds = inBook ? book.recipeIds.filter(id => id !== recipeId) : [...book.recipeIds, recipeId];
+    const { error: err } = await supabase.from("recipe_books")
+      .update({ recipe_ids: newIds }).eq("id", bookId).eq("user_id", user.id);
+    if (!err) {
+      setBooks(prev => prev.map(b => b.id === bookId ? { ...b, recipeIds: newIds } : b));
+    }
   };
 
   // Check for shared grocery list in URL
@@ -1047,7 +1192,11 @@ export default function CooCheena() {
     setRecipes(prev => prev.filter(r => r.id !== id));
     toast("🗑️ Recipe deleted.");
   };
-  const filtered = filterCat === "All" ? recipes : recipes.filter(r => r.category === filterCat);
+  let filtered = filterCat === "All" ? recipes : recipes.filter(r => r.category === filterCat);
+  if (activeBook !== null) {
+    const activeBookData = books.find(b => b.id === activeBook);
+    if (activeBookData) filtered = filtered.filter(r => activeBookData.recipeIds.includes(r.id));
+  }
 
   const TABS = [
     { id: "add", label: "✏️ Add" },
@@ -1170,18 +1319,66 @@ export default function CooCheena() {
             <div>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"18px", flexWrap:"wrap", gap:"10px" }}>
                 <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"2px", color:"#1A0A00", borderBottom:"3px solid #1A0A00", paddingBottom:"8px" }}>Your Library</h2>
-                <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
-                  {["All", ...CATEGORIES].map(c => {
-                    const active = filterCat === c;
-                    const col = CAT_COLORS[c] || { bg:"#ffd166", text:"#1a1a1a" };
-                    return (
-                      <button key={c} onClick={() => setFilterCat(c)} className="pm-btn"
-                        style={{ padding:"6px 14px", fontSize:"11px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.8px", background: active ? "#1A0A00" : "#FFF5E6", color: active ? "#FFF5E6" : "#1A0A00", borderColor:"#1A0A00", borderRadius:"0" }}>
-                        {c}
-                      </button>
-                    );
-                  })}
+              </div>
+
+              {/* Book Shelf */}
+              <div className="rb-shelf">
+                {/* All Recipes card */}
+                <div className={`rb-book-card ${activeBook === null ? "active" : ""}`} onClick={() => setActiveBook(null)}>
+                  <span className="rb-book-emoji">📚</span>
+                  <span className="rb-book-name">All Recipes</span>
+                  <span className="rb-book-count">{recipes.length} recipe{recipes.length !== 1 ? "s" : ""}</span>
                 </div>
+                {/* User book cards */}
+                {books.map(book => (
+                  <div key={book.id} className={`rb-book-card ${activeBook === book.id ? "active" : ""}`}
+                    onClick={() => setActiveBook(activeBook === book.id ? null : book.id)}>
+                    <button className="rb-book-delete" onClick={e => { e.stopPropagation(); deleteBook(book.id); }}>✕</button>
+                    <span className="rb-book-emoji">{book.emoji}</span>
+                    <span className="rb-book-name">{book.name}</span>
+                    <span className="rb-book-count">{book.recipeIds.length} recipe{book.recipeIds.length !== 1 ? "s" : ""}</span>
+                  </div>
+                ))}
+                {/* New book */}
+                {showNewBook ? (
+                  <div className="rb-new-book-form">
+                    <div style={{ display:"flex", gap:"4px", flexWrap:"wrap" }}>
+                      {["📖","⭐","🌮","🥗","🍝","🍕","🥘","🍜"].map(e => (
+                        <button key={e} onClick={() => setNewBookEmoji(e)}
+                          style={{ fontSize:"18px", background: newBookEmoji === e ? "#FFD166" : "none", border: newBookEmoji === e ? "2px solid #1A0A00" : "2px solid transparent", cursor:"pointer", padding:"2px", borderRadius:"2px" }}>
+                          {e}
+                        </button>
+                      ))}
+                    </div>
+                    <input value={newBookName} onChange={e => setNewBookName(e.target.value)}
+                      placeholder="Book name..." className="pm-input"
+                      style={{ fontSize:"12px", padding:"7px 10px" }}
+                      onKeyDown={e => { if (e.key === "Enter") createBook(); if (e.key === "Escape") setShowNewBook(false); }}
+                      autoFocus />
+                    <div style={{ display:"flex", gap:"6px" }}>
+                      <button onClick={createBook} className="pm-btn pm-btn-primary" style={{ flex:1, fontSize:"11px", padding:"6px" }}>Create</button>
+                      <button onClick={() => { setShowNewBook(false); setNewBookName(""); }} className="pm-btn pm-btn-ghost" style={{ flex:1, fontSize:"11px", padding:"6px" }}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="rb-new-book-btn" onClick={() => setShowNewBook(true)}>
+                    <span style={{ fontSize:"22px" }}>+</span>
+                    <span>New Book</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Category filters */}
+              <div style={{ display:"flex", gap:"6px", flexWrap:"wrap", marginBottom:"18px" }}>
+                {["All", ...CATEGORIES].map(c => {
+                  const active = filterCat === c;
+                  return (
+                    <button key={c} onClick={() => setFilterCat(c)} className="pm-btn"
+                      style={{ padding:"6px 14px", fontSize:"11px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.8px", background: active ? "#1A0A00" : "#FFF5E6", color: active ? "#FFF5E6" : "#1A0A00", borderColor:"#1A0A00", borderRadius:"0" }}>
+                      {c}
+                    </button>
+                  );
+                })}
               </div>
               {filtered.length === 0 ? (
                 <div style={{ textAlign:"center", padding:"80px 20px" }}>
@@ -1223,6 +1420,7 @@ export default function CooCheena() {
       {/* Recipe detail modal */}
       {selected && (
         <RecipeModal recipe={selected} onClose={() => setSelected(null)}
+          books={books} onToggleBook={toggleRecipeInBook}
           onSave={r => { handleSave(r); setSelected(null); setPreview(null); setTab("library"); setInput(""); }} />
       )}
 
