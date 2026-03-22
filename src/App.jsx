@@ -215,6 +215,57 @@ const STYLES = `
     .cal-day { border-right: none; border-bottom: 3px solid #1A0A00; min-height: auto; }
     .cal-day:last-child { border-bottom: none; }
   }
+
+  /* ── Mobile nav ── */
+  .pm-desktop-nav { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .pm-hamburger-btn { display: none; }
+  .pm-bottom-nav { display: none; }
+
+  @media (max-width: 768px) {
+    .pm-desktop-nav { display: none !important; }
+
+    .pm-hamburger-btn {
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: 3px solid #1A0A00; width: 44px; height: 44px;
+      cursor: pointer; font-size: 22px; color: #1A0A00; flex-shrink: 0;
+    }
+
+    .pm-bottom-nav {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+      background: #FFF5E6; border-top: 3px solid #1A0A00; z-index: 100; height: 64px;
+    }
+    .pm-bottom-nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 1px; border: none; background: none;
+      cursor: pointer; padding: 6px 2px;
+      border-right: 2px solid #1A0A00;
+      font-family: 'Bebas Neue', cursive; font-size: 9px; letter-spacing: 1px; color: #1A0A00;
+      transition: background 0.1s;
+    }
+    .pm-bottom-nav-item:last-child { border-right: none; }
+    .pm-bottom-nav-item.active { background: #FFD166; }
+    .pm-bottom-nav-item .nav-icon { font-size: 22px; line-height: 1; }
+
+    .pm-mobile-content { padding-bottom: 80px; }
+  }
+
+  /* ── Hamburger slide-out menu ── */
+  .pm-hamburger-overlay {
+    position: fixed; inset: 0; background: rgba(26,10,0,0.5); z-index: 200;
+  }
+  .pm-hamburger-panel {
+    position: absolute; top: 0; right: 0; width: 220px; height: 100%;
+    background: #FFF5E6; border-left: 4px solid #1A0A00;
+    display: flex; flex-direction: column; padding-top: 80px;
+  }
+  .pm-hamburger-panel-item {
+    width: 100%; padding: 18px 28px; background: none; border: none;
+    border-bottom: 2px solid #1A0A00; text-align: left; cursor: pointer;
+    font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 2px; color: #1A0A00;
+    transition: background 0.1s;
+  }
+  .pm-hamburger-panel-item:hover { background: #FFD166; }
+  .pm-hamburger-panel-item.danger { color: #E8421A; }
 `
 
 // ── Constants ──
@@ -886,6 +937,7 @@ export default function CooCheena() {
   const [filterCat, setFilterCat] = useState("All");
   const [error, setError] = useState("");
   const [tab, setTab] = useState("add");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [dragRecipe, setDragRecipe] = useState(null);
   const { msg: toastMsg, show: toastShow, toast } = useToast();
 
@@ -1037,18 +1089,23 @@ export default function CooCheena() {
                 <span style={{ color:"#1A0A00" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
               </h1>
             </div>
-            <nav style={{ display:"flex", gap:"6px", flexWrap:"wrap", alignItems:"center" }}>
+            {/* Desktop nav */}
+            <nav className="pm-desktop-nav">
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)} className="pm-btn"
-                  style={{ padding:"8px 14px", background: tab === t.id ? "#ffd166" : "#fff", color:"#1a1a1a", fontSize:"13px" }}>
+                  style={{ padding:"8px 14px", background: tab === t.id ? "#FFD166" : "#fff", color:"#1A0A00", fontSize:"13px" }}>
                   {t.label}
                 </button>
               ))}
               <button onClick={signOut} className="pm-btn"
-                style={{ padding:"8px 14px", background:"#1a1a1a", color:"#fff", fontSize:"13px", marginLeft:"6px" }}>
+                style={{ padding:"8px 14px", background:"#1A0A00", color:"#fff", fontSize:"13px", marginLeft:"6px" }}>
                 Sign Out
               </button>
             </nav>
+            {/* Mobile hamburger button */}
+            <button className="pm-hamburger-btn" onClick={() => setMenuOpen(true)} aria-label="Menu">
+              ☰
+            </button>
           </div>
         </header>
 
@@ -1068,7 +1125,7 @@ export default function CooCheena() {
           </div>
         </div>
 
-        <main style={{ maxWidth:"1200px", margin:"0 auto", padding:"40px 32px" }}>
+        <main className="pm-mobile-content" style={{ maxWidth:"1200px", margin:"0 auto", padding:"40px 32px" }}>
 
           {/* ADD RECIPE TAB */}
           {tab === "add" && (
@@ -1171,6 +1228,33 @@ export default function CooCheena() {
 
       {/* Toast */}
       <div className={`toast ${toastShow ? "show" : ""}`}>{toastMsg}</div>
+
+      {/* Mobile bottom nav */}
+      <nav className="pm-bottom-nav">
+        {[
+          { id:"add",      icon:"✏️", label:"ADD"     },
+          { id:"library",  icon:"📚", label:"RECIPES" },
+          { id:"calendar", icon:"📅", label:"MEALS"   },
+          { id:"grocery",  icon:"🛒", label:"GROCERY" },
+        ].map(t => (
+          <button key={t.id} className={`pm-bottom-nav-item${tab === t.id ? " active" : ""}`}
+            onClick={() => setTab(t.id)}>
+            <span className="nav-icon">{t.icon}</span>
+            <span>{t.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {/* Mobile hamburger slide-out */}
+      {menuOpen && (
+        <div className="pm-hamburger-overlay" onClick={() => setMenuOpen(false)}>
+          <div className="pm-hamburger-panel" onClick={e => e.stopPropagation()}>
+            <button className="pm-hamburger-panel-item danger" onClick={() => { signOut(); setMenuOpen(false); }}>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
