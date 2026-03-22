@@ -9,6 +9,8 @@
  */
 
 const ALLOWED_ORIGINS = [
+  "https://coocheena.com",
+  "https://www.coocheena.com",
   "https://recipevault-86p.pages.dev",
   "http://localhost:5173",
   "http://localhost:4173",
