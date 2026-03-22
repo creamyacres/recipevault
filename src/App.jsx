@@ -397,7 +397,7 @@ function EasyModeModal({ onConfirm, onCancel }) {
       <div className="pm-modal" style={{ maxWidth:"480px" }} onClick={e => e.stopPropagation()}>
         <div style={{ textAlign:"center", marginBottom:"24px" }}>
           <div style={{ fontSize:"48px", marginBottom:"8px" }}>⚡</div>
-          <h2 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"28px", color:"#1a1a1a" }}>Which nights are Easy Mode?</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>Which nights are Easy Mode?</h2>
           <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", marginTop:"8px", fontWeight:600 }}>
             Easy Mode nights get quick recipes (≤30 min total). Tap the nights you'll be busy or tired!
           </p>
@@ -522,7 +522,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
       {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"20px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#ffd166", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"4px 4px 0 #1a1a1a", padding:"8px 20px" }}>
-          <h2 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"24px", color:"#1a1a1a" }}>📅 Weekly Meal Plan</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>📅 Weekly Meal Plan</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={() => setShowEasyMode(true)} disabled={generating || recipes.length === 0} className="pm-btn"
@@ -535,7 +535,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
 
       {recipes.length === 0 && (
         <div style={{ textAlign:"center", padding:"40px", background:"#fff9ed", border:"3px dashed #c8b89a", borderRadius:"16px", marginBottom:"20px" }}>
-          <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"18px", color:"#7a5c3a" }}>Add some recipes first, then come back to plan your week! 🍽️</p>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"16px", fontWeight:700, color:"#7a5c3a" }}>Add some recipes first, then come back to plan your week! 🍽️</p>
         </div>
       )}
 
@@ -598,7 +598,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
         <div className="pm-modal-bg" onClick={() => setPickerFor(null)}>
           <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setPickerFor(null)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
-            <h3 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"22px", color:"#1a1a1a", marginBottom:"16px" }}>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"16px" }}>
               Pick a recipe for {pickerFor.day} {pickerFor.meal}
             </h3>
             <div style={{ display:"flex", flexDirection:"column", gap:"8px", maxHeight:"60vh", overflowY:"auto" }}>
@@ -609,7 +609,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
                   onMouseLeave={e => e.currentTarget.style.background="#fff9ed"}>
                   <span className="pm-tag" style={{ background: (CAT_COLORS[r.category]||CAT_COLORS.Other).bg, color:(CAT_COLORS[r.category]||CAT_COLORS.Other).text, flexShrink:0 }}>{r.category}</span>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontFamily:"'Fredoka One',cursive", fontSize:"15px" }}>{r.title}</div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800 }}>{r.title}</div>
                     <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"#7a5c3a" }}>⏱ {r.prepTime} · 🔥 {r.cookTime}</div>
                   </div>
                 </div>
@@ -679,7 +679,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"20px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"4px 4px 0 #1a1a1a", padding:"8px 20px" }}>
-          <h2 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"24px", color:"#1a1a1a" }}>🛒 Grocery List</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>🛒 Grocery List</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={generateGroceryList} disabled={generating || uniqueRecipes.length === 0} className="pm-btn"
@@ -697,7 +697,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       {/* Planned meals summary */}
       {uniqueRecipes.length > 0 && (
         <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"3px 3px 0 #1a1a1a", padding:"14px 18px", marginBottom:"20px" }}>
-          <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"15px", color:"#1a1a1a", marginBottom:"8px" }}>📋 Based on {uniqueRecipes.length} planned recipes:</p>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"#1a1a1a", marginBottom:"8px" }}>📋 Based on {uniqueRecipes.length} planned recipes:</p>
           <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
             {uniqueRecipes.map(r => (
               <span key={r.id} style={{ background:"#ffd166", border:"2px solid #1a1a1a", borderRadius:"20px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700 }}>{r.title}</span>
@@ -711,8 +711,8 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           {/* Progress bar */}
           <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"12px", padding:"14px 18px", marginBottom:"20px", boxShadow:"3px 3px 0 #1a1a1a" }}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"8px" }}>
-              <span style={{ fontFamily:"'Fredoka One',cursive", fontSize:"16px" }}>🛍️ {checkedCount} / {totalCount} items grabbed!</span>
-              {checkedCount === totalCount && totalCount > 0 && <span style={{ fontFamily:"'Fredoka One',cursive", fontSize:"16px", color:"#06d6a0" }}>✓ All done!</span>}
+              <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800 }}>🛍️ {checkedCount} / {totalCount} items grabbed!</span>
+              {checkedCount === totalCount && totalCount > 0 && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#06d6a0" }}>✓ All done!</span>}
             </div>
             <div style={{ background:"#e2c89a", borderRadius:"100px", height:"12px", border:"2px solid #1a1a1a", overflow:"hidden" }}>
               <div style={{ background:"#06d6a0", height:"100%", width:`${totalCount > 0 ? (checkedCount/totalCount)*100 : 0}%`, transition:"width 0.3s", borderRadius:"100px" }}/>
@@ -743,7 +743,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           {/* Skipped items */}
           {groceryList.items.filter(i => i.skipped).length > 0 && (
             <div style={{ marginTop:"20px" }}>
-              <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"16px", color:"#7a5c3a", marginBottom:"8px" }}>✓ Already have ({groceryList.items.filter(i=>i.skipped).length}):</p>
+              <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"#7a5c3a", marginBottom:"8px" }}>✓ Already have ({groceryList.items.filter(i=>i.skipped).length}):</p>
               <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
                 {groceryList.items.filter(i => i.skipped).map(item => (
                   <span key={item.id} onClick={() => toggleSkip(item.id)}
@@ -770,7 +770,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
         <div className="pm-modal-bg" onClick={() => setShowShare(false)}>
           <div className="pm-modal" style={{ maxWidth:"440px" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setShowShare(false)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
-            <h3 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"22px", marginBottom:"16px" }}>🔗 Share Grocery List</h3>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"16px" }}>🔗 Share Grocery List</h3>
             <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#7a5c3a", marginBottom:"12px", fontWeight:600 }}>Anyone with this link can view and check off items in real time!</p>
             <div style={{ background:"#f5e6c8", border:"3px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", wordBreak:"break-all", fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"#1a1a1a" }}>
               {shareUrl}
@@ -828,7 +828,7 @@ function AuthScreen({ onAuth }) {
         <div className="auth-card">
           <div style={{ textAlign:"center", marginBottom:"28px" }}>
             <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
-            <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"32px", color:"#1a1a1a", textShadow:"2px 2px 0 #ff5252" }}>CooCheena</h1>
+            <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"3px", color:"#1A0A00", textShadow:"3px 3px 0 #E8421A" }}>CooCheena</h1>
             <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#7A5A3A", fontWeight:800, marginTop:"4px", textTransform:"uppercase", letterSpacing:"1px" }}>Your kitchen, your recipes.</p>
           </div>
 
@@ -1031,7 +1031,7 @@ export default function CooCheena() {
           <div style={{ maxWidth:"1100px", margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", height:"68px", padding:"0 24px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
               <span style={{ fontSize:"28px" }}>🍳</span>
-              <h1 style={{ fontFamily:"'Fredoka One',cursive", fontSize:"26px", color:"#fff", letterSpacing:"1px", textShadow:"2px 2px 0 #1a1a1a" }}>CooCheena</h1>
+              <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", color:"#FFF5E6", letterSpacing:"3px", textShadow:"2px 2px 0 #1A0A00" }}>CooCheena</h1>
             </div>
             <nav style={{ display:"flex", gap:"6px", flexWrap:"wrap", alignItems:"center" }}>
               {TABS.map(t => (
@@ -1096,7 +1096,7 @@ export default function CooCheena() {
               {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Crafting your recipe...</p></div>}
               {preview && !loading && (
                 <div>
-                  <p style={{ fontFamily:"'Fredoka One',cursive", fontSize:"17px", color:"#1a1a1a", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I whipped up!</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#1A0A00", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I whipped up!</p>
                   <RecipeCard recipe={preview} onClick={() => setSelected(preview)} onDelete={() => setPreview(null)} wobble="wobble-1" />
                   <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#7A5A3A", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click the card to view details & save!</p>
                 </div>
