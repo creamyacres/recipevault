@@ -248,7 +248,7 @@ const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)
 // Requests go through our Cloudflare Worker proxy (worker/index.js) so the
 // Anthropic API key is never exposed client-side and CORS is handled server-side.
 // Set VITE_AI_PROXY_URL in Cloudflare Pages environment variables after deploying the worker.
-const AI_PROXY_URL = import.meta.env.VITE_AI_PROXY_URL || "http://localhost:8787";
+const AI_PROXY_URL = import.meta.env.VITE_AI_PROXY_URL || "https://coocheena-ai-proxy.ztsantore.workers.dev";
 
 async function callClaude(system, user, maxTokens = 1500) {
   const res = await fetch(AI_PROXY_URL, {
