@@ -1034,7 +1034,7 @@ export default function CooCheena() {
             <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
               <span style={{ fontSize:"28px" }}>🍳</span>
               <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"3px" }}>
-                <span style={{ color:"#FFF5E6" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
+                <span style={{ color:"#1A0A00" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
               </h1>
             </div>
             <nav style={{ display:"flex", gap:"6px", flexWrap:"wrap", alignItems:"center" }}>
