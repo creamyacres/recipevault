@@ -296,6 +296,25 @@ const STYLES = `
     .pm-mobile-content { padding-bottom: 80px; }
   }
 
+  /* ── Feedback Widget ── */
+  .fb-btn {
+    position: fixed; bottom: 24px; right: 20px;
+    background: #E8421A; border: 3px solid #1A0A00; color: #fff;
+    font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 2px;
+    padding: 10px 16px; cursor: pointer; z-index: 500;
+    box-shadow: 3px 3px 0 #1A0A00; transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .fb-btn:hover { transform: translateY(-2px); box-shadow: 3px 5px 0 #1A0A00; }
+  .fb-panel {
+    position: fixed; bottom: 78px; right: 20px;
+    width: 300px; background: #FFF5E6; border: 3px solid #1A0A00;
+    z-index: 500; box-shadow: 5px 5px 0 #1A0A00; padding: 20px;
+  }
+  @media (max-width: 768px) {
+    .fb-btn { bottom: 74px; right: 12px; font-size: 12px; padding: 8px 12px; }
+    .fb-panel { bottom: 140px; right: 10px; left: 10px; width: auto; }
+  }
+
   /* ── Hamburger slide-out menu ── */
   .pm-hamburger-overlay {
     position: fixed; inset: 0; background: rgba(26,10,0,0.5); z-index: 200;
@@ -314,6 +333,30 @@ const STYLES = `
   .pm-hamburger-panel-item:hover { background: #FFD166; }
   .pm-hamburger-panel-item.danger { color: #E8421A; }
 `
+
+// ── EmailJS feedback config ──
+// Sign up at emailjs.com, then replace these three values:
+const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";
+const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+const EMAILJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+
+async function sendFeedbackEmail({ feedbackType, userEmail, message }) {
+  const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id: EMAILJS_SERVICE_ID,
+      template_id: EMAILJS_TEMPLATE_ID,
+      user_id: EMAILJS_PUBLIC_KEY,
+      template_params: {
+        feedback_type: feedbackType,
+        user_email: userEmail,
+        message,
+      }
+    })
+  });
+  if (!res.ok) throw new Error("EmailJS error");
+}
 
 // ── Constants ──
 const CATEGORIES = ["Breakfast","Lunch","Dinner","Dessert","Snacks","Drinks","Other"];
@@ -982,6 +1025,77 @@ function AuthScreen({ onAuth }) {
   );
 }
 
+// ── Feedback Widget ──
+function FeedbackWidget({ user }) {
+  const [open, setOpen] = useState(false);
+  const [type, setType] = useState("General");
+  const [msg, setMsg] = useState("");
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState(false);
+
+  const close = () => { setOpen(false); setDone(false); setErr(false); setMsg(""); setType("General"); };
+
+  const handleSubmit = async () => {
+    if (!msg.trim()) return;
+    setSending(true); setErr(false);
+    try {
+      await sendFeedbackEmail({
+        feedbackType: type,
+        userEmail: user?.email || "Anonymous",
+        message: msg.trim(),
+      });
+      setDone(true);
+      setTimeout(close, 2800);
+    } catch {
+      setErr(true);
+    }
+    setSending(false);
+  };
+
+  return (
+    <>
+      <button className="fb-btn" onClick={() => setOpen(o => !o)}>
+        💬 Feedback
+      </button>
+      {open && (
+        <div className="fb-panel">
+          {done ? (
+            <div style={{ textAlign:"center", padding:"16px 0" }}>
+              <div style={{ fontSize:"38px", marginBottom:"8px" }}>✅</div>
+              <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00" }}>Thanks! We'll look into it.</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px" }}>
+                <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#1A0A00" }}>Send Feedback</h3>
+                <button onClick={close} style={{ background:"none", border:"none", fontSize:"18px", cursor:"pointer", color:"#7A5A3A", lineHeight:1 }}>✕</button>
+              </div>
+              <div style={{ display:"flex", gap:"4px", marginBottom:"12px" }}>
+                {["Bug", "Feature", "General"].map(t => (
+                  <button key={t} onClick={() => setType(t)} className="pm-btn"
+                    style={{ flex:1, padding:"5px 4px", fontSize:"10px", background: type === t ? "#1A0A00" : "#FFF5E6", color: type === t ? "#FFF5E6" : "#1A0A00" }}>
+                    {t === "Bug" ? "🐛 Bug" : t === "Feature" ? "✨ Feature" : "💬 General"}
+                  </button>
+                ))}
+              </div>
+              <textarea value={msg} onChange={e => setMsg(e.target.value)}
+                placeholder="Tell us what's on your mind..."
+                className="pm-input"
+                style={{ width:"100%", minHeight:"90px", resize:"vertical", fontSize:"13px", display:"block", marginBottom:"10px" }} />
+              {err && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#E8421A", marginBottom:"8px" }}>Something went wrong — try again!</p>}
+              <button onClick={handleSubmit} disabled={sending || !msg.trim()} className="pm-btn pm-btn-primary"
+                style={{ width:"100%", padding:"10px" }}>
+                {sending ? "Sending..." : "Send →"}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
 // ── Main App ──
 export default function CooCheena() {
   const [user, setUser] = useState(null);
@@ -1426,6 +1540,9 @@ export default function CooCheena() {
 
       {/* Toast */}
       <div className={`toast ${toastShow ? "show" : ""}`}>{toastMsg}</div>
+
+      {/* Feedback widget */}
+      <FeedbackWidget user={user} />
 
       {/* Mobile bottom nav */}
       <nav className="pm-bottom-nav">
