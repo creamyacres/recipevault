@@ -336,9 +336,9 @@ const STYLES = `
 
 // ── EmailJS feedback config ──
 // Sign up at emailjs.com, then replace these three values:
-const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
-const EMAILJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+const EMAILJS_SERVICE_ID  = "service_x5nb9bq";
+const EMAILJS_TEMPLATE_ID = "template_p41pwvr";
+const EMAILJS_PUBLIC_KEY  = "WH1PmKm41XUBa0WQ";
 
 async function sendFeedbackEmail({ feedbackType, userEmail, message }) {
   const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
