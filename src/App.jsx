@@ -359,7 +359,7 @@ async function sendFeedbackEmail({ feedbackType, userEmail, message }) {
 }
 
 // ── Constants ──
-const CATEGORIES = ["Breakfast","Lunch","Dinner","Dessert","Snacks","Drinks","Other"];
+const CATEGORIES = ["Breakfast","Lunch","Dinner","Sides","Salads","Dessert","Snacks","Drinks","Other"];
 const MEALS = ["Breakfast","Lunch","Dinner"];
 const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const DAY_SHORT = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
@@ -368,6 +368,7 @@ const GROCERY_SECTIONS = ["Produce","Meat & Seafood","Dairy & Eggs","Pantry & Dr
 const CAT_COLORS = {
   Breakfast:{bg:"#ffd166",text:"#1a1a1a"}, Lunch:{bg:"#06d6a0",text:"#1a1a1a"},
   Dinner:{bg:"#ef476f",text:"#fff"}, Dessert:{bg:"#ff9f1c",text:"#1a1a1a"},
+  Sides:{bg:"#b7e4c7",text:"#1a1a1a"}, Salads:{bg:"#52b788",text:"#fff"},
   Snacks:{bg:"#a8dadc",text:"#1a1a1a"}, Drinks:{bg:"#457b9d",text:"#fff"},
   Other:{bg:"#c8b8ff",text:"#1a1a1a"},
 };
