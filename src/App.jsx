@@ -589,16 +589,30 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, mealHistory, setMealH
   const weekOf = mealPlan.weekOf || getWeekOf();
 
   const getSlot = (day, meal) => {
-    const id = mealPlan.days?.[day]?.[meal];
-    return id ? recipes.find(r => r.id === id) : null;
+    const val = mealPlan.days?.[day]?.[meal];
+    const ids = Array.isArray(val) ? val : (val ? [val] : []);
+    return ids.map(id => recipes.find(r => r.id === id)).filter(Boolean);
   };
 
   const setSlot = (day, meal, recipeId) => {
-    setMealPlan(prev => ({
-      ...prev,
-      weekOf,
-      days: { ...prev.days, [day]: { ...(prev.days?.[day] || {}), [meal]: recipeId } }
-    }));
+    setMealPlan(prev => {
+      const existing = prev.days?.[day]?.[meal];
+      const ids = Array.isArray(existing) ? existing : (existing ? [existing] : []);
+      if (ids.includes(recipeId)) return prev;
+      return {
+        ...prev,
+        weekOf,
+        days: { ...prev.days, [day]: { ...(prev.days?.[day] || {}), [meal]: [...ids, recipeId] } }
+      };
+    });
+  };
+
+  const removeFromSlot = (day, meal, recipeId) => {
+    setMealPlan(prev => {
+      const existing = prev.days?.[day]?.[meal];
+      const ids = Array.isArray(existing) ? existing : (existing ? [existing] : []);
+      return { ...prev, days: { ...prev.days, [day]: { ...(prev.days?.[day] || {}), [meal]: ids.filter(id => id !== recipeId) } } };
+    });
   };
 
   const clearSlot = (day, meal) => {
@@ -648,13 +662,14 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
       DAYS.forEach(day => {
         if (result[day]) {
           const rid = typeof result[day] === "string" ? parseInt(result[day]) : result[day];
-          newDays[day] = { ...(newDays[day] || {}), Dinner: rid };
+          newDays[day] = { ...(newDays[day] || {}), Dinner: [rid] };
         }
       });
       // Save to history
       const newHistory = [...mealHistory];
       DAYS.forEach(day => {
-        const rid = newDays[day]?.Dinner;
+        const dinnerSlot = newDays[day]?.Dinner;
+        const rid = Array.isArray(dinnerSlot) ? dinnerSlot[0] : dinnerSlot;
         if (rid) {
           const r = recipes.find(x => x.id === rid);
           if (r && !newHistory.find(h => h.title === r.title)) {
@@ -714,7 +729,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
                 {isEasy && <span style={{ color:"#457b9d" }}>⚡</span>} {DAY_SHORT[di]}
               </div>
               {MEALS.map(meal => {
-                const recipe = getSlot(day, meal);
+                const slotRecipes = getSlot(day, meal);
                 const slotKey = `${day}-${meal}`;
                 return (
                   <div key={meal} className="cal-meal-slot-wrap"
@@ -722,10 +737,15 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
                     onDragLeave={() => setDragOver(null)}
                     onDrop={e => handleDrop(e, day, meal)}>
                     <div className="meal-label" style={{ color: MEAL_COLORS[meal] }}>{meal.slice(0,1)}</div>
-                    {recipe ? (
-                      <div className="cal-meal-slot filled" style={{ borderColor: MEAL_COLORS[meal], background: MEAL_COLORS[meal] + "22", position:"relative" }}>
-                        <span style={{ fontSize:"10px", lineHeight:1.2, display:"block" }}>{recipe.title}</span>
-                        <button className="remove-meal" onClick={() => clearSlot(day, meal)} style={{ display:"flex" }}>✕</button>
+                    {slotRecipes.length > 0 ? (
+                      <div className="cal-meal-slot filled" style={{ borderColor: MEAL_COLORS[meal], background: MEAL_COLORS[meal] + "22", flexDirection:"column", alignItems:"stretch", gap:"3px", cursor:"default" }}>
+                        {slotRecipes.map(r => (
+                          <div key={r.id} style={{ display:"flex", alignItems:"flex-start", gap:"2px" }}>
+                            <span style={{ fontSize:"10px", lineHeight:1.2, flex:1 }}>{r.title}</span>
+                            <button onClick={() => removeFromSlot(day, meal, r.id)} style={{ flexShrink:0, background:"#E8421A", border:"1px solid #1A0A00", borderRadius:"50%", width:"13px", height:"13px", fontSize:"7px", color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1 }}>✕</button>
+                          </div>
+                        ))}
+                        <button onClick={() => setPickerFor({ day, meal })} style={{ marginTop:"2px", fontSize:"9px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", background:"none", border:"1px dashed #E8421A", borderRadius:"4px", cursor:"pointer", padding:"1px 4px", alignSelf:"flex-start" }}>+ add</button>
                       </div>
                     ) : (
                       <div className={`cal-meal-slot ${dragOver === slotKey ? "drag-over" : ""}`}
@@ -789,8 +809,9 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
   const plannedRecipes = [];
   DAYS.forEach(day => {
     MEALS.forEach(meal => {
-      const id = mealPlan.days?.[day]?.[meal];
-      if (id) { const r = recipes.find(x => x.id === id); if (r) plannedRecipes.push(r); }
+      const val = mealPlan.days?.[day]?.[meal];
+      const ids = Array.isArray(val) ? val : (val ? [val] : []);
+      ids.forEach(id => { const r = recipes.find(x => x.id === id); if (r) plannedRecipes.push(r); });
     });
   });
   const uniqueRecipes = plannedRecipes.filter((r,i,a) => a.findIndex(x => x.id === r.id) === i);
@@ -1155,7 +1176,18 @@ export default function CooCheena() {
 
       // Load meal plan + grocery list (non-blocking)
       supabase.from("meal_plans").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
-        .then(({ data }) => { if (data) setMealPlan({ weekOf: data.week_of, days: data.days || {}, easyNights: data.easy_mode_nights || [] }); });
+        .then(({ data }) => {
+          if (data) {
+            const normalizedDays = {};
+            Object.entries(data.days || {}).forEach(([day, meals]) => {
+              normalizedDays[day] = {};
+              Object.entries(meals).forEach(([meal, val]) => {
+                normalizedDays[day][meal] = Array.isArray(val) ? val : (val ? [val] : []);
+              });
+            });
+            setMealPlan({ weekOf: data.week_of, days: normalizedDays, easyNights: data.easy_mode_nights || [] });
+          }
+        });
       supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
         .then(({ data }) => { if (data) setGroceryList({ items: data.items || [] }); });
 
