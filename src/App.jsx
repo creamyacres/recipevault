@@ -512,19 +512,24 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
             {recipe.steps?.map((step,i) => <li key={i} style={{ fontSize:"13px", fontWeight:600, marginBottom:"8px" }}>{step}</li>)}
           </ol>
         </div>
-        {!recipe._saved && (
-          <div style={{ borderTop:"3px dashed #1a1a1a", paddingTop:"18px" }}>
-            <div style={{ display:"flex", gap:"10px", alignItems:"center", flexWrap:"wrap" }}>
-              <select value={category} onChange={e => setCategory(e.target.value)} className="pm-input" style={{ flex:1, minWidth:"140px" }}>
-                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-              </select>
+        <div style={{ borderTop:"3px dashed #1a1a1a", paddingTop:"18px" }}>
+          <div style={{ display:"flex", gap:"10px", alignItems:"center", flexWrap:"wrap" }}>
+            <select value={category} onChange={e => setCategory(e.target.value)} className="pm-input" style={{ flex:1, minWidth:"140px" }}>
+              {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+            </select>
+            {!recipe._saved ? (
               <button onClick={() => { onSave({ ...recipe, category, _saved:true }); setSaved(true); }} className="pm-btn"
                 style={{ background: saved ? "#FFD166" : "#E8421A", color: saved ? "#1A0A00" : "#fff", padding:"10px 24px", flex:1, borderColor: saved ? "#1A0A00" : "#E8421A" }}>
                 {saved ? "✓ Saved!" : "Save Recipe!"}
               </button>
-            </div>
+            ) : category !== (recipe.category || "Other") ? (
+              <button onClick={() => onSave({ ...recipe, category })} className="pm-btn"
+                style={{ background:"#E8421A", color:"#fff", padding:"10px 18px" }}>
+                Update
+              </button>
+            ) : null}
           </div>
-        )}
+        </div>
         {recipe._saved && books.length > 0 && onToggleBook && (
           <div style={{ borderTop:"3px dashed #1a1a1a", paddingTop:"18px", marginTop:"6px" }}>
             <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>📚 Add to Book</h4>
@@ -1325,12 +1330,20 @@ export default function CooCheena() {
       category: recipe.category, ingredients: recipe.ingredients || [],
       steps: recipe.steps || [], tags: recipe.tags || [], website: recipe.website || ""
     };
-    const { data, error } = await supabase.from("recipes").insert(dbRecipe).select().single();
-    if (!error && data) {
-      const saved = { id: data.id, ...recipe, _saved: true };
-      setRecipes(prev => [saved, ...prev.filter(r => r.id !== recipe.id)]);
-      toast("✅ Recipe saved!");
-    } else { toast("❌ Failed to save recipe."); }
+    if (recipe.id) {
+      const { error } = await supabase.from("recipes").update(dbRecipe).eq("id", recipe.id).eq("user_id", user.id);
+      if (!error) {
+        setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, ...recipe } : r));
+        toast("✅ Recipe updated!");
+      } else { toast("❌ Failed to update recipe."); }
+    } else {
+      const { data, error } = await supabase.from("recipes").insert(dbRecipe).select().single();
+      if (!error && data) {
+        const saved = { id: data.id, ...recipe, _saved: true };
+        setRecipes(prev => [saved, ...prev.filter(r => r.id !== recipe.id)]);
+        toast("✅ Recipe saved!");
+      } else { toast("❌ Failed to save recipe."); }
+    }
   };
 
   const handleDelete = async (id) => {
@@ -1568,7 +1581,11 @@ export default function CooCheena() {
       {selected && (
         <RecipeModal recipe={selected} onClose={() => setSelected(null)}
           books={books} onToggleBook={toggleRecipeInBook}
-          onSave={r => { handleSave(r); setSelected(null); setPreview(null); setTab("library"); setInput(""); }} />
+          onSave={r => {
+            handleSave(r);
+            if (r._saved) { setSelected({ ...r }); }
+            else { setSelected(null); setPreview(null); setTab("library"); setInput(""); }
+          }} />
       )}
 
       {/* Toast */}
