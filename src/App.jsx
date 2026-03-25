@@ -1333,13 +1333,14 @@ export default function CooCheena() {
       category: recipe.category, ingredients: recipe.ingredients || [],
       steps: recipe.steps || [], tags: recipe.tags || [], website: recipe.website || ""
     };
-    if (recipe.id) {
+    const isUUID = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
+    if (recipe.id && isUUID(recipe.id)) {
       const { user_id: _uid, ...updateFields } = dbRecipe;
       const { error } = await supabase.from("recipes").update(updateFields).eq("id", recipe.id).eq("user_id", user.id);
       if (!error) {
         setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, ...recipe } : r));
         toast("✅ Recipe updated!");
-      } else { console.error("Supabase update error:", error, "Fields:", updateFields, "Recipe ID:", recipe.id); toast("❌ Failed to update recipe."); }
+      } else { toast("❌ Failed to update recipe."); }
     } else {
       const { data, error } = await supabase.from("recipes").insert(dbRecipe).select().single();
       if (!error && data) {
