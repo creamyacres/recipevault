@@ -463,28 +463,44 @@ function useToast() {
   return { msg, show, toast };
 }
 
+// ── Photo helper ──
+function getPhotoUrl(title) {
+  return `https://source.unsplash.com/400x200/?food,${encodeURIComponent(title)}`;
+}
+
 // ── RecipeCard ──
 function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false, onDragStart }) {
   const cat = recipe.category || "Other";
-  const colors = CAT_COLORS[cat] || CAT_COLORS.Other;
+  const [imgError, setImgError] = useState(false);
   return (
     <div className={`pm-card ${wobble}`}
       draggable={draggable}
       onDragStart={onDragStart ? (e) => { e.dataTransfer.setData("recipeId", recipe.id); onDragStart(e); } : undefined}
       onClick={() => onClick(recipe)}
-      style={{ padding: "18px", cursor: draggable ? "grab" : "pointer" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"8px" }}>
-        <span className="pm-tag" style={{ background: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#FFD166" : "#1A0A00", color: cat === "Dessert" ? "#1A0A00" : "#fff", borderColor: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#1A0A00" : "#1A0A00" }}>{cat}</span>
-        <button onClick={e => { e.stopPropagation(); onDelete(recipe.id); }}
-          style={{ background:"#E8421A", border:"2px solid #1A0A00", width:"26px", height:"26px", cursor:"pointer", fontSize:"12px", color:"#fff", fontWeight:800, lineHeight:1, flexShrink:0 }}>✕</button>
+      style={{ padding: "0", cursor: draggable ? "grab" : "pointer", overflow:"hidden" }}>
+      {!imgError && (
+        <img
+          src={recipe.photoUrl || getPhotoUrl(recipe.title)}
+          alt={recipe.title}
+          loading="lazy"
+          onError={() => setImgError(true)}
+          style={{ width:"100%", height:"110px", objectFit:"cover", display:"block", borderBottom:"3px solid #1A0A00" }}
+        />
+      )}
+      <div style={{ padding:"14px 14px 14px" }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"8px" }}>
+          <span className="pm-tag" style={{ background: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#FFD166" : "#1A0A00", color: cat === "Dessert" ? "#1A0A00" : "#fff", borderColor: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#1A0A00" : "#1A0A00" }}>{cat}</span>
+          <button onClick={e => { e.stopPropagation(); onDelete(recipe.id); }}
+            style={{ background:"#E8421A", border:"2px solid #1A0A00", width:"26px", height:"26px", cursor:"pointer", fontSize:"12px", color:"#fff", fontWeight:800, lineHeight:1, flexShrink:0 }}>✕</button>
+        </div>
+        <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
+        <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7A5A3A", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
+        <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
+          {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", padding:"1px 7px" }}>⏱ {recipe.prepTime}</span>}
+          {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", padding:"1px 7px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
+        </div>
+        {draggable && <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, color:"#C4A882", marginTop:"6px", textAlign:"center", textTransform:"uppercase", letterSpacing:"0.5px" }}>drag to calendar ↑</div>}
       </div>
-      <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
-      <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7A5A3A", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
-      <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
-        {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", padding:"1px 7px" }}>⏱ {recipe.prepTime}</span>}
-        {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", padding:"1px 7px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
-      </div>
-      {draggable && <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, color:"#C4A882", marginTop:"6px", textAlign:"center", textTransform:"uppercase", letterSpacing:"0.5px" }}>drag to calendar ↑</div>}
     </div>
   );
 }
@@ -493,10 +509,24 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
 function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
   const [category, setCategory] = useState(recipe.category || "Other");
   const [saved, setSaved] = useState(recipe._saved || false);
+  const [imgError, setImgError] = useState(false);
   return (
     <div className="pm-modal-bg" onClick={onClose}>
-      <div className="pm-modal" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
+      <div className="pm-modal" onClick={e => e.stopPropagation()} style={{ padding: 0 }}>
+        {!imgError && (
+          <div style={{ position:"relative" }}>
+            <img
+              src={recipe.photoUrl || getPhotoUrl(recipe.title)}
+              alt={recipe.title}
+              loading="lazy"
+              onError={() => setImgError(true)}
+              style={{ width:"100%", height:"200px", objectFit:"cover", display:"block", borderBottom:"4px solid #1A0A00" }}
+            />
+            <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"12px", right:"12px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", zIndex:2 }}>✕</button>
+          </div>
+        )}
+        <div style={{ padding:"24px 36px 36px" }}>
+        {imgError && <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>}
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"12px" }}>
           {recipe.tags?.map(t => <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"#1a1a1a" }}>{t}</span>)}
         </div>
@@ -553,6 +583,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
             </div>
           </div>
         )}
+        </div>{/* end padding wrapper */}
       </div>
     </div>
   );
