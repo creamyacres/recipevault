@@ -1339,7 +1339,7 @@ export default function CooCheena() {
       if (!error) {
         setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, ...recipe } : r));
         toast("✅ Recipe updated!");
-      } else { toast("❌ Failed to update recipe."); }
+      } else { console.error("Supabase update error:", error, "Fields:", updateFields, "Recipe ID:", recipe.id); toast("❌ Failed to update recipe."); }
     } else {
       const { data, error } = await supabase.from("recipes").insert(dbRecipe).select().single();
       if (!error && data) {
