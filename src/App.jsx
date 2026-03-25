@@ -1334,7 +1334,8 @@ export default function CooCheena() {
       steps: recipe.steps || [], tags: recipe.tags || [], website: recipe.website || ""
     };
     if (recipe.id) {
-      const { error } = await supabase.from("recipes").update(dbRecipe).eq("id", recipe.id).eq("user_id", user.id);
+      const { user_id: _uid, ...updateFields } = dbRecipe;
+      const { error } = await supabase.from("recipes").update(updateFields).eq("id", recipe.id).eq("user_id", user.id);
       if (!error) {
         setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, ...recipe } : r));
         toast("✅ Recipe updated!");
