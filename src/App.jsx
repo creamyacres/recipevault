@@ -9,6 +9,7 @@ const GOOGLE_FONTS = `@import url('https://fonts.googleapis.com/css2?family=Beba
 
 const STYLES = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
   body { background: #FFF5E6; font-family: 'Nunito', sans-serif; }
 
   /* ── Core tokens ── */
@@ -261,6 +262,8 @@ const STYLES = `
     .cal-grid { grid-template-columns: 1fr; }
     .cal-day { border-right: none; border-bottom: 3px solid #1A0A00; min-height: auto; }
     .cal-day:last-child { border-bottom: none; }
+    .pm-modal { padding: 20px; }
+    .cc-hero-heading { font-size: 52px !important; }
   }
 
   /* ── Mobile nav ── */
@@ -293,7 +296,7 @@ const STYLES = `
     .pm-bottom-nav-item.active { background: #FFD166; }
     .pm-bottom-nav-item .nav-icon { font-size: 22px; line-height: 1; }
 
-    .pm-mobile-content { padding-bottom: 80px; }
+    .pm-mobile-content { padding: 20px 16px 80px !important; }
   }
 
   /* ── Feedback Widget ── */
@@ -1440,7 +1443,7 @@ export default function CooCheena() {
           {tab === "add" && (
             <div style={{ maxWidth:"640px", margin:"0 auto" }}>
               <div style={{ marginBottom:"32px" }}>
-                <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"80px", lineHeight:0.9, letterSpacing:"2px", color:"#1A0A00", marginBottom:"24px" }}>
+                <h2 className="cc-hero-heading" style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"80px", lineHeight:0.9, letterSpacing:"2px", color:"#1A0A00", marginBottom:"24px" }}>
                   <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span style={{WebkitTextStroke:"3px #1A0A00", color:"transparent"}}>Cooking?</span>
                 </h2>
                 <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7A5A3A", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>Paste a URL or describe what you want to make!</p>
