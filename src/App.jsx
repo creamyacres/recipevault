@@ -1183,6 +1183,7 @@ export default function CooCheena() {
   const [preview, setPreview] = useState(null);
   const [selected, setSelected] = useState(null);
   const [filterCat, setFilterCat] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [tab, setTab] = useState("add");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1397,6 +1398,15 @@ export default function CooCheena() {
     const activeBookData = books.find(b => b.id === activeBook);
     if (activeBookData) filtered = filtered.filter(r => activeBookData.recipeIds.includes(r.id));
   }
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(r =>
+      r.title?.toLowerCase().includes(q) ||
+      r.description?.toLowerCase().includes(q) ||
+      r.tags?.some(t => t.toLowerCase().includes(q)) ||
+      r.ingredients?.some(i => i.toLowerCase().includes(q))
+    );
+  }
 
   const TABS = [
     { id: "add", label: "✏️ Add" },
@@ -1521,6 +1531,22 @@ export default function CooCheena() {
                 <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"2px", color:"#1A0A00", borderBottom:"3px solid #1A0A00", paddingBottom:"8px" }}>Your Library</h2>
               </div>
 
+              {/* Search bar */}
+              <div style={{ position:"relative", marginBottom:"18px" }}>
+                <span style={{ position:"absolute", left:"12px", top:"50%", transform:"translateY(-50%)", fontSize:"16px", pointerEvents:"none" }}>🔍</span>
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search recipes, ingredients, tags…"
+                  className="pm-input"
+                  style={{ width:"100%", paddingLeft:"38px", boxSizing:"border-box" }}
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")}
+                    style={{ position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"16px", color:"#7A5A3A", fontWeight:800, lineHeight:1 }}>✕</button>
+                )}
+              </div>
+
               {/* Book Shelf */}
               <div className="rb-shelf">
                 {/* All Recipes card */}
@@ -1582,9 +1608,13 @@ export default function CooCheena() {
               </div>
               {filtered.length === 0 ? (
                 <div style={{ textAlign:"center", padding:"80px 20px" }}>
-                  <div style={{ fontSize:"52px", marginBottom:"16px" }}>📖</div>
-                  <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"8px" }}>No recipes yet!</p>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"#7a5c3a" }}>Head to "✏️ Add" to get started</p>
+                  <div style={{ fontSize:"52px", marginBottom:"16px" }}>{searchQuery ? "🔍" : "📖"}</div>
+                  <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"8px" }}>
+                    {searchQuery ? `No results for "${searchQuery}"` : "No recipes yet!"}
+                  </p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"#7a5c3a" }}>
+                    {searchQuery ? <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={() => setSearchQuery("")}>Clear search</span> : 'Head to "✏️ Add" to get started'}
+                  </p>
                 </div>
               ) : (
                 <>
