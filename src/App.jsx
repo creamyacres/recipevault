@@ -628,6 +628,8 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, mealHistory, setMealH
   const [generating, setGenerating] = useState(false);
   const [dragOver, setDragOver] = useState(null); // "day-meal"
   const [pickerFor, setPickerFor] = useState(null); // {day, meal}
+  const [pickerSearch, setPickerSearch] = useState("");
+  const [pickerCat, setPickerCat] = useState("All");
 
   const weekOf = mealPlan.weekOf || getWeekOf();
 
@@ -816,19 +818,62 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
 
       {/* Recipe picker modal */}
       {pickerFor && (() => {
-        const pickerRecipes = mealPlanExcludedBooks.length === 0 ? recipes : recipes.filter(r =>
+        // Base: exclude books marked as hidden from meal plan
+        let pickerRecipes = mealPlanExcludedBooks.length === 0 ? recipes : recipes.filter(r =>
           !books.some(b => mealPlanExcludedBooks.includes(b.id) && b.recipeIds.includes(r.id))
         );
+        // Category filter
+        if (pickerCat !== "All") pickerRecipes = pickerRecipes.filter(r => r.category === pickerCat);
+        // Search filter
+        if (pickerSearch.trim()) {
+          const q = pickerSearch.toLowerCase();
+          pickerRecipes = pickerRecipes.filter(r =>
+            r.title?.toLowerCase().includes(q) ||
+            r.description?.toLowerCase().includes(q) ||
+            r.tags?.some(t => t.toLowerCase().includes(q)) ||
+            r.ingredients?.some(i => i.toLowerCase().includes(q))
+          );
+        }
         return (
-        <div className="pm-modal-bg" onClick={() => setPickerFor(null)}>
+        <div className="pm-modal-bg" onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }}>
           <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
-            <button onClick={() => setPickerFor(null)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
-            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"16px" }}>
+            <button onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"14px", paddingRight:"40px" }}>
               Pick a recipe for {pickerFor.day} {pickerFor.meal}
             </h3>
-            <div style={{ display:"flex", flexDirection:"column", gap:"8px", maxHeight:"60vh", overflowY:"auto" }}>
-              {pickerRecipes.map(r => (
-                <div key={r.id} onClick={() => { setSlot(pickerFor.day, pickerFor.meal, r.id); setPickerFor(null); toast("📅 Added!"); }}
+            {/* Search */}
+            <div style={{ position:"relative", marginBottom:"10px" }}>
+              <span style={{ position:"absolute", left:"10px", top:"50%", transform:"translateY(-50%)", fontSize:"14px", pointerEvents:"none" }}>🔍</span>
+              <input
+                value={pickerSearch}
+                onChange={e => setPickerSearch(e.target.value)}
+                placeholder="Search recipes, ingredients…"
+                className="pm-input"
+                style={{ width:"100%", paddingLeft:"32px", boxSizing:"border-box", fontSize:"13px", padding:"8px 10px 8px 32px" }}
+                autoFocus
+              />
+              {pickerSearch && (
+                <button onClick={() => setPickerSearch("")}
+                  style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"14px", color:"#7A5A3A", fontWeight:800 }}>✕</button>
+              )}
+            </div>
+            {/* Category pills */}
+            <div style={{ display:"flex", gap:"5px", flexWrap:"wrap", marginBottom:"12px" }}>
+              {["All", ...CATEGORIES].map(c => (
+                <button key={c} onClick={() => setPickerCat(c)} className="pm-btn"
+                  style={{ padding:"4px 10px", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.7px", background: pickerCat === c ? "#1A0A00" : "#FFF5E6", color: pickerCat === c ? "#FFF5E6" : "#1A0A00", borderColor:"#1A0A00" }}>
+                  {c}
+                </button>
+              ))}
+            </div>
+            {/* Results */}
+            <div style={{ display:"flex", flexDirection:"column", gap:"8px", maxHeight:"50vh", overflowY:"auto" }}>
+              {pickerRecipes.length === 0 ? (
+                <div style={{ textAlign:"center", padding:"32px 0", fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A" }}>
+                  No recipes match — <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={() => { setPickerSearch(""); setPickerCat("All"); }}>clear filters</span>
+                </div>
+              ) : pickerRecipes.map(r => (
+                <div key={r.id} onClick={() => { setSlot(pickerFor.day, pickerFor.meal, r.id); setPickerFor(null); setPickerSearch(""); setPickerCat("All"); toast("📅 Added!"); }}
                   style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 14px", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", cursor:"pointer", boxShadow:"2px 2px 0 #1a1a1a", transition:"all 0.1s" }}
                   onMouseEnter={e => e.currentTarget.style.background="#ffd166"}
                   onMouseLeave={e => e.currentTarget.style.background="#fff9ed"}>
