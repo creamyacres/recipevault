@@ -428,6 +428,9 @@ const SYS_RECIPE_PARSE = `You are a recipe parser. Return ONLY a JSON object:
 const SYS_RECIPE_GEN = `You are a creative chef. Return ONLY a JSON object:
 {"title":"...","description":"One sentence.","prepTime":"15 min","cookTime":"30 min","servings":"4","category":"Dinner","ingredients":["..."],"steps":["..."],"tags":["..."]}`;
 
+const SYS_RECIPE_GEN_3 = `You are a creative chef. Return ONLY a JSON array of exactly 3 recipe objects. Make each recipe meaningfully different in style, cuisine, or technique. Each object must follow this exact shape:
+{"title":"...","description":"One sentence.","prepTime":"15 min","cookTime":"30 min","servings":"4","category":"Dinner","ingredients":["..."],"steps":["..."],"tags":["..."]}`;
+
 const SYS_MEAL_PLAN = `You are a meal planning assistant. Return ONLY a JSON object mapping day names to recipe IDs for dinner slots. Use exactly this format:
 {"Monday":"recipeId","Tuesday":"recipeId",...}
 Rules: avoid recipes used in the last 2 weeks, prefer quick recipes (under 30min total) for easy mode nights.`;
@@ -1231,6 +1234,7 @@ export default function CooCheena() {
   const [mode, setMode] = useState("generate");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
+  const [previews, setPreviews] = useState([]); // 3-option idea results
   const [selected, setSelected] = useState(null);
   const [filterCat, setFilterCat] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -1400,14 +1404,19 @@ export default function CooCheena() {
 
   const handleSubmit = async () => {
     if (!input.trim()) return;
-    setLoading(true); setError(""); setPreview(null);
+    setLoading(true); setError(""); setPreview(null); setPreviews([]);
     try {
       const isUrl = input.trim().startsWith("http");
-      const result = isUrl
-        ? await callClaudeWithUrl(SYS_RECIPE_PARSE, input.trim())
-        : await callClaude(SYS_RECIPE_GEN, `Create a recipe for: ${input.trim()}`);
-      if (!result?.title) throw new Error();
-      setPreview({ ...result, id: Date.now() });
+      if (isUrl) {
+        const result = await callClaudeWithUrl(SYS_RECIPE_PARSE, input.trim());
+        if (!result?.title) throw new Error();
+        setPreview({ ...result, id: Date.now() });
+      } else {
+        const result = await callClaude(SYS_RECIPE_GEN_3, `Give me 3 recipe ideas for: ${input.trim()}`, 4500);
+        const arr = Array.isArray(result) ? result : result?.title ? [result] : null;
+        if (!arr?.length) throw new Error();
+        setPreviews(arr.map((r, i) => ({ ...r, id: Date.now() + i })));
+      }
     } catch { setError("Something went wrong! Try a different idea."); }
     setLoading(false);
   };
@@ -1572,12 +1581,30 @@ export default function CooCheena() {
                 </button>
               </div>
               {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", fontSize:"14px", background:"#fff", border:"3px solid #E8421A", padding:"6px 16px", display:"inline-block" }}>{error}</span></div>}
-              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Crafting your recipe...</p></div>}
+              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Crafting your recipes...</p></div>}
+
+              {/* URL parse — single result */}
               {preview && !loading && (
                 <div>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#1A0A00", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I whipped up!</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#1A0A00", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I found!</p>
                   <RecipeCard recipe={preview} onClick={() => setSelected(preview)} onDelete={() => setPreview(null)} wobble="wobble-1" />
                   <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#7A5A3A", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click the card to view details & save!</p>
+                </div>
+              )}
+
+              {/* From Idea — 3 options */}
+              {previews.length > 0 && !loading && (
+                <div>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#1A0A00", marginBottom:"14px", textAlign:"center" }}>✨ Pick your favourite — or save them all!</p>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"0", border:"3px solid #1A0A00" }}>
+                    {previews.map((r, i) => (
+                      <RecipeCard key={r.id} recipe={r}
+                        onClick={() => setSelected(r)}
+                        onDelete={() => setPreviews(prev => prev.filter(p => p.id !== r.id))}
+                        wobble={["wobble-1","wobble-2","wobble-3"][i % 3]} />
+                    ))}
+                  </div>
+                  <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#7A5A3A", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click any card to view details & save!</p>
                 </div>
               )}
             </div>
@@ -1722,8 +1749,15 @@ export default function CooCheena() {
           books={books} onToggleBook={toggleRecipeInBook}
           onSave={r => {
             handleSave(r);
-            if (r._saved) { setSelected({ ...r }); }
-            else { setSelected(null); setPreview(null); setTab("library"); setInput(""); }
+            if (r._saved) {
+              setSelected({ ...r });
+            } else if (previews.some(p => p.id === r.id)) {
+              // Saving one of the 3 idea options — remove it from the list, keep others
+              setPreviews(prev => prev.filter(p => p.id !== r.id));
+              setSelected(null);
+            } else {
+              setSelected(null); setPreview(null); setTab("library"); setInput("");
+            }
           }} />
       )}
 
