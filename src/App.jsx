@@ -471,6 +471,184 @@ function getPhotoUrl(title) {
   return `https://source.unsplash.com/400x200/?food,${encodeURIComponent(title)}`;
 }
 
+// ── ManualRecipeForm ──
+function ManualRecipeForm({ books = [], onSave, onCancel }) {
+  const [title, setTitle]           = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory]     = useState("Dinner");
+  const [prepTime, setPrepTime]     = useState("");
+  const [cookTime, setCookTime]     = useState("");
+  const [servings, setServings]     = useState("");
+  const [ingredients, setIngredients] = useState(["", "", ""]);
+  const [steps, setSteps]           = useState(["", ""]);
+  const [tags, setTags]             = useState([]);
+  const [tagInput, setTagInput]     = useState("");
+  const [selectedBooks, setSelectedBooks] = useState([]);
+  const [saving, setSaving]         = useState(false);
+  const [titleErr, setTitleErr]     = useState(false);
+
+  const updateList  = (setter, i, val) => setter(prev => prev.map((x, idx) => idx === i ? val : x));
+  const removeItem  = (setter, i)      => setter(prev => prev.filter((_, idx) => idx !== i));
+
+  const addTag = () => {
+    const t = tagInput.trim().toLowerCase().replace(/,/g, "");
+    if (t && !tags.includes(t)) setTags(prev => [...prev, t]);
+    setTagInput("");
+  };
+  const toggleBook = id => setSelectedBooks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const handleSave = async () => {
+    if (!title.trim()) { setTitleErr(true); return; }
+    setSaving(true);
+    await onSave({
+      title: title.trim(), description: description.trim(), category,
+      prepTime: prepTime.trim(), cookTime: cookTime.trim(), servings: servings.trim(),
+      ingredients: ingredients.filter(i => i.trim()),
+      steps: steps.filter(s => s.trim()),
+      tags,
+    }, selectedBooks);
+    setSaving(false);
+  };
+
+  const L  = { fontFamily:"'Bebas Neue',cursive", fontSize:"17px", letterSpacing:"1px", color:"#1A0A00", display:"block", marginBottom:"6px" };
+  const S  = { marginBottom:"20px" };
+  const iS = { width:"100%", boxSizing:"border-box" };
+
+  return (
+    <div>
+      {/* Title */}
+      <div style={S}>
+        <label style={L}>Recipe Title <span style={{ color:"#E8421A" }}>*</span></label>
+        <input value={title} onChange={e => { setTitle(e.target.value); setTitleErr(false); }}
+          placeholder="e.g. Grandma's Chicken Soup"
+          className="pm-input" style={{ ...iS, borderColor: titleErr ? "#E8421A" : undefined }} />
+        {titleErr && <p style={{ color:"#E8421A", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, margin:"4px 0 0" }}>Title is required</p>}
+      </div>
+
+      {/* Description */}
+      <div style={S}>
+        <label style={L}>Description</label>
+        <textarea value={description} onChange={e => setDescription(e.target.value)}
+          placeholder="A one-sentence description of the dish…"
+          className="pm-input" rows={2}
+          style={{ ...iS, resize:"vertical", fontFamily:"'Nunito',sans-serif", fontSize:"14px" }} />
+      </div>
+
+      {/* Category / Times / Servings */}
+      <div style={{ ...S, display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px" }}>
+        <div style={{ gridColumn:"1 / -1" }}>
+          <label style={L}>Category</label>
+          <select value={category} onChange={e => setCategory(e.target.value)} className="pm-input" style={iS}>
+            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
+          <label style={{ ...L, fontSize:"14px" }}>Prep Time</label>
+          <input value={prepTime} onChange={e => setPrepTime(e.target.value)} placeholder="15 min" className="pm-input" style={iS} />
+        </div>
+        <div>
+          <label style={{ ...L, fontSize:"14px" }}>Cook Time</label>
+          <input value={cookTime} onChange={e => setCookTime(e.target.value)} placeholder="30 min" className="pm-input" style={iS} />
+        </div>
+        <div>
+          <label style={{ ...L, fontSize:"14px" }}>Servings</label>
+          <input value={servings} onChange={e => setServings(e.target.value)} placeholder="4" className="pm-input" style={iS} />
+        </div>
+      </div>
+
+      {/* Ingredients */}
+      <div style={S}>
+        <label style={L}>Ingredients</label>
+        {ingredients.map((ing, i) => (
+          <div key={i} style={{ display:"flex", gap:"6px", marginBottom:"6px", alignItems:"center" }}>
+            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#7A5A3A", minWidth:"18px", textAlign:"right" }}>{i + 1}.</span>
+            <input value={ing} onChange={e => updateList(setIngredients, i, e.target.value)}
+              placeholder="e.g. 2 cups flour"
+              className="pm-input" style={{ flex:1 }}
+              onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); setIngredients(prev => [...prev, ""]); } }} />
+            {ingredients.length > 1 && (
+              <button onClick={() => removeItem(setIngredients, i)}
+                style={{ background:"none", border:"none", cursor:"pointer", fontSize:"15px", color:"#C4A882", fontWeight:800, padding:"0 2px", lineHeight:1 }}>✕</button>
+            )}
+          </div>
+        ))}
+        <button onClick={() => setIngredients(prev => [...prev, ""])} className="pm-btn pm-btn-ghost"
+          style={{ fontSize:"12px", padding:"4px 12px", marginTop:"2px" }}>+ Add Ingredient</button>
+      </div>
+
+      {/* Steps */}
+      <div style={S}>
+        <label style={L}>Steps</label>
+        {steps.map((step, i) => (
+          <div key={i} style={{ display:"flex", gap:"6px", marginBottom:"8px", alignItems:"flex-start" }}>
+            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#7A5A3A", minWidth:"18px", textAlign:"right", paddingTop:"10px" }}>{i + 1}.</span>
+            <textarea value={step} onChange={e => updateList(setSteps, i, e.target.value)}
+              placeholder={`Step ${i + 1}…`}
+              className="pm-input" rows={2}
+              style={{ flex:1, resize:"vertical", fontFamily:"'Nunito',sans-serif", fontSize:"13px" }} />
+            {steps.length > 1 && (
+              <button onClick={() => removeItem(setSteps, i)}
+                style={{ background:"none", border:"none", cursor:"pointer", fontSize:"15px", color:"#C4A882", fontWeight:800, padding:"0 2px", marginTop:"8px", lineHeight:1 }}>✕</button>
+            )}
+          </div>
+        ))}
+        <button onClick={() => setSteps(prev => [...prev, ""])} className="pm-btn pm-btn-ghost"
+          style={{ fontSize:"12px", padding:"4px 12px", marginTop:"2px" }}>+ Add Step</button>
+      </div>
+
+      {/* Tags */}
+      <div style={S}>
+        <label style={L}>Tags</label>
+        {tags.length > 0 && (
+          <div style={{ display:"flex", gap:"6px", flexWrap:"wrap", marginBottom:"8px" }}>
+            {tags.map(t => (
+              <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"#1a1a1a", display:"flex", alignItems:"center", gap:"4px" }}>
+                {t}
+                <button onClick={() => setTags(prev => prev.filter(x => x !== t))}
+                  style={{ background:"none", border:"none", cursor:"pointer", fontSize:"10px", fontWeight:800, lineHeight:1, padding:0, color:"#1a1a1a" }}>✕</button>
+              </span>
+            ))}
+          </div>
+        )}
+        <div style={{ display:"flex", gap:"8px" }}>
+          <input value={tagInput} onChange={e => setTagInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
+            placeholder="Type a tag, press Enter or comma…"
+            className="pm-input" style={{ flex:1 }} />
+          <button onClick={addTag} className="pm-btn" style={{ padding:"8px 14px", fontSize:"13px", whiteSpace:"nowrap" }}>Add</button>
+        </div>
+      </div>
+
+      {/* Recipe Books */}
+      {books.length > 0 && (
+        <div style={S}>
+          <label style={L}>Add to Recipe Book</label>
+          <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
+            {books.map(book => {
+              const sel = selectedBooks.includes(book.id);
+              return (
+                <button key={book.id} onClick={() => toggleBook(book.id)} className="pm-btn"
+                  style={{ padding:"7px 14px", fontSize:"12px", background: sel ? "#1A0A00" : "#FFF5E6", color: sel ? "#FFF5E6" : "#1A0A00" }}>
+                  {sel ? "✓ " : ""}{book.emoji} {book.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Actions */}
+      <div style={{ display:"flex", gap:"10px", borderTop:"3px solid #1A0A00", paddingTop:"20px", marginTop:"8px" }}>
+        <button onClick={onCancel} className="pm-btn pm-btn-ghost" style={{ flex:1 }}>Cancel</button>
+        <button onClick={handleSave} disabled={saving || !title.trim()} className="pm-btn pm-btn-primary"
+          style={{ flex:2, fontSize:"16px", padding:"12px", opacity: saving || !title.trim() ? 0.6 : 1 }}>
+          {saving ? "Saving…" : "💾 Save Recipe"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── RecipeCard ──
 function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false, onDragStart }) {
   const cat = recipe.category || "Other";
@@ -1436,15 +1614,29 @@ export default function CooCheena() {
       if (!error) {
         setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, ...recipe } : r));
         toast("✅ Recipe updated!");
-      } else { toast("❌ Failed to update recipe."); }
+        return { ...recipe };
+      } else { toast("❌ Failed to update recipe."); return null; }
     } else {
       const { data, error } = await supabase.from("recipes").insert(dbRecipe).select().single();
       if (!error && data) {
         const saved = { id: data.id, ...recipe, _saved: true };
         setRecipes(prev => [saved, ...prev.filter(r => r.id !== recipe.id)]);
         toast("✅ Recipe saved!");
-      } else { toast("❌ Failed to save recipe."); }
+        return saved;
+      } else { toast("❌ Failed to save recipe."); return null; }
     }
+  };
+
+  const handleManualSave = async (recipe, selectedBookIds) => {
+    const saved = await handleSave(recipe);
+    if (saved && selectedBookIds.length > 0) {
+      for (const bookId of selectedBookIds) {
+        await toggleRecipeInBook(bookId, saved.id);
+      }
+    }
+    setMode("generate");
+    setTab("library");
+    setInput("");
   };
 
   const toggleBookMealPlan = (bookId) => {
@@ -1561,16 +1753,30 @@ export default function CooCheena() {
                 <h2 className="cc-hero-heading" style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"80px", lineHeight:0.9, letterSpacing:"2px", color:"#1A0A00", marginBottom:"24px" }}>
                   <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span style={{WebkitTextStroke:"3px #1A0A00", color:"transparent"}}>Cooking?</span>
                 </h2>
-                <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7A5A3A", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>Paste a URL or describe what you want to make!</p>
+                <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7A5A3A", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>
+                  {mode === "manual" ? "Fill in your recipe details below." : "Paste a URL or describe what you want to make!"}
+                </p>
               </div>
-              <div style={{ display:"flex", gap:"10px", marginBottom:"16px" }}>
-                {[{ val:"generate", label:"💡 From Idea" }, { val:"url", label:"🔗 From URL" }].map(m => (
-                  <button key={m.val} onClick={() => setMode(m.val)} className="pm-btn"
-                    style={{ padding:"11px 28px", background: mode === m.val ? "#E8421A" : "#FFF5E6", color: mode === m.val ? "#fff" : "#1A0A00", borderColor: mode === m.val ? "#E8421A" : "#1A0A00" }}>
+              <div style={{ display:"flex", gap:"10px", marginBottom:"24px", flexWrap:"wrap" }}>
+                {[{ val:"generate", label:"💡 From Idea" }, { val:"url", label:"🔗 From URL" }, { val:"manual", label:"🧠 From Your Brain" }].map(m => (
+                  <button key={m.val} onClick={() => { setMode(m.val); setPreview(null); setPreviews([]); setError(""); }}
+                    className="pm-btn"
+                    style={{ padding:"11px 22px", background: mode === m.val ? "#E8421A" : "#FFF5E6", color: mode === m.val ? "#fff" : "#1A0A00", borderColor: mode === m.val ? "#E8421A" : "#1A0A00" }}>
                     {m.label}
                   </button>
                 ))}
               </div>
+
+              {/* Manual form */}
+              {mode === "manual" && (
+                <ManualRecipeForm
+                  books={books}
+                  onSave={handleManualSave}
+                  onCancel={() => { setMode("generate"); }} />
+              )}
+
+              {/* AI input bar (idea + url modes) */}
+              {mode !== "manual" && (<>
               <div style={{ display:"flex", marginBottom:"28px", border:"3px solid #1A0A00", maxWidth:"560px" }}>
                 <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
                   placeholder={mode === "url" ? "https://www.allrecipes.com/recipe/..." : "e.g. lemon pasta, chicken + spinach..."}
@@ -1607,6 +1813,7 @@ export default function CooCheena() {
                   <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#7A5A3A", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click any card to view details & save!</p>
                 </div>
               )}
+              </>)}
             </div>
           )}
 
