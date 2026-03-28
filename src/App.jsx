@@ -623,7 +623,7 @@ function EasyModeModal({ onConfirm, onCancel }) {
 }
 
 // ── Meal Calendar Tab ──
-function MealCalendarTab({ recipes, mealPlan, setMealPlan, mealHistory, setMealHistory, toast }) {
+function MealCalendarTab({ recipes, mealPlan, setMealPlan, mealHistory, setMealHistory, toast, books = [], mealPlanExcludedBooks = [] }) {
   const [showEasyMode, setShowEasyMode] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [dragOver, setDragOver] = useState(null); // "day-meal"
@@ -815,7 +815,11 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
       {showEasyMode && <EasyModeModal onConfirm={generateWeek} onCancel={() => setShowEasyMode(false)} />}
 
       {/* Recipe picker modal */}
-      {pickerFor && (
+      {pickerFor && (() => {
+        const pickerRecipes = mealPlanExcludedBooks.length === 0 ? recipes : recipes.filter(r =>
+          !books.some(b => mealPlanExcludedBooks.includes(b.id) && b.recipeIds.includes(r.id))
+        );
+        return (
         <div className="pm-modal-bg" onClick={() => setPickerFor(null)}>
           <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setPickerFor(null)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
@@ -823,7 +827,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
               Pick a recipe for {pickerFor.day} {pickerFor.meal}
             </h3>
             <div style={{ display:"flex", flexDirection:"column", gap:"8px", maxHeight:"60vh", overflowY:"auto" }}>
-              {recipes.map(r => (
+              {pickerRecipes.map(r => (
                 <div key={r.id} onClick={() => { setSlot(pickerFor.day, pickerFor.meal, r.id); setPickerFor(null); toast("📅 Added!"); }}
                   style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 14px", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", cursor:"pointer", boxShadow:"2px 2px 0 #1a1a1a", transition:"all 0.1s" }}
                   onMouseEnter={e => e.currentTarget.style.background="#ffd166"}
@@ -838,7 +842,8 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
@@ -1184,6 +1189,7 @@ export default function CooCheena() {
   const [selected, setSelected] = useState(null);
   const [filterCat, setFilterCat] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [mealPlanExcludedBooks, setMealPlanExcludedBooks] = useState(() => load("rv_excluded_books", []));
   const [error, setError] = useState("");
   const [tab, setTab] = useState("add");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1387,6 +1393,14 @@ export default function CooCheena() {
     }
   };
 
+  const toggleBookMealPlan = (bookId) => {
+    setMealPlanExcludedBooks(prev => {
+      const next = prev.includes(bookId) ? prev.filter(id => id !== bookId) : [...prev, bookId];
+      save("rv_excluded_books", next);
+      return next;
+    });
+  };
+
   const handleDelete = async (id) => {
     if (!user) return;
     await supabase.from("recipes").delete().eq("id", id).eq("user_id", user.id);
@@ -1556,15 +1570,24 @@ export default function CooCheena() {
                   <span className="rb-book-count">{recipes.length} recipe{recipes.length !== 1 ? "s" : ""}</span>
                 </div>
                 {/* User book cards */}
-                {books.map(book => (
-                  <div key={book.id} className={`rb-book-card ${activeBook === book.id ? "active" : ""}`}
-                    onClick={() => setActiveBook(activeBook === book.id ? null : book.id)}>
-                    <button className="rb-book-delete" onClick={e => { e.stopPropagation(); deleteBook(book.id); }}>✕</button>
-                    <span className="rb-book-emoji">{book.emoji}</span>
-                    <span className="rb-book-name">{book.name}</span>
-                    <span className="rb-book-count">{book.recipeIds.length} recipe{book.recipeIds.length !== 1 ? "s" : ""}</span>
-                  </div>
-                ))}
+                {books.map(book => {
+                  const excluded = mealPlanExcludedBooks.includes(book.id);
+                  return (
+                    <div key={book.id} className={`rb-book-card ${activeBook === book.id ? "active" : ""}`}
+                      onClick={() => setActiveBook(activeBook === book.id ? null : book.id)}>
+                      <button className="rb-book-delete" onClick={e => { e.stopPropagation(); deleteBook(book.id); }}>✕</button>
+                      <span className="rb-book-emoji">{book.emoji}</span>
+                      <span className="rb-book-name">{book.name}</span>
+                      <span className="rb-book-count">{book.recipeIds.length} recipe{book.recipeIds.length !== 1 ? "s" : ""}</span>
+                      <button
+                        onClick={e => { e.stopPropagation(); toggleBookMealPlan(book.id); }}
+                        title={excluded ? "Excluded from meal plan — click to include" : "Included in meal plan — click to exclude"}
+                        style={{ background:"none", border:"none", cursor:"pointer", fontSize:"13px", padding:"0", lineHeight:1, opacity: excluded ? 1 : 0.35, marginTop:"2px" }}>
+                        {excluded ? "🚫" : "📅"}
+                      </button>
+                    </div>
+                  );
+                })}
                 {/* New book */}
                 {showNewBook ? (
                   <div className="rb-new-book-form">
@@ -1635,7 +1658,8 @@ export default function CooCheena() {
           {/* MEAL PLAN TAB */}
           {tab === "calendar" && (
             <MealCalendarTab recipes={recipes} mealPlan={mealPlan} setMealPlan={setMealPlan}
-              mealHistory={mealHistory} setMealHistory={setMealHistory} toast={toast} />
+              mealHistory={mealHistory} setMealHistory={setMealHistory} toast={toast}
+              books={books} mealPlanExcludedBooks={mealPlanExcludedBooks} />
           )}
 
           {/* GROCERY LIST TAB */}
