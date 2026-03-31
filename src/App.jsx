@@ -887,7 +887,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
       const newDays = { ...(mealPlan.days || {}) };
       DAYS.forEach(day => {
         if (result[day]) {
-          const rid = typeof result[day] === "string" ? parseInt(result[day]) : result[day];
+          const rid = result[day];
           newDays[day] = { ...(newDays[day] || {}), Dinner: [rid] };
         }
       });
