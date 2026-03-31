@@ -431,9 +431,10 @@ const SYS_RECIPE_GEN = `You are a creative chef. Return ONLY a JSON object:
 const SYS_RECIPE_GEN_3 = `You are a creative chef. Return ONLY a JSON array of exactly 3 recipe objects. Make each recipe meaningfully different in style, cuisine, or technique. Each object must follow this exact shape:
 {"title":"...","description":"One sentence.","prepTime":"15 min","cookTime":"30 min","servings":"4","category":"Dinner","ingredients":["..."],"steps":["..."],"tags":["..."]}`;
 
-const SYS_MEAL_PLAN = `You are a meal planning assistant. Return ONLY a JSON object mapping day names to recipe IDs for dinner slots. Use exactly this format:
-{"Monday":"recipeId","Tuesday":"recipeId",...}
-Rules: avoid recipes used in the last 2 weeks, prefer quick recipes (under 30min total) for easy mode nights.`;
+const SYS_MEAL_PLAN = `You are a meal planning assistant. Return ONLY a JSON object mapping each day to an object with meal slots. Use exactly this format:
+{"Monday":{"Breakfast":"recipeId","Lunch":"recipeId","Dinner":"recipeId"},"Tuesday":{...},...}
+You MUST include all 7 days (Monday through Sunday). Only include a meal key if recipes are available for that meal type.
+Rules: avoid recipes from recent history, prefer quick recipes (≤30min total) for Dinner on easy mode nights.`;
 
 const SYS_GROCERY = `You are a grocery list generator. Given a list of ingredients from multiple recipes, consolidate them (combine duplicates, sum quantities) and categorize each. Return ONLY a JSON array:
 [{"name":"2 cloves garlic","section":"Produce"},{"name":"1 lb chicken breast","section":"Meat & Seafood"},...]
@@ -863,45 +864,44 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, mealHistory, setMealH
     // Get recent history (last 2 weeks)
     const historyTitles = mealHistory.map(h => h.title);
     const dinnerRecipes = recipes.filter(r => !r.category || r.category === "Dinner" || r.category === "Other");
-    const easyRecipes = dinnerRecipes.filter(r => parseTotalMinutes(r.prepTime, r.cookTime) <= 30);
-    const normalRecipes = dinnerRecipes.filter(r => !historyTitles.includes(r.title));
+    const breakfastRecipes = recipes.filter(r => r.category === "Breakfast");
+    const lunchRecipes = recipes.filter(r => r.category === "Lunch");
 
     if (dinnerRecipes.length < 3) {
       toast("⚠️ Add more dinner recipes first!"); setGenerating(false); return;
     }
 
-    const recipeList = dinnerRecipes.map(r => ({
+    const toList = arr => arr.map(r => ({
       id: r.id, title: r.title,
       totalTime: parseTotalMinutes(r.prepTime, r.cookTime),
       isQuick: parseTotalMinutes(r.prepTime, r.cookTime) <= 30
     }));
 
     const result = await callClaude(SYS_MEAL_PLAN,
-      `Here are my saved dinner recipes: ${JSON.stringify(recipeList)}
-Recent history (avoid these): ${JSON.stringify(historyTitles)}
-Easy mode nights (assign quick recipes ≤30min): ${JSON.stringify(easyNights)}
-Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to recipe id number.`
-    , 800);
+      `Dinner recipes: ${JSON.stringify(toList(dinnerRecipes))}
+${breakfastRecipes.length ? `Breakfast recipes: ${JSON.stringify(toList(breakfastRecipes))}` : "No breakfast recipes available."}
+${lunchRecipes.length ? `Lunch recipes: ${JSON.stringify(toList(lunchRecipes))}` : "No lunch recipes available."}
+Recent history (avoid repeats): ${JSON.stringify(historyTitles)}
+Easy mode nights (assign quick Dinner recipes ≤30min): ${JSON.stringify(easyNights)}
+Assign recipes for all 7 days. Only include meal keys where recipes are available.`
+    , 1500);
 
     if (result) {
       const newDays = { ...(mealPlan.days || {}) };
-      DAYS.forEach(day => {
-        if (result[day]) {
-          const rid = result[day];
-          newDays[day] = { ...(newDays[day] || {}), Dinner: [rid] };
-        }
-      });
-      // Save to history
       const newHistory = [...mealHistory];
       DAYS.forEach(day => {
-        const dinnerSlot = newDays[day]?.Dinner;
-        const rid = Array.isArray(dinnerSlot) ? dinnerSlot[0] : dinnerSlot;
-        if (rid) {
-          const r = recipes.find(x => x.id === rid);
-          if (r && !newHistory.find(h => h.title === r.title)) {
-            newHistory.push({ title: r.title, weekOf, addedAt: Date.now() });
+        const dayResult = result[day];
+        if (!dayResult) return;
+        newDays[day] = { ...(newDays[day] || {}) };
+        MEALS.forEach(meal => {
+          if (dayResult[meal]) {
+            newDays[day][meal] = [dayResult[meal]];
+            const r = recipes.find(x => x.id === dayResult[meal]);
+            if (r && !newHistory.find(h => h.title === r.title)) {
+              newHistory.push({ title: r.title, weekOf, addedAt: Date.now() });
+            }
           }
-        }
+        });
       });
       // Keep only 2 weeks of history
       const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
@@ -909,7 +909,7 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
       setMealPlan(prev => ({ ...prev, weekOf, days: newDays, easyNights }));
       toast("✨ Week planned! Drag to adjust.");
     } else {
-      toast("⚠️ Couldn't generate plan. Try again!"); 
+      toast("⚠️ Couldn't generate plan. Try again!");
     }
     setGenerating(false);
   };
