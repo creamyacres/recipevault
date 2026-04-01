@@ -703,7 +703,6 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
           {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", padding:"1px 7px" }}>⏱ {recipe.prepTime}</span>}
           {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", padding:"1px 7px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
         </div>
-        {draggable && <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, color:"#C4A882", marginTop:"6px", textAlign:"center", textTransform:"uppercase", letterSpacing:"0.5px" }}>drag to calendar ↑</div>}
       </div>
     </div>
   );
@@ -999,7 +998,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       </div>
 
       {/* Calendar Grid */}
-      <div className="cal-grid" style={{ marginBottom:"20px" }}>
+      <div className="cal-grid" style={{ marginBottom:"20px", gridTemplateColumns:`repeat(${activeDates.length}, 1fr)` }}>
         {activeDates.map(date => {
           const isEasy = mealPlan.easyNights?.includes(date);
           return (
@@ -1040,11 +1039,11 @@ Assign recipes for every date in the range. Only include meal keys where recipes
         })}
       </div>
 
-      {/* Drag-from sidebar hint */}
+      {/* Picker hint */}
       <div style={{ background:"#fff9ed", border:"3px dashed #c8b89a", borderRadius:"12px", padding:"14px 20px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"10px" }}>
         <span style={{ fontSize:"20px" }}>👆</span>
         <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7a5c3a" }}>
-          Drag recipes from <strong>My Recipes</strong> onto any slot, or click a <strong>+</strong> to pick from your library!
+          Click any <strong>+</strong> slot to pick a recipe from your library!
         </span>
       </div>
 
@@ -1157,13 +1156,15 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
   const generateGroceryList = async () => {
     if (uniqueRecipes.length === 0) { toast("⚠️ Plan some meals first!"); return; }
     setGenerating(true);
-    const allIngredients = uniqueRecipes.flatMap(r => r.ingredients || []);
-    const result = await callClaude(SYS_GROCERY,
-      `Consolidate and categorize these ingredients from ${uniqueRecipes.length} recipes: ${JSON.stringify(allIngredients)}`, 2000);
-    if (result && Array.isArray(result)) {
-      setGroceryList({ items: result.map((item, i) => ({ ...item, id: i, checked: false, skipped: false })), generatedAt: Date.now() });
-      toast("🛒 Grocery list ready!");
-    } else { toast("⚠️ Couldn't generate list. Try again!"); }
+    try {
+      const allIngredients = uniqueRecipes.flatMap(r => r.ingredients || []);
+      const result = await callClaude(SYS_GROCERY,
+        `Consolidate and categorize these ingredients from ${uniqueRecipes.length} recipes: ${JSON.stringify(allIngredients)}`, 2000);
+      if (result && Array.isArray(result)) {
+        setGroceryList({ items: result.map((item, i) => ({ ...item, id: i, checked: false, skipped: false })), generatedAt: Date.now() });
+        toast("🛒 Grocery list ready!");
+      } else { toast("⚠️ Couldn't generate list. Try again!"); }
+    } catch { toast("⚠️ Couldn't generate list. Try again!"); }
     setGenerating(false);
   };
 
@@ -1615,26 +1616,9 @@ export default function CooCheena() {
     }, { onConflict: "user_id,week_of" });
   }, [groceryList, user]);
 
-  // ── Load plan + grocery when user picks a new date range ──
-  const handleDateRangeChange = async (startDate, endDate) => {
-    const { data } = await supabase.from("meal_plans")
-      .select("*").eq("user_id", user.id).eq("week_of", startDate).single();
-    if (data) {
-      const normalizedDays = {};
-      Object.entries(data.days || {}).forEach(([date, meals]) => {
-        normalizedDays[date] = {};
-        Object.entries(meals).forEach(([meal, val]) => {
-          normalizedDays[date][meal] = Array.isArray(val) ? val : (val ? [val] : []);
-        });
-      });
-      setMealPlan({ startDate, endDate, days: normalizedDays, easyNights: data.easy_mode_nights || [] });
-      const { data: gl } = await supabase.from("grocery_lists")
-        .select("*").eq("user_id", user.id).eq("week_of", startDate).single();
-      setGroceryList({ items: gl?.items || [] });
-    } else {
-      setMealPlan({ startDate, endDate, days: {}, easyNights: [] });
-      setGroceryList({ items: [] });
-    }
+  // ── Update date range — preserve all existing meals, just shift the view ──
+  const handleDateRangeChange = (startDate, endDate) => {
+    setMealPlan(prev => ({ ...prev, startDate, endDate }));
   };
 
   const signOut = async () => {
@@ -1844,12 +1828,12 @@ export default function CooCheena() {
         {/* Ticker */}
         <div className="cc-ticker">
           <div className="cc-ticker-inner">
-            <span className="cc-ticker-item">WHAT'S FOR DINNER</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">WHAT'S FOR DINNER?</span><span className="cc-ticker-dot">✦</span>
             <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot">✦</span>
             <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot">✦</span>
             <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot">✦</span>
             <span className="cc-ticker-item">YOUR KITCHEN YOUR RULES</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">WHAT'S FOR DINNER</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">WHAT'S FOR DINNER?</span><span className="cc-ticker-dot">✦</span>
             <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot">✦</span>
             <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot">✦</span>
             <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot">✦</span>
