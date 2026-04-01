@@ -1536,29 +1536,38 @@ export default function CooCheena() {
       // Load meal plan — find one whose date range contains today
       supabase.from("meal_plans").select("*").eq("user_id", user.id)
         .then(({ data: plans }) => {
-          if (!plans || plans.length === 0) { setMealPlanLoaded(true); return; }
-          const today = todayISO();
-          const active = plans.find(p => {
-            const start = p.week_of;
-            const dayKeys = Object.keys(p.days || {}).sort();
-            const end = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(start, 6);
-            return start <= today && today <= end;
-          });
-          if (!active) { setMealPlanLoaded(true); return; }
-          const normalizedDays = {};
-          Object.entries(active.days || {}).forEach(([date, meals]) => {
-            normalizedDays[date] = {};
-            Object.entries(meals).forEach(([meal, val]) => {
-              normalizedDays[date][meal] = Array.isArray(val) ? val : (val ? [val] : []);
+          try {
+            if (!plans || plans.length === 0) return;
+            const today = todayISO();
+            const isISODate = s => /^\d{4}-\d{2}-\d{2}$/.test(s);
+            // Ignore old-format plans keyed by day name — they cause infinite loops
+            const validPlans = plans.filter(p => {
+              const keys = Object.keys(p.days || {});
+              return keys.length === 0 || isISODate(keys[0]);
             });
-          });
-          const dayKeys = Object.keys(active.days || {}).sort();
-          const endDate = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(active.week_of, 6);
-          setMealPlan({ startDate: active.week_of, endDate, days: normalizedDays, easyNights: active.easy_mode_nights || [] });
-          setMealPlanLoaded(true);
-          // Load associated grocery list
-          supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", active.week_of).single()
-            .then(({ data: gl }) => { if (gl) setGroceryList({ items: gl.items || [] }); });
+            const active = validPlans.find(p => {
+              const start = p.week_of;
+              const dayKeys = Object.keys(p.days || {}).sort();
+              const end = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(start, 6);
+              return start <= today && today <= end;
+            });
+            if (!active) return;
+            const normalizedDays = {};
+            Object.entries(active.days || {}).forEach(([date, meals]) => {
+              normalizedDays[date] = {};
+              Object.entries(meals).forEach(([meal, val]) => {
+                normalizedDays[date][meal] = Array.isArray(val) ? val : (val ? [val] : []);
+              });
+            });
+            const dayKeys = Object.keys(active.days || {}).sort();
+            const endDate = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(active.week_of, 6);
+            setMealPlan({ startDate: active.week_of, endDate, days: normalizedDays, easyNights: active.easy_mode_nights || [] });
+            // Load associated grocery list
+            supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", active.week_of).single()
+              .then(({ data: gl }) => { if (gl) setGroceryList({ items: gl.items || [] }); });
+          } finally {
+            setMealPlanLoaded(true);
+          }
         });
 
       // Load recipe books
