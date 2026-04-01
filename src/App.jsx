@@ -431,9 +431,10 @@ const SYS_RECIPE_GEN = `You are a creative chef. Return ONLY a JSON object:
 const SYS_RECIPE_GEN_3 = `You are a creative chef. Return ONLY a JSON array of exactly 3 recipe objects. Make each recipe meaningfully different in style, cuisine, or technique. Each object must follow this exact shape:
 {"title":"...","description":"One sentence.","prepTime":"15 min","cookTime":"30 min","servings":"4","category":"Dinner","ingredients":["..."],"steps":["..."],"tags":["..."]}`;
 
-const SYS_MEAL_PLAN = `You are a meal planning assistant. Return ONLY a JSON object mapping day names to recipe IDs for dinner slots. Use exactly this format:
-{"Monday":"recipeId","Tuesday":"recipeId",...}
-Rules: avoid recipes used in the last 2 weeks, prefer quick recipes (under 30min total) for easy mode nights.`;
+const SYS_MEAL_PLAN = `You are a meal planning assistant. Return ONLY a JSON object mapping each date (ISO format YYYY-MM-DD) to an object with meal slots. Use exactly this format:
+{"2026-03-31":{"Breakfast":"recipeId","Lunch":"recipeId","Dinner":"recipeId"},"2026-04-01":{...},...}
+You MUST include every date provided in the date range. Only include a meal key if recipes are available for that meal type.
+Rules: avoid recipes from recent history, prefer quick recipes (≤30min total) for Dinner on easy mode dates.`;
 
 const SYS_GROCERY = `You are a grocery list generator. Given a list of ingredients from multiple recipes, consolidate them (combine duplicates, sum quantities) and categorize each. Return ONLY a JSON array:
 [{"name":"2 cloves garlic","section":"Produce"},{"name":"1 lb chicken breast","section":"Meat & Seafood"},...]
@@ -451,6 +452,28 @@ function getWeekOf() {
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   const mon = new Date(d.setDate(diff));
   return mon.toISOString().split("T")[0];
+}
+
+function todayISO() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function addDays(isoDate, n) {
+  const d = new Date(isoDate + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return d.toISOString().split("T")[0];
+}
+
+function dateRangeDates(startDate, endDate) {
+  const dates = [];
+  let cur = startDate;
+  while (cur <= endDate) { dates.push(cur); cur = addDays(cur, 1); }
+  return dates;
+}
+
+function formatDateLabel(isoDate) {
+  const d = new Date(isoDate + "T00:00:00");
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 
 // ── Toast ──
@@ -771,7 +794,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
 }
 
 // ── Easy Mode Modal ──
-function EasyModeModal({ onConfirm, onCancel }) {
+function EasyModeModal({ dates, onConfirm, onCancel }) {
   const [selected, setSelected] = useState([]);
   const toggle = d => setSelected(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]);
   return (
@@ -785,17 +808,17 @@ function EasyModeModal({ onConfirm, onCancel }) {
           </p>
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px", marginBottom:"24px" }}>
-          {DAYS.map(d => (
+          {dates.map(d => (
             <button key={d} onClick={() => toggle(d)} className="pm-btn"
-              style={{ padding:"12px", background: selected.includes(d) ? "#457b9d" : "#fff", color: selected.includes(d) ? "#fff" : "#1a1a1a", fontSize:"16px" }}>
-              {selected.includes(d) ? "⚡" : "🍽️"} {d}
+              style={{ padding:"12px", background: selected.includes(d) ? "#457b9d" : "#fff", color: selected.includes(d) ? "#fff" : "#1a1a1a", fontSize:"15px" }}>
+              {selected.includes(d) ? "⚡" : "🍽️"} {formatDateLabel(d)}
             </button>
           ))}
         </div>
         <div style={{ display:"flex", gap:"10px" }}>
           <button onClick={onCancel} className="pm-btn" style={{ flex:1, padding:"12px", background:"#f5e6c8", color:"#1a1a1a" }}>Cancel</button>
           <button onClick={() => onConfirm(selected)} className="pm-btn" style={{ flex:2, padding:"12px", background:"#ff5252", color:"#fff" }}>
-            ✨ Generate My Week!
+            ✨ Generate My Plan!
           </button>
         </div>
       </div>
@@ -803,56 +826,79 @@ function EasyModeModal({ onConfirm, onCancel }) {
   );
 }
 
+// ── Date Range Picker ──
+function DateRangePicker({ startDate, endDate, onChange }) {
+  const today = todayISO();
+  const handleStart = (e) => {
+    const newStart = e.target.value;
+    if (newStart < today) return;
+    const maxEnd = addDays(newStart, 6);
+    const newEnd = endDate > maxEnd ? maxEnd : (endDate < newStart ? newStart : endDate);
+    onChange(newStart, newEnd);
+  };
+  const handleEnd = (e) => {
+    const newEnd = e.target.value;
+    if (newEnd < startDate) return;
+    const maxEnd = addDays(startDate, 6);
+    onChange(startDate, newEnd > maxEnd ? maxEnd : newEnd);
+  };
+  const dayCount = dateRangeDates(startDate, endDate).length;
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", boxShadow:"2px 2px 0 #1a1a1a" }}>
+      <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A" }}>PLAN DATES</span>
+      <input type="date" value={startDate} min={today} onChange={handleStart}
+        className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
+      <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A" }}>→</span>
+      <input type="date" value={endDate} min={startDate} max={addDays(startDate, 6)} onChange={handleEnd}
+        className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
+      <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A", whiteSpace:"nowrap" }}>
+        {dayCount} day{dayCount !== 1 ? "s" : ""}
+      </span>
+    </div>
+  );
+}
+
 // ── Meal Calendar Tab ──
-function MealCalendarTab({ recipes, mealPlan, setMealPlan, mealHistory, setMealHistory, toast, books = [], mealPlanExcludedBooks = [] }) {
+function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, mealHistory, setMealHistory, toast, books = [], mealPlanExcludedBooks = [] }) {
   const [showEasyMode, setShowEasyMode] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [dragOver, setDragOver] = useState(null); // "day-meal"
-  const [pickerFor, setPickerFor] = useState(null); // {day, meal}
+  const [dragOver, setDragOver] = useState(null); // "date-meal"
+  const [pickerFor, setPickerFor] = useState(null); // {day: isoDate, meal}
   const [pickerSearch, setPickerSearch] = useState("");
   const [pickerCat, setPickerCat] = useState("All");
 
-  const weekOf = mealPlan.weekOf || getWeekOf();
+  const activeDates = dateRangeDates(mealPlan.startDate, mealPlan.endDate);
 
-  const getSlot = (day, meal) => {
-    const val = mealPlan.days?.[day]?.[meal];
+  const getSlot = (date, meal) => {
+    const val = mealPlan.days?.[date]?.[meal];
     const ids = Array.isArray(val) ? val : (val ? [val] : []);
     return ids.map(id => recipes.find(r => r.id === id)).filter(Boolean);
   };
 
-  const setSlot = (day, meal, recipeId) => {
+  const setSlot = (date, meal, recipeId) => {
     setMealPlan(prev => {
-      const existing = prev.days?.[day]?.[meal];
+      const existing = prev.days?.[date]?.[meal];
       const ids = Array.isArray(existing) ? existing : (existing ? [existing] : []);
       if (ids.includes(recipeId)) return prev;
       return {
         ...prev,
-        weekOf,
-        days: { ...prev.days, [day]: { ...(prev.days?.[day] || {}), [meal]: [...ids, recipeId] } }
+        days: { ...prev.days, [date]: { ...(prev.days?.[date] || {}), [meal]: [...ids, recipeId] } }
       };
     });
   };
 
-  const removeFromSlot = (day, meal, recipeId) => {
+  const removeFromSlot = (date, meal, recipeId) => {
     setMealPlan(prev => {
-      const existing = prev.days?.[day]?.[meal];
+      const existing = prev.days?.[date]?.[meal];
       const ids = Array.isArray(existing) ? existing : (existing ? [existing] : []);
-      return { ...prev, days: { ...prev.days, [day]: { ...(prev.days?.[day] || {}), [meal]: ids.filter(id => id !== recipeId) } } };
+      return { ...prev, days: { ...prev.days, [date]: { ...(prev.days?.[date] || {}), [meal]: ids.filter(id => id !== recipeId) } } };
     });
   };
 
-  const clearSlot = (day, meal) => {
-    setMealPlan(prev => {
-      const days = { ...prev.days };
-      if (days[day]) { const d = { ...days[day] }; delete d[meal]; days[day] = d; }
-      return { ...prev, days };
-    });
-  };
-
-  const handleDrop = (e, day, meal) => {
+  const handleDrop = (e, date, meal) => {
     e.preventDefault();
     const id = e.dataTransfer.getData("recipeId");
-    if (id) { setSlot(day, meal, parseInt(id)); toast("📅 Recipe added to " + day + " " + meal + "!"); }
+    if (id) { setSlot(date, meal, id); toast("📅 Added to " + formatDateLabel(date) + "!"); }
     setDragOver(null);
   };
 
@@ -860,122 +906,129 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, mealHistory, setMealH
     setShowEasyMode(false);
     setGenerating(true);
 
-    // Get recent history (last 2 weeks)
     const historyTitles = mealHistory.map(h => h.title);
     const dinnerRecipes = recipes.filter(r => !r.category || r.category === "Dinner" || r.category === "Other");
-    const easyRecipes = dinnerRecipes.filter(r => parseTotalMinutes(r.prepTime, r.cookTime) <= 30);
-    const normalRecipes = dinnerRecipes.filter(r => !historyTitles.includes(r.title));
+    const breakfastRecipes = recipes.filter(r => r.category === "Breakfast");
+    const lunchRecipes = recipes.filter(r => r.category === "Lunch");
 
     if (dinnerRecipes.length < 3) {
       toast("⚠️ Add more dinner recipes first!"); setGenerating(false); return;
     }
 
-    const recipeList = dinnerRecipes.map(r => ({
+    const toList = arr => arr.map(r => ({
       id: r.id, title: r.title,
       totalTime: parseTotalMinutes(r.prepTime, r.cookTime),
       isQuick: parseTotalMinutes(r.prepTime, r.cookTime) <= 30
     }));
 
     const result = await callClaude(SYS_MEAL_PLAN,
-      `Here are my saved dinner recipes: ${JSON.stringify(recipeList)}
-Recent history (avoid these): ${JSON.stringify(historyTitles)}
-Easy mode nights (assign quick recipes ≤30min): ${JSON.stringify(easyNights)}
-Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to recipe id number.`
-    , 800);
+      `Date range to plan: ${activeDates.join(", ")}
+Dinner recipes: ${JSON.stringify(toList(dinnerRecipes))}
+${breakfastRecipes.length ? `Breakfast recipes: ${JSON.stringify(toList(breakfastRecipes))}` : "No breakfast recipes available."}
+${lunchRecipes.length ? `Lunch recipes: ${JSON.stringify(toList(lunchRecipes))}` : "No lunch recipes available."}
+Recent history (avoid repeats): ${JSON.stringify(historyTitles)}
+Easy mode dates (assign quick Dinner recipes ≤30min): ${JSON.stringify(easyNights)}
+Assign recipes for every date in the range. Only include meal keys where recipes are available.`
+    , 1500);
 
     if (result) {
       const newDays = { ...(mealPlan.days || {}) };
-      DAYS.forEach(day => {
-        if (result[day]) {
-          const rid = result[day];
-          newDays[day] = { ...(newDays[day] || {}), Dinner: [rid] };
-        }
-      });
-      // Save to history
       const newHistory = [...mealHistory];
-      DAYS.forEach(day => {
-        const dinnerSlot = newDays[day]?.Dinner;
-        const rid = Array.isArray(dinnerSlot) ? dinnerSlot[0] : dinnerSlot;
-        if (rid) {
-          const r = recipes.find(x => x.id === rid);
-          if (r && !newHistory.find(h => h.title === r.title)) {
-            newHistory.push({ title: r.title, weekOf, addedAt: Date.now() });
+      activeDates.forEach(date => {
+        const dayResult = result[date];
+        if (!dayResult) return;
+        newDays[date] = { ...(newDays[date] || {}) };
+        MEALS.forEach(meal => {
+          if (dayResult[meal]) {
+            newDays[date][meal] = [dayResult[meal]];
+            const r = recipes.find(x => x.id === dayResult[meal]);
+            if (r && !newHistory.find(h => h.title === r.title)) {
+              newHistory.push({ title: r.title, addedAt: Date.now() });
+            }
           }
-        }
+        });
       });
-      // Keep only 2 weeks of history
       const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
       setMealHistory(newHistory.filter(h => h.addedAt > twoWeeksAgo));
-      setMealPlan(prev => ({ ...prev, weekOf, days: newDays, easyNights }));
-      toast("✨ Week planned! Drag to adjust.");
+      setMealPlan(prev => ({ ...prev, days: newDays, easyNights }));
+      toast("✨ Plan generated! Drag to adjust.");
     } else {
-      toast("⚠️ Couldn't generate plan. Try again!"); 
+      toast("⚠️ Couldn't generate plan. Try again!");
     }
     setGenerating(false);
   };
 
-  const clearWeek = () => { setMealPlan({ weekOf, days: {}, easyNights: [] }); toast("🗑️ Week cleared!"); };
+  const clearWeek = () => { setMealPlan(prev => ({ ...prev, days: {}, easyNights: [] })); toast("🗑️ Plan cleared!"); };
 
   return (
     <div>
       {/* Header */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"20px", flexWrap:"wrap", gap:"12px" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#ffd166", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"4px 4px 0 #1a1a1a", padding:"8px 20px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>📅 Weekly Meal Plan</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>📅 Meal Plan</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={() => setShowEasyMode(true)} disabled={generating || recipes.length === 0} className="pm-btn"
             style={{ padding:"10px 18px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"14px" }}>
-            {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}>🍳</span> Planning...</> : "⚡ AI Plan My Week"}
+            {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}>🍳</span> Planning...</> : "⚡ AI Plan My Dates"}
           </button>
           <button onClick={clearWeek} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"13px" }}>🗑️ Clear</button>
         </div>
       </div>
 
+      {/* Date range picker */}
+      <div style={{ marginBottom:"16px" }}>
+        <DateRangePicker
+          startDate={mealPlan.startDate}
+          endDate={mealPlan.endDate}
+          onChange={onDateRangeChange}
+        />
+      </div>
+
       {recipes.length === 0 && (
         <div style={{ textAlign:"center", padding:"40px", background:"#fff9ed", border:"3px dashed #c8b89a", borderRadius:"16px", marginBottom:"20px" }}>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"16px", fontWeight:700, color:"#7a5c3a" }}>Add some recipes first, then come back to plan your week! 🍽️</p>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"16px", fontWeight:700, color:"#7a5c3a" }}>Add some recipes first, then come back to plan your meals! 🍽️</p>
         </div>
       )}
 
       {/* Legend */}
       <div style={{ display:"flex", gap:"10px", marginBottom:"12px", flexWrap:"wrap", alignItems:"center" }}>
         <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7a5c3a" }}>Legend:</span>
-        <span style={{ background:"#e8f5ff", border:"2px solid #457b9d", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#457b9d" }}>⚡ Easy Mode Night</span>
+        <span style={{ background:"#e8f5ff", border:"2px solid #457b9d", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#457b9d" }}>⚡ Easy Mode</span>
         {MEALS.map(m => <span key={m} style={{ background: MEAL_COLORS[m], border:"2px solid #1a1a1a", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700 }}>{m}</span>)}
       </div>
 
       {/* Calendar Grid */}
       <div className="cal-grid" style={{ marginBottom:"20px" }}>
-        {DAYS.map((day, di) => {
-          const isEasy = mealPlan.easyNights?.includes(day);
+        {activeDates.map(date => {
+          const isEasy = mealPlan.easyNights?.includes(date);
           return (
-            <div key={day} className={`cal-day ${isEasy ? "easy-mode" : ""}`}>
-              <div className="cal-day-header">
-                {isEasy && <span style={{ color:"#457b9d" }}>⚡</span>} {DAY_SHORT[di]}
+            <div key={date} className={`cal-day ${isEasy ? "easy-mode" : ""}`}>
+              <div className="cal-day-header" style={{ fontSize:"11px", lineHeight:1.2, padding:"6px 4px" }}>
+                {isEasy && <span style={{ color:"#457b9d" }}>⚡</span>} {formatDateLabel(date)}
               </div>
               {MEALS.map(meal => {
-                const slotRecipes = getSlot(day, meal);
-                const slotKey = `${day}-${meal}`;
+                const slotRecipes = getSlot(date, meal);
+                const slotKey = `${date}-${meal}`;
                 return (
                   <div key={meal} className="cal-meal-slot-wrap"
                     onDragOver={e => { e.preventDefault(); setDragOver(slotKey); }}
                     onDragLeave={() => setDragOver(null)}
-                    onDrop={e => handleDrop(e, day, meal)}>
+                    onDrop={e => handleDrop(e, date, meal)}>
                     <div className="meal-label" style={{ color: MEAL_COLORS[meal] }}>{meal.slice(0,1)}</div>
                     {slotRecipes.length > 0 ? (
                       <div className="cal-meal-slot filled" style={{ borderColor: MEAL_COLORS[meal], background: MEAL_COLORS[meal] + "22", flexDirection:"column", alignItems:"stretch", gap:"3px", cursor:"default" }}>
                         {slotRecipes.map(r => (
                           <div key={r.id} style={{ display:"flex", alignItems:"flex-start", gap:"2px" }}>
                             <span style={{ fontSize:"10px", lineHeight:1.2, flex:1 }}>{r.title}</span>
-                            <button onClick={() => removeFromSlot(day, meal, r.id)} style={{ flexShrink:0, background:"#E8421A", border:"1px solid #1A0A00", borderRadius:"50%", width:"13px", height:"13px", fontSize:"7px", color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1 }}>✕</button>
+                            <button onClick={() => removeFromSlot(date, meal, r.id)} style={{ flexShrink:0, background:"#E8421A", border:"1px solid #1A0A00", borderRadius:"50%", width:"13px", height:"13px", fontSize:"7px", color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1 }}>✕</button>
                           </div>
                         ))}
-                        <button onClick={() => setPickerFor({ day, meal })} style={{ marginTop:"2px", fontSize:"9px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", background:"none", border:"1px dashed #E8421A", borderRadius:"4px", cursor:"pointer", padding:"1px 4px", alignSelf:"flex-start" }}>+ add</button>
+                        <button onClick={() => setPickerFor({ day: date, meal })} style={{ marginTop:"2px", fontSize:"9px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", background:"none", border:"1px dashed #E8421A", borderRadius:"4px", cursor:"pointer", padding:"1px 4px", alignSelf:"flex-start" }}>+ add</button>
                       </div>
                     ) : (
                       <div className={`cal-meal-slot ${dragOver === slotKey ? "drag-over" : ""}`}
-                        onClick={() => setPickerFor({ day, meal })}>
+                        onClick={() => setPickerFor({ day: date, meal })}>
                         +
                       </div>
                     )}
@@ -995,17 +1048,14 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
         </span>
       </div>
 
-      {showEasyMode && <EasyModeModal onConfirm={generateWeek} onCancel={() => setShowEasyMode(false)} />}
+      {showEasyMode && <EasyModeModal dates={activeDates} onConfirm={generateWeek} onCancel={() => setShowEasyMode(false)} />}
 
       {/* Recipe picker modal */}
       {pickerFor && (() => {
-        // Base: exclude books marked as hidden from meal plan
         let pickerRecipes = mealPlanExcludedBooks.length === 0 ? recipes : recipes.filter(r =>
           !books.some(b => mealPlanExcludedBooks.includes(b.id) && b.recipeIds.includes(r.id))
         );
-        // Category filter
         if (pickerCat !== "All") pickerRecipes = pickerRecipes.filter(r => r.category === pickerCat);
-        // Search filter
         if (pickerSearch.trim()) {
           const q = pickerSearch.toLowerCase();
           pickerRecipes = pickerRecipes.filter(r =>
@@ -1020,25 +1070,18 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
           <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
             <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"14px", paddingRight:"40px" }}>
-              Pick a recipe for {pickerFor.day} {pickerFor.meal}
+              Pick a recipe for {formatDateLabel(pickerFor.day)} {pickerFor.meal}
             </h3>
-            {/* Search */}
             <div style={{ position:"relative", marginBottom:"10px" }}>
               <span style={{ position:"absolute", left:"10px", top:"50%", transform:"translateY(-50%)", fontSize:"14px", pointerEvents:"none" }}>🔍</span>
-              <input
-                value={pickerSearch}
-                onChange={e => setPickerSearch(e.target.value)}
-                placeholder="Search recipes, ingredients…"
-                className="pm-input"
-                style={{ width:"100%", paddingLeft:"32px", boxSizing:"border-box", fontSize:"13px", padding:"8px 10px 8px 32px" }}
-                autoFocus
-              />
+              <input value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
+                placeholder="Search recipes, ingredients…" className="pm-input"
+                style={{ width:"100%", paddingLeft:"32px", boxSizing:"border-box", fontSize:"13px", padding:"8px 10px 8px 32px" }} autoFocus />
               {pickerSearch && (
                 <button onClick={() => setPickerSearch("")}
                   style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"14px", color:"#7A5A3A", fontWeight:800 }}>✕</button>
               )}
             </div>
-            {/* Category pills */}
             <div style={{ display:"flex", gap:"5px", flexWrap:"wrap", marginBottom:"12px" }}>
               {["All", ...CATEGORIES].map(c => (
                 <button key={c} onClick={() => setPickerCat(c)} className="pm-btn"
@@ -1047,7 +1090,6 @@ Assign one dinner recipe per day for all 7 days. Return JSON mapping day name to
                 </button>
               ))}
             </div>
-            {/* Results */}
             <div style={{ display:"flex", flexDirection:"column", gap:"8px", maxHeight:"50vh", overflowY:"auto" }}>
               {pickerRecipes.length === 0 ? (
                 <div style={{ textAlign:"center", padding:"32px 0", fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A" }}>
@@ -1079,11 +1121,33 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
   const [generating, setGenerating] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [showShare, setShowShare] = useState(false);
+  const [groceryStart, setGroceryStart] = useState(mealPlan.startDate);
+  const [groceryEnd, setGroceryEnd] = useState(mealPlan.endDate);
 
+  // Keep grocery date range in sync when meal plan date range changes
+  useEffect(() => {
+    setGroceryStart(mealPlan.startDate);
+    setGroceryEnd(mealPlan.endDate);
+  }, [mealPlan.startDate, mealPlan.endDate]);
+
+  const handleGroceryStart = (e) => {
+    const val = e.target.value;
+    if (val < mealPlan.startDate || val > mealPlan.endDate) return;
+    setGroceryStart(val);
+    if (val > groceryEnd) setGroceryEnd(val);
+  };
+  const handleGroceryEnd = (e) => {
+    const val = e.target.value;
+    if (val < mealPlan.startDate || val > mealPlan.endDate) return;
+    setGroceryEnd(val);
+    if (val < groceryStart) setGroceryStart(val);
+  };
+
+  const activeDates = dateRangeDates(groceryStart || mealPlan.startDate, groceryEnd || mealPlan.endDate);
   const plannedRecipes = [];
-  DAYS.forEach(day => {
+  activeDates.forEach(date => {
     MEALS.forEach(meal => {
-      const val = mealPlan.days?.[day]?.[meal];
+      const val = mealPlan.days?.[date]?.[meal];
       const ids = Array.isArray(val) ? val : (val ? [val] : []);
       ids.forEach(id => { const r = recipes.find(x => x.id === id); if (r) plannedRecipes.push(r); });
     });
@@ -1130,7 +1194,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
 
   return (
     <div>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"20px", flexWrap:"wrap", gap:"12px" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"4px 4px 0 #1a1a1a", padding:"8px 20px" }}>
           <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>🛒 Grocery List</h2>
         </div>
@@ -1145,6 +1209,19 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
             <button onClick={clearChecked} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"13px" }}>↺ Uncheck All</button>
           </>}
         </div>
+      </div>
+
+      {/* Date range filter */}
+      <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", marginBottom:"16px", boxShadow:"2px 2px 0 #1a1a1a" }}>
+        <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A" }}>DATES</span>
+        <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
+          className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A" }}>→</span>
+        <input type="date" value={groceryEnd} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryEnd}
+          className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A" }}>
+          {activeDates.length} day{activeDates.length !== 1 ? "s" : ""}
+        </span>
       </div>
 
       {/* Planned meals summary */}
@@ -1398,7 +1475,10 @@ export default function CooCheena() {
   const [authLoading, setAuthLoading] = useState(true);
 
   const [recipes, setRecipes] = useState([]);
-  const [mealPlan, setMealPlan] = useState({ weekOf: getWeekOf(), days: {}, easyNights: [] });
+  const [mealPlan, setMealPlan] = useState(() => {
+    const start = todayISO();
+    return { startDate: start, endDate: addDays(start, 6), days: {}, easyNights: [] };
+  });
   const [groceryList, setGroceryList] = useState({ items: [] });
   const [mealHistory, setMealHistory] = useState(() => load(KEYS.mealHistory, []));
 
@@ -1451,22 +1531,32 @@ export default function CooCheena() {
         })));
       }
 
-      // Load meal plan + grocery list (non-blocking)
-      supabase.from("meal_plans").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
-        .then(({ data }) => {
-          if (data) {
-            const normalizedDays = {};
-            Object.entries(data.days || {}).forEach(([day, meals]) => {
-              normalizedDays[day] = {};
-              Object.entries(meals).forEach(([meal, val]) => {
-                normalizedDays[day][meal] = Array.isArray(val) ? val : (val ? [val] : []);
-              });
+      // Load meal plan — find one whose date range contains today
+      supabase.from("meal_plans").select("*").eq("user_id", user.id)
+        .then(({ data: plans }) => {
+          if (!plans || plans.length === 0) return;
+          const today = todayISO();
+          const active = plans.find(p => {
+            const start = p.week_of;
+            const dayKeys = Object.keys(p.days || {}).sort();
+            const end = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(start, 6);
+            return start <= today && today <= end;
+          });
+          if (!active) return;
+          const normalizedDays = {};
+          Object.entries(active.days || {}).forEach(([date, meals]) => {
+            normalizedDays[date] = {};
+            Object.entries(meals).forEach(([meal, val]) => {
+              normalizedDays[date][meal] = Array.isArray(val) ? val : (val ? [val] : []);
             });
-            setMealPlan({ weekOf: data.week_of, days: normalizedDays, easyNights: data.easy_mode_nights || [] });
-          }
+          });
+          const dayKeys = Object.keys(active.days || {}).sort();
+          const endDate = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(active.week_of, 6);
+          setMealPlan({ startDate: active.week_of, endDate, days: normalizedDays, easyNights: active.easy_mode_nights || [] });
+          // Load associated grocery list
+          supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", active.week_of).single()
+            .then(({ data: gl }) => { if (gl) setGroceryList({ items: gl.items || [] }); });
         });
-      supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", getWeekOf()).single()
-        .then(({ data }) => { if (data) setGroceryList({ items: data.items || [] }); });
 
       // Load recipe books
       const { data: booksData } = await supabase.from("recipe_books")
@@ -1510,24 +1600,47 @@ export default function CooCheena() {
 
   // ── Sync meal plan to Supabase ──
   useEffect(() => {
-    if (!user || !mealPlan.weekOf) return;
+    if (!user || !mealPlan.startDate) return;
     supabase.from("meal_plans").upsert({
-      user_id: user.id, week_of: mealPlan.weekOf,
+      user_id: user.id, week_of: mealPlan.startDate,
       days: mealPlan.days || {}, easy_mode_nights: mealPlan.easyNights || []
     }, { onConflict: "user_id,week_of" });
   }, [mealPlan, user]);
 
   // ── Sync grocery list to Supabase ──
   useEffect(() => {
-    if (!user) return;
+    if (!user || !mealPlan.startDate) return;
     supabase.from("grocery_lists").upsert({
-      user_id: user.id, week_of: getWeekOf(), items: groceryList.items || []
+      user_id: user.id, week_of: mealPlan.startDate, items: groceryList.items || []
     }, { onConflict: "user_id,week_of" });
   }, [groceryList, user]);
 
+  // ── Load plan + grocery when user picks a new date range ──
+  const handleDateRangeChange = async (startDate, endDate) => {
+    const { data } = await supabase.from("meal_plans")
+      .select("*").eq("user_id", user.id).eq("week_of", startDate).single();
+    if (data) {
+      const normalizedDays = {};
+      Object.entries(data.days || {}).forEach(([date, meals]) => {
+        normalizedDays[date] = {};
+        Object.entries(meals).forEach(([meal, val]) => {
+          normalizedDays[date][meal] = Array.isArray(val) ? val : (val ? [val] : []);
+        });
+      });
+      setMealPlan({ startDate, endDate, days: normalizedDays, easyNights: data.easy_mode_nights || [] });
+      const { data: gl } = await supabase.from("grocery_lists")
+        .select("*").eq("user_id", user.id).eq("week_of", startDate).single();
+      setGroceryList({ items: gl?.items || [] });
+    } else {
+      setMealPlan({ startDate, endDate, days: {}, easyNights: [] });
+      setGroceryList({ items: [] });
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
-    setRecipes([]); setMealPlan({ weekOf: getWeekOf(), days: {}, easyNights: [] });
+    const start = todayISO();
+    setRecipes([]); setMealPlan({ startDate: start, endDate: addDays(start, 6), days: {}, easyNights: [] });
     setGroceryList({ items: [] }); setBooks([]); setActiveBook(null);
     toast("👋 Signed out!");
   };
@@ -1937,6 +2050,7 @@ export default function CooCheena() {
           {/* MEAL PLAN TAB */}
           {tab === "calendar" && (
             <MealCalendarTab recipes={recipes} mealPlan={mealPlan} setMealPlan={setMealPlan}
+              onDateRangeChange={handleDateRangeChange}
               mealHistory={mealHistory} setMealHistory={setMealHistory} toast={toast}
               books={books} mealPlanExcludedBooks={mealPlanExcludedBooks} />
           )}
