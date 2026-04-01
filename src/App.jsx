@@ -1871,7 +1871,7 @@ export default function CooCheena() {
                 </p>
               </div>
               <div style={{ display:"flex", gap:"10px", marginBottom:"24px", flexWrap:"wrap" }}>
-                {[{ val:"generate", label:"💡 From Idea" }, { val:"url", label:"🔗 From URL" }, { val:"manual", label:"🧠 From Your Brain" }].map(m => (
+                {[{ val:"generate", label:"💡 From Idea" }, { val:"url", label:"🔗 From URL" }, { val:"manual", label:"🧠 From Memory" }].map(m => (
                   <button key={m.val} onClick={() => { setMode(m.val); setPreview(null); setPreviews([]); setError(""); }}
                     className="pm-btn"
                     style={{ padding:"11px 22px", background: mode === m.val ? "#E8421A" : "#FFF5E6", color: mode === m.val ? "#fff" : "#1A0A00", borderColor: mode === m.val ? "#E8421A" : "#1A0A00" }}>
