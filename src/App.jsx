@@ -1481,6 +1481,7 @@ export default function CooCheena() {
     return { startDate: start, endDate: addDays(start, 6), days: {}, easyNights: [] };
   });
   const [groceryList, setGroceryList] = useState({ items: [] });
+  const [mealPlanLoaded, setMealPlanLoaded] = useState(false);
   const [mealHistory, setMealHistory] = useState(() => load(KEYS.mealHistory, []));
 
   const [books, setBooks] = useState([]);
@@ -1535,7 +1536,7 @@ export default function CooCheena() {
       // Load meal plan — find one whose date range contains today
       supabase.from("meal_plans").select("*").eq("user_id", user.id)
         .then(({ data: plans }) => {
-          if (!plans || plans.length === 0) return;
+          if (!plans || plans.length === 0) { setMealPlanLoaded(true); return; }
           const today = todayISO();
           const active = plans.find(p => {
             const start = p.week_of;
@@ -1543,7 +1544,7 @@ export default function CooCheena() {
             const end = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(start, 6);
             return start <= today && today <= end;
           });
-          if (!active) return;
+          if (!active) { setMealPlanLoaded(true); return; }
           const normalizedDays = {};
           Object.entries(active.days || {}).forEach(([date, meals]) => {
             normalizedDays[date] = {};
@@ -1554,6 +1555,7 @@ export default function CooCheena() {
           const dayKeys = Object.keys(active.days || {}).sort();
           const endDate = dayKeys.length ? dayKeys[dayKeys.length - 1] : addDays(active.week_of, 6);
           setMealPlan({ startDate: active.week_of, endDate, days: normalizedDays, easyNights: active.easy_mode_nights || [] });
+          setMealPlanLoaded(true);
           // Load associated grocery list
           supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", active.week_of).single()
             .then(({ data: gl }) => { if (gl) setGroceryList({ items: gl.items || [] }); });
@@ -1599,14 +1601,14 @@ export default function CooCheena() {
   // ── Persist meal history locally ──
   useEffect(() => save(KEYS.mealHistory, mealHistory), [mealHistory]);
 
-  // ── Sync meal plan to Supabase ──
+  // ── Sync meal plan to Supabase (only after initial load to avoid race wipe) ──
   useEffect(() => {
-    if (!user || !mealPlan.startDate) return;
+    if (!user || !mealPlan.startDate || !mealPlanLoaded) return;
     supabase.from("meal_plans").upsert({
       user_id: user.id, week_of: mealPlan.startDate,
       days: mealPlan.days || {}, easy_mode_nights: mealPlan.easyNights || []
     }, { onConflict: "user_id,week_of" });
-  }, [mealPlan, user]);
+  }, [mealPlan, user, mealPlanLoaded]);
 
   // ── Sync grocery list to Supabase ──
   useEffect(() => {
