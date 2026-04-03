@@ -865,6 +865,7 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, me
   const [pickerFor, setPickerFor] = useState(null); // {day: isoDate, meal}
   const [pickerSearch, setPickerSearch] = useState("");
   const [pickerCat, setPickerCat] = useState("All");
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const activeDates = dateRangeDates(mealPlan.startDate, mealPlan.endDate);
 
@@ -957,7 +958,18 @@ Assign recipes for every date in the range. Only include meal keys where recipes
     setGenerating(false);
   };
 
-  const clearWeek = () => { setMealPlan(prev => ({ ...prev, days: {}, easyNights: [] })); toast("🗑️ Plan cleared!"); };
+  const activeDatesHaveMeals = activeDates.some(date => {
+    const dayMeals = mealPlan.days?.[date];
+    return dayMeals && Object.values(dayMeals).some(ids => Array.isArray(ids) ? ids.length > 0 : !!ids);
+  });
+
+  const clearWeek = () => {
+    const clearedDays = { ...(mealPlan.days || {}) };
+    activeDates.forEach(date => { delete clearedDays[date]; });
+    setMealPlan(prev => ({ ...prev, days: clearedDays, easyNights: [] }));
+    setShowClearConfirm(false);
+    toast("🗑️ Plan cleared!");
+  };
 
   return (
     <div>
@@ -971,7 +983,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
             style={{ padding:"10px 18px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"14px" }}>
             {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}>🍳</span> Planning...</> : "⚡ AI Plan My Dates"}
           </button>
-          <button onClick={clearWeek} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"13px" }}>🗑️ Clear</button>
+          {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"13px" }}>🗑️ Clear</button>}
         </div>
       </div>
 
@@ -1048,6 +1060,21 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       </div>
 
       {showEasyMode && <EasyModeModal dates={activeDates} onConfirm={generateWeek} onCancel={() => setShowEasyMode(false)} />}
+
+      {showClearConfirm && (
+        <div className="pm-modal-bg" onClick={() => setShowClearConfirm(false)}>
+          <div className="pm-modal" style={{ maxWidth:"400px", textAlign:"center" }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>Clear Meal Plan?</h3>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", marginBottom:"20px" }}>
+              This will remove all meals from the selected dates. This cannot be undone.
+            </p>
+            <div style={{ display:"flex", gap:"10px", justifyContent:"center" }}>
+              <button onClick={() => setShowClearConfirm(false)} className="pm-btn" style={{ padding:"10px 20px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"14px" }}>Cancel</button>
+              <button onClick={clearWeek} className="pm-btn" style={{ padding:"10px 20px", background:"#E8421A", color:"#fff", fontSize:"14px" }}>Yes, Clear</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Recipe picker modal */}
       {pickerFor && (() => {
