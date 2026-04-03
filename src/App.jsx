@@ -1645,6 +1645,9 @@ export default function CooCheena() {
   useEffect(() => {
     if (!user || !mealPlan.startDate || !mealPlanLoaded) return;
     const savePlan = async () => {
+      // Delete all existing plans then save the canonical state as one row
+      // This prevents stale rows from resurrecting deleted meals on reload
+      await supabase.from("meal_plans").delete().eq("user_id", user.id).neq("week_of", mealPlan.startDate);
       const { error } = await supabase.from("meal_plans").upsert({
         user_id: user.id, week_of: mealPlan.startDate,
         days: mealPlan.days || {}, easy_mode_nights: mealPlan.easyNights || []
