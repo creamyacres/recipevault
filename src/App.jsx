@@ -1201,7 +1201,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
               <span style={{ position:"absolute", left:"10px", top:"50%", transform:"translateY(-50%)", fontSize:"14px", pointerEvents:"none" }}>🔍</span>
               <input value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
                 placeholder="Search recipes, ingredients…" className="pm-input"
-                style={{ width:"100%", paddingLeft:"32px", boxSizing:"border-box", fontSize:"13px", padding:"8px 10px 8px 32px" }} autoFocus />
+                style={{ width:"100%", paddingLeft:"32px", boxSizing:"border-box", fontSize:"13px", padding:"8px 10px 8px 32px" }} />
               {pickerSearch && (
                 <button onClick={() => setPickerSearch("")}
                   style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"14px", color:"#7A5A3A", fontWeight:800 }}>✕</button>
