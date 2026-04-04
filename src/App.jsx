@@ -10,7 +10,7 @@ const GOOGLE_FONTS = `@import url('https://fonts.googleapis.com/css2?family=Beba
 const STYLES = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { overflow-x: hidden; }
-  body { background: #FFF5E6; font-family: 'Nunito', sans-serif; }
+  body { background: #FFF5E6; font-family: 'Nunito', sans-serif; -webkit-font-smoothing: antialiased; }
 
   /* ── Core tokens ── */
   :root {
@@ -21,16 +21,28 @@ const STYLES = `
     --yellow: #FFD166;
     --muted: #7A5A3A;
     --border: 3px solid #1A0A00;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 2px 8px rgba(26,10,0,0.08);
+    --shadow-md: 0 4px 20px rgba(26,10,0,0.10);
+    --shadow-hard: 4px 4px 0 #1A0A00;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   /* ── Buttons ── */
   .pm-btn {
     border: 3px solid #1A0A00; font-family: 'Nunito', sans-serif; font-size: 13px;
     font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; transition: background 0.1s, color 0.1s; padding: 10px 20px;
+    cursor: pointer; padding: 10px 20px; border-radius: var(--radius-sm);
+    transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), background 0.15s, color 0.15s;
   }
-  .pm-btn:disabled { opacity: 0.5; cursor: default; }
+  .pm-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,10,0,0.12); }
+  .pm-btn:active { transform: translateY(0) scale(0.97); box-shadow: none; }
+  .pm-btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
   .pm-btn-primary { background: #E8421A; color: #fff; border-color: #E8421A; }
+  .pm-btn-primary:hover { background: #d63a15; }
   .pm-btn-yellow { background: #FFD166; color: #1A0A00; }
   .pm-btn-ghost { background: #FFF5E6; color: #1A0A00; }
   .pm-btn-ghost:hover { background: #1A0A00; color: #FFF5E6; }
@@ -40,20 +52,23 @@ const STYLES = `
   .pm-input {
     border: 3px solid #1A0A00; font-family: 'Nunito', sans-serif; font-size: 14px;
     font-weight: 700; background: #fff; color: #1A0A00; padding: 12px 16px; outline: none;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
   .pm-input::placeholder { color: #C4A882; }
-  .pm-input:focus { border-color: #E8421A; }
+  .pm-input:focus { border-color: #E8421A; box-shadow: 0 0 0 3px rgba(232,66,26,0.12); }
 
   /* ── Tags ── */
   .pm-tag {
     border: 2px solid #1A0A00; font-family: 'Nunito', sans-serif;
     font-size: 10px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1px; padding: 2px 10px;
+    letter-spacing: 1px; padding: 2px 10px; border-radius: 6px;
   }
 
   /* ── Header ── */
   .pm-header {
-    background: #FFF5E6; border-bottom: 3px solid #1A0A00;
+    background: rgba(255,245,230,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 3px solid #1A0A00;
     position: sticky; top: 0; z-index: 100;
   }
 
@@ -77,31 +92,43 @@ const STYLES = `
 
   /* ── Cards ── */
   .pm-card {
-    background: #FFF5E6; border: 3px solid #1A0A00;
-    cursor: pointer; position: relative; transition: background 0.1s;
+    background: #FFF5E6; border: 3px solid #1A0A00; border-radius: var(--radius-md);
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), background 0.15s;
   }
-  .pm-card:hover { background: #FFD166; }
+  .pm-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(26,10,0,0.14); }
+  .pm-card:active { transform: translateY(-1px) scale(0.98); }
+  .pm-card .pm-card-img {
+    transition: transform 0.4s var(--ease-out);
+  }
+  .pm-card:hover .pm-card-img { transform: scale(1.05); }
 
   /* ── Sections ── */
   .pm-section {
-    background: #FFF5E6; border: 3px solid #1A0A00;
+    background: #FFF5E6; border: 3px solid #1A0A00; border-radius: var(--radius-md);
     padding: 20px; margin-bottom: 20px;
   }
 
   /* ── Modal ── */
   .pm-modal-bg {
-    position: fixed; inset: 0; background: rgba(26,10,0,0.6);
+    position: fixed; inset: 0; background: rgba(26,10,0,0.5);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;
+    animation: modalBgIn 0.25s var(--ease-out);
   }
   .pm-modal {
-    background: #FFF5E6; border: 4px solid #1A0A00;
+    background: #FFF5E6; border: 4px solid #1A0A00; border-radius: var(--radius-lg);
     max-width: 640px; width: 100%;
     max-height: 88vh; overflow-y: auto; padding: 36px; position: relative;
+    box-shadow: 0 24px 80px rgba(26,10,0,0.2);
+    animation: modalIn 0.3s var(--ease-spring);
   }
+  @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
   /* ── Stat box ── */
   .pm-stat-box {
-    background: #FFD166; border: 3px solid #1A0A00;
+    background: #FFD166; border: 3px solid #1A0A00; border-radius: var(--radius-sm);
     text-align: center; padding: 10px 18px;
   }
 
@@ -113,30 +140,36 @@ const STYLES = `
   .cooking-anim { animation: bounce 0.8s ease-in-out infinite; display: inline-block; font-size: 44px; }
 
   /* ── Calendar ── */
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; border: 3px solid #1A0A00; }
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 0;
+    border: 3px solid #1A0A00; border-radius: var(--radius-md); overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
   .cal-day {
-    background: #FFF5E6; border-right: 3px solid #1A0A00;
+    background: #FFF5E6; border-right: 2px solid rgba(26,10,0,0.12);
     min-height: 140px; padding: 8px;
     display: flex; flex-direction: column; gap: 4px;
+    transition: background 0.2s;
   }
   .cal-day:last-child { border-right: none; }
-  .cal-day.easy-mode { background: #FFF9E6; }
-  .cal-day.drag-over { background: #FFD166; }
+  .cal-day.easy-mode { background: #eef6ff; }
+  .cal-day.drag-over { background: #FFF0CC; }
   .cal-day-header {
     font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 1px;
     color: #1A0A00; text-align: center; margin-bottom: 2px;
-    border-bottom: 2px solid #1A0A00; padding-bottom: 4px;
+    border-bottom: 2px solid rgba(26,10,0,0.15); padding-bottom: 4px;
   }
   .cal-meal-slot {
-    border: 2px dashed #C4A882; padding: 4px 6px;
+    border: 2px dashed #d4c4a8; padding: 4px 6px; border-radius: 8px;
     font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 700; color: #C4A882;
-    text-align: center; cursor: pointer; transition: all 0.1s; min-height: 32px;
+    text-align: center; cursor: pointer; min-height: 32px;
     display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s var(--ease-out);
   }
-  .cal-meal-slot:hover { border-color: #E8421A; color: #E8421A; }
+  .cal-meal-slot:hover { border-color: #E8421A; color: #E8421A; background: rgba(232,66,26,0.04); }
   .cal-meal-slot.filled {
     background: #FFD166; border: 2px solid #1A0A00; color: #1A0A00;
-    font-weight: 800; cursor: default;
+    font-weight: 800; cursor: default; border-radius: 8px;
   }
   .cal-meal-slot.filled .remove-meal {
     display: none; position: absolute; top: 2px; right: 2px;
@@ -152,20 +185,23 @@ const STYLES = `
   }
 
   /* ── Grocery ── */
-  .grocery-section { margin-bottom: 0; border-bottom: 3px solid #1A0A00; }
+  .grocery-wrap { border: 3px solid #1A0A00; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-md); }
+  .grocery-section { margin-bottom: 0; border-bottom: 2px solid rgba(26,10,0,0.1); }
   .grocery-section:last-child { border-bottom: none; }
   .grocery-section-header {
     font-family: 'Bebas Neue', cursive; font-size: 18px; letter-spacing: 2px; color: #FFD166;
-    background: #1A0A00; padding: 8px 16px;
+    background: #1A0A00; padding: 10px 18px;
   }
   .grocery-item {
-    display: flex; align-items: center; gap: 10px; padding: 10px 16px;
-    background: #FFF5E6; border-bottom: 2px dashed #E0D0BC; transition: background 0.1s;
+    display: flex; align-items: center; gap: 10px; padding: 12px 18px;
+    background: #FFF5E6; border-bottom: 1px solid rgba(26,10,0,0.06);
+    transition: background 0.15s;
   }
+  .grocery-item:hover { background: #fff9ed; }
   .grocery-item:last-child { border-bottom: none; }
-  .grocery-item.checked { background: #F5EFE5; }
+  .grocery-item.checked { background: #f5f0e8; }
   .grocery-item.skipped { opacity: 0.4; }
-  .grocery-item-name { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; flex: 1; color: #1A0A00; }
+  .grocery-item-name { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; flex: 1; color: #1A0A00; transition: color 0.2s; }
   .grocery-item.checked .grocery-item-name { text-decoration: line-through; color: #C4A882; }
 
   /* ── Drag ── */
@@ -174,59 +210,66 @@ const STYLES = `
   /* ── Toast ── */
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: #1A0A00; color: #FFF5E6; padding: 12px 28px;
+    background: #1A0A00; color: #FFF5E6; padding: 14px 32px;
     font-family: 'Bebas Neue', cursive; font-size: 17px; letter-spacing: 2px;
-    border: 3px solid #E8421A;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    z-index: 9999; pointer-events: none;
+    border: 3px solid #E8421A; border-radius: var(--radius-md);
+    box-shadow: 0 8px 32px rgba(26,10,0,0.25);
+    transition: transform 0.4s var(--ease-spring), opacity 0.4s;
+    z-index: 9999; pointer-events: none; opacity: 0;
   }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
   /* ── Auth ── */
   .auth-card {
-    background: #FFF5E6; border: 4px solid #1A0A00;
-    padding: 40px; width: 100%; max-width: 440px;
-    box-shadow: 8px 8px 0 #1A0A00;
+    background: #FFF5E6; border: 4px solid #1A0A00; border-radius: var(--radius-lg);
+    padding: 44px 40px; width: 100%; max-width: 440px;
+    box-shadow: 0 20px 60px rgba(26,10,0,0.15);
   }
   .auth-tab {
     flex: 1; padding: 10px; font-family: 'Nunito', sans-serif;
     font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-    border: 3px solid #1A0A00; cursor: pointer; transition: all 0.1s;
+    border: 3px solid #1A0A00; cursor: pointer;
+    transition: all 0.2s var(--ease-out);
   }
   .auth-tab.active { background: #E8421A; color: #fff; border-color: #E8421A; }
   .auth-tab:not(.active) { background: #fff; color: #1A0A00; }
-  .auth-tab:first-child { border-radius: 0; }
-  .auth-tab:last-child { border-radius: 0; }
+  .auth-tab:not(.active):hover { background: #FFF0DC; }
+  .auth-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  .auth-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
   .google-btn {
-    width: 100%; padding: 12px; background: #fff; border: 3px solid #1A0A00;
+    width: 100%; padding: 14px; background: #fff; border: 3px solid #1A0A00; border-radius: var(--radius-sm);
     font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 10px; transition: background 0.1s;
+    gap: 10px; transition: all 0.2s var(--ease-out);
   }
-  .google-btn:hover { background: #F5EFE5; }
+  .google-btn:hover { background: #F5EFE5; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,10,0,0.08); }
+  .google-btn:active { transform: translateY(0) scale(0.98); }
   .divider {
-    display: flex; align-items: center; gap: 12px; margin: 18px 0;
+    display: flex; align-items: center; gap: 12px; margin: 20px 0;
     font-family: 'Nunito', sans-serif; font-size: 13px; color: #7A5A3A; font-weight: 700;
   }
-  .divider::before, .divider::after { content: ''; flex: 1; border-top: 2px solid #C4A882; }
+  .divider::before, .divider::after { content: ''; flex: 1; border-top: 2px solid #E8D8C4; }
 
   /* ── Recipe Books Shelf ── */
   .rb-shelf {
-    display: flex; gap: 12px; overflow-x: auto; padding: 4px 0 20px;
-    scrollbar-width: thin; scrollbar-color: #1A0A00 #FFF5E6;
+    display: flex; gap: 12px; overflow-x: auto; padding: 8px 4px 20px;
+    scrollbar-width: thin; scrollbar-color: #C4A882 transparent;
     -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, transparent 0, #000 8px, #000 calc(100% - 24px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 8px, #000 calc(100% - 24px), transparent);
   }
   .rb-shelf::-webkit-scrollbar { height: 4px; }
-  .rb-shelf::-webkit-scrollbar-track { background: #FFF5E6; }
-  .rb-shelf::-webkit-scrollbar-thumb { background: #1A0A00; }
+  .rb-shelf::-webkit-scrollbar-track { background: transparent; }
+  .rb-shelf::-webkit-scrollbar-thumb { background: #C4A882; border-radius: 4px; }
   .rb-book-card {
     flex-shrink: 0; width: 112px; background: #FFF5E6; border: 3px solid #1A0A00;
-    padding: 14px 10px; cursor: pointer; transition: background 0.1s, transform 0.1s;
+    padding: 14px 10px; cursor: pointer; border-radius: var(--radius-md);
+    transition: all 0.25s var(--ease-out);
     display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;
     position: relative;
   }
-  .rb-book-card:hover { background: #FFD166; transform: translateY(-2px); }
-  .rb-book-card.active { background: #1A0A00; }
+  .rb-book-card:hover { background: #FFD166; transform: translateY(-4px); box-shadow: 0 8px 20px rgba(26,10,0,0.12); }
+  .rb-book-card.active { background: #1A0A00; box-shadow: 0 4px 16px rgba(26,10,0,0.2); }
   .rb-book-card.active .rb-book-name { color: #FFF5E6; }
   .rb-book-card.active .rb-book-count { color: #FFD166; }
   .rb-book-emoji { font-size: 30px; line-height: 1; }
@@ -240,29 +283,32 @@ const STYLES = `
   }
   .rb-book-delete {
     position: absolute; top: 4px; right: 4px;
-    background: #E8421A; border: 1px solid #1A0A00; width: 18px; height: 18px;
+    background: #E8421A; border: 1px solid #1A0A00; border-radius: 50%; width: 18px; height: 18px;
     font-size: 9px; color: #fff; cursor: pointer; display: none;
     align-items: center; justify-content: center; font-weight: 800;
+    transition: transform 0.15s;
   }
+  .rb-book-delete:hover { transform: scale(1.15); }
   .rb-book-card:not(.active):hover .rb-book-delete { display: flex; }
   .rb-new-book-btn {
     flex-shrink: 0; width: 90px; background: #FFF5E6; border: 3px dashed #C4A882;
-    padding: 14px 10px; cursor: pointer; transition: all 0.1s;
+    padding: 14px 10px; cursor: pointer; border-radius: var(--radius-md);
+    transition: all 0.2s var(--ease-out);
     display: flex; flex-direction: column; align-items: center; gap: 5px;
     font-family: 'Bebas Neue', cursive; font-size: 12px; letter-spacing: 1px; color: #C4A882;
   }
-  .rb-new-book-btn:hover { border-color: #1A0A00; color: #1A0A00; background: #FFD166; }
+  .rb-new-book-btn:hover { border-color: #1A0A00; color: #1A0A00; background: #FFD166; transform: translateY(-2px); }
   .rb-new-book-form {
-    flex-shrink: 0; background: #FFF5E6; border: 3px solid #1A0A00;
+    flex-shrink: 0; background: #FFF5E6; border: 3px solid #1A0A00; border-radius: var(--radius-md);
     padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; width: 200px;
   }
 
   /* ── Responsive mobile ── */
   @media (max-width: 768px) {
-    .cal-grid { grid-template-columns: 1fr; }
-    .cal-day { border-right: none; border-bottom: 3px solid #1A0A00; min-height: auto; }
+    .cal-grid { grid-template-columns: 1fr; border-radius: var(--radius-md); }
+    .cal-day { border-right: none; border-bottom: 2px solid rgba(26,10,0,0.1); min-height: auto; }
     .cal-day:last-child { border-bottom: none; }
-    .pm-modal { padding: 20px; }
+    .pm-modal { padding: 24px; border-radius: var(--radius-lg); }
     .cc-hero-heading { font-size: 52px !important; }
   }
 
@@ -276,25 +322,34 @@ const STYLES = `
 
     .pm-hamburger-btn {
       display: flex; align-items: center; justify-content: center;
-      background: none; border: 3px solid #1A0A00; width: 44px; height: 44px;
+      background: none; border: 3px solid #1A0A00; border-radius: var(--radius-sm);
+      width: 44px; height: 44px;
       cursor: pointer; font-size: 22px; color: #1A0A00; flex-shrink: 0;
+      transition: background 0.15s;
     }
+    .pm-hamburger-btn:active { background: #FFD166; }
 
     .pm-bottom-nav {
       display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-      background: #FFF5E6; border-top: 3px solid #1A0A00; z-index: 100; height: 64px;
+      background: rgba(255,245,230,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-top: 3px solid #1A0A00; z-index: 100; height: 64px;
     }
     .pm-bottom-nav-item {
       flex: 1; display: flex; flex-direction: column; align-items: center;
       justify-content: center; gap: 1px; border: none; background: none;
       cursor: pointer; padding: 6px 2px;
-      border-right: 2px solid #1A0A00;
+      border-right: 1px solid rgba(26,10,0,0.1);
       font-family: 'Bebas Neue', cursive; font-size: 9px; letter-spacing: 1px; color: #1A0A00;
-      transition: background 0.1s;
+      transition: all 0.2s var(--ease-out); position: relative;
     }
     .pm-bottom-nav-item:last-child { border-right: none; }
-    .pm-bottom-nav-item.active { background: #FFD166; }
-    .pm-bottom-nav-item .nav-icon { font-size: 22px; line-height: 1; }
+    .pm-bottom-nav-item.active { color: #E8421A; }
+    .pm-bottom-nav-item.active::before {
+      content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 3px;
+      background: #E8421A; border-radius: 0 0 3px 3px;
+    }
+    .pm-bottom-nav-item .nav-icon { font-size: 22px; line-height: 1; transition: transform 0.2s var(--ease-spring); }
+    .pm-bottom-nav-item.active .nav-icon { transform: scale(1.15) translateY(-1px); }
 
     .pm-mobile-content { padding: 20px 16px 80px !important; }
   }
@@ -302,39 +357,56 @@ const STYLES = `
   /* ── Feedback Widget ── */
   .fb-btn {
     position: fixed; bottom: 24px; right: 20px;
-    background: #E8421A; border: 3px solid #1A0A00; color: #fff;
+    background: #E8421A; border: 3px solid #1A0A00; border-radius: 50px; color: #fff;
     font-family: 'Bebas Neue', cursive; font-size: 14px; letter-spacing: 2px;
-    padding: 10px 16px; cursor: pointer; z-index: 500;
-    box-shadow: 3px 3px 0 #1A0A00; transition: transform 0.1s, box-shadow 0.1s;
+    padding: 10px 18px; cursor: pointer; z-index: 500;
+    box-shadow: 0 4px 16px rgba(232,66,26,0.3);
+    transition: transform 0.2s var(--ease-out), box-shadow 0.2s;
   }
-  .fb-btn:hover { transform: translateY(-2px); box-shadow: 3px 5px 0 #1A0A00; }
+  .fb-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 8px 24px rgba(232,66,26,0.35); }
+  .fb-btn:active { transform: translateY(0) scale(0.97); }
   .fb-panel {
     position: fixed; bottom: 78px; right: 20px;
-    width: 300px; background: #FFF5E6; border: 3px solid #1A0A00;
-    z-index: 500; box-shadow: 5px 5px 0 #1A0A00; padding: 20px;
+    width: 320px; background: #FFF5E6; border: 3px solid #1A0A00; border-radius: var(--radius-lg);
+    z-index: 500; box-shadow: 0 16px 48px rgba(26,10,0,0.18); padding: 24px;
+    animation: modalIn 0.25s var(--ease-spring);
   }
   @media (max-width: 768px) {
-    .fb-btn { bottom: 74px; right: 12px; font-size: 12px; padding: 8px 12px; }
+    .fb-btn { bottom: 74px; right: 12px; font-size: 12px; padding: 8px 14px; }
     .fb-panel { bottom: 140px; right: 10px; left: 10px; width: auto; }
   }
 
   /* ── Hamburger slide-out menu ── */
   .pm-hamburger-overlay {
-    position: fixed; inset: 0; background: rgba(26,10,0,0.5); z-index: 200;
+    position: fixed; inset: 0; background: rgba(26,10,0,0.4);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    z-index: 200; animation: modalBgIn 0.2s var(--ease-out);
   }
   .pm-hamburger-panel {
-    position: absolute; top: 0; right: 0; width: 220px; height: 100%;
+    position: absolute; top: 0; right: 0; width: 240px; height: 100%;
     background: #FFF5E6; border-left: 4px solid #1A0A00;
     display: flex; flex-direction: column; padding-top: 80px;
+    box-shadow: -8px 0 32px rgba(26,10,0,0.12);
+    animation: slideIn 0.3s var(--ease-out);
   }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
   .pm-hamburger-panel-item {
     width: 100%; padding: 18px 28px; background: none; border: none;
-    border-bottom: 2px solid #1A0A00; text-align: left; cursor: pointer;
+    border-bottom: 2px solid rgba(26,10,0,0.1); text-align: left; cursor: pointer;
     font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 2px; color: #1A0A00;
-    transition: background 0.1s;
+    transition: all 0.15s;
   }
-  .pm-hamburger-panel-item:hover { background: #FFD166; }
+  .pm-hamburger-panel-item:hover { background: #FFD166; padding-left: 36px; }
   .pm-hamburger-panel-item.danger { color: #E8421A; }
+
+  /* ── Scrollbar (global) ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C4A882; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #7A5A3A; }
+
+  /* ── Selection color ── */
+  ::selection { background: #FFD166; color: #1A0A00; }
 `
 
 // ── EmailJS feedback config ──
@@ -683,25 +755,30 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
       onClick={() => onClick(recipe)}
       style={{ padding: "0", cursor: draggable ? "grab" : "pointer", overflow:"hidden" }}>
       {!imgError && (
-        <img
-          src={recipe.photoUrl || getPhotoUrl(recipe.title)}
-          alt={recipe.title}
-          loading="lazy"
-          onError={() => setImgError(true)}
-          style={{ width:"100%", height:"110px", objectFit:"cover", display:"block", borderBottom:"3px solid #1A0A00" }}
-        />
+        <div style={{ overflow:"hidden", borderBottom:"3px solid #1A0A00" }}>
+          <img
+            src={recipe.photoUrl || getPhotoUrl(recipe.title)}
+            alt={recipe.title}
+            loading="lazy"
+            onError={() => setImgError(true)}
+            className="pm-card-img"
+            style={{ width:"100%", height:"120px", objectFit:"cover", display:"block" }}
+          />
+        </div>
       )}
-      <div style={{ padding:"14px 14px 14px" }}>
+      <div style={{ padding:"14px 14px 16px" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"8px" }}>
           <span className="pm-tag" style={{ background: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#FFD166" : "#1A0A00", color: cat === "Dessert" ? "#1A0A00" : "#fff", borderColor: cat === "Dinner" ? "#E8421A" : cat === "Lunch" ? "#4CAF82" : cat === "Dessert" ? "#1A0A00" : "#1A0A00" }}>{cat}</span>
           <button onClick={e => { e.stopPropagation(); onDelete(recipe.id); }}
-            style={{ background:"#E8421A", border:"2px solid #1A0A00", width:"26px", height:"26px", cursor:"pointer", fontSize:"12px", color:"#fff", fontWeight:800, lineHeight:1, flexShrink:0 }}>✕</button>
+            style={{ background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"50%", width:"26px", height:"26px", cursor:"pointer", fontSize:"12px", color:"#fff", fontWeight:800, lineHeight:1, flexShrink:0, transition:"transform 0.15s", display:"flex", alignItems:"center", justifyContent:"center" }}
+            onMouseEnter={e => e.currentTarget.style.transform="scale(1.15)"}
+            onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}>✕</button>
         </div>
         <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
         <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7A5A3A", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
         <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
-          {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", padding:"1px 7px" }}>⏱ {recipe.prepTime}</span>}
-          {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", padding:"1px 7px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
+          {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px" }}>⏱ {recipe.prepTime}</span>}
+          {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
         </div>
       </div>
     </div>
@@ -715,7 +792,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
   const [imgError, setImgError] = useState(false);
   return (
     <div className="pm-modal-bg" onClick={onClose}>
-      <div className="pm-modal" onClick={e => e.stopPropagation()} style={{ padding: 0 }}>
+      <div className="pm-modal" onClick={e => e.stopPropagation()} style={{ padding: 0, overflow:"hidden" }}>
         {!imgError && (
           <div style={{ position:"relative" }}>
             <img
@@ -723,13 +800,14 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
               alt={recipe.title}
               loading="lazy"
               onError={() => setImgError(true)}
-              style={{ width:"100%", height:"200px", objectFit:"cover", display:"block", borderBottom:"4px solid #1A0A00" }}
+              style={{ width:"100%", height:"220px", objectFit:"cover", display:"block", borderBottom:"4px solid #1A0A00" }}
             />
-            <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"12px", right:"12px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", zIndex:2 }}>✕</button>
+            <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"60px", background:"linear-gradient(transparent, rgba(26,10,0,0.15))", pointerEvents:"none" }} />
+            <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"12px", right:"12px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", zIndex:2, borderColor:"transparent", borderRadius:"50%" }}>✕</button>
           </div>
         )}
         <div style={{ padding:"24px 36px 36px" }}>
-        {imgError && <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>}
+        {imgError && <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>}
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"12px" }}>
           {recipe.tags?.map(t => <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"#1a1a1a" }}>{t}</span>)}
         </div>
@@ -843,7 +921,7 @@ function DateRangePicker({ startDate, endDate, onChange }) {
   };
   const dayCount = dateRangeDates(startDate, endDate).length;
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", boxShadow:"2px 2px 0 #1a1a1a" }}>
+    <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
       <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A" }}>PLAN DATES</span>
       <input type="date" value={startDate} min={today} onChange={handleStart}
         className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
@@ -975,7 +1053,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
     <div>
       {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
-        <div style={{ display:"inline-block", background:"#ffd166", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"4px 4px 0 #1a1a1a", padding:"8px 20px" }}>
+        <div style={{ display:"inline-block", background:"#ffd166", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
           <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>📅 Meal Plan</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
@@ -1094,7 +1172,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
         return (
         <div className="pm-modal-bg" onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }}>
           <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
-            <button onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
+            <button onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>
             <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"14px", paddingRight:"40px" }}>
               Pick a recipe for {formatDateLabel(pickerFor.day)} {pickerFor.meal}
             </h3>
@@ -1123,9 +1201,9 @@ Assign recipes for every date in the range. Only include meal keys where recipes
                 </div>
               ) : pickerRecipes.map(r => (
                 <div key={r.id} onClick={() => { setSlot(pickerFor.day, pickerFor.meal, r.id); setPickerFor(null); setPickerSearch(""); setPickerCat("All"); toast("📅 Added!"); }}
-                  style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 14px", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", cursor:"pointer", boxShadow:"2px 2px 0 #1a1a1a", transition:"all 0.1s" }}
-                  onMouseEnter={e => e.currentTarget.style.background="#ffd166"}
-                  onMouseLeave={e => e.currentTarget.style.background="#fff9ed"}>
+                  style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 14px", background:"#fff9ed", border:"2px solid rgba(26,10,0,0.12)", borderRadius:"10px", cursor:"pointer", transition:"all 0.2s cubic-bezier(0.16, 1, 0.3, 1)" }}
+                  onMouseEnter={e => { e.currentTarget.style.background="#ffd166"; e.currentTarget.style.borderColor="#1a1a1a"; e.currentTarget.style.transform="translateY(-1px)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background="#fff9ed"; e.currentTarget.style.borderColor="rgba(26,10,0,0.12)"; e.currentTarget.style.transform="none"; }}>
                   <span className="pm-tag" style={{ background: (CAT_COLORS[r.category]||CAT_COLORS.Other).bg, color:(CAT_COLORS[r.category]||CAT_COLORS.Other).text, flexShrink:0 }}>{r.category}</span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800 }}>{r.title}</div>
@@ -1223,7 +1301,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
   return (
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
-        <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"4px 4px 0 #1a1a1a", padding:"8px 20px" }}>
+        <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
           <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>🛒 Grocery List</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
@@ -1240,7 +1318,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       </div>
 
       {/* Date range filter */}
-      <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", marginBottom:"16px", boxShadow:"2px 2px 0 #1a1a1a" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", marginBottom:"16px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
         <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A" }}>DATES</span>
         <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
           className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
@@ -1254,7 +1332,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
 
       {/* Planned meals summary */}
       {uniqueRecipes.length > 0 && (
-        <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"12px", boxShadow:"3px 3px 0 #1a1a1a", padding:"14px 18px", marginBottom:"20px" }}>
+        <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.06)", padding:"14px 18px", marginBottom:"20px" }}>
           <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"#1a1a1a", marginBottom:"8px" }}>📋 Based on {uniqueRecipes.length} planned recipes:</p>
           <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
             {uniqueRecipes.map(r => (
@@ -1267,16 +1345,17 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       {groceryList.items?.length > 0 ? (
         <>
           {/* Progress bar */}
-          <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"12px", padding:"14px 18px", marginBottom:"20px", boxShadow:"3px 3px 0 #1a1a1a" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"8px" }}>
+          <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"14px", padding:"16px 20px", marginBottom:"20px", boxShadow:"0 4px 20px rgba(26,10,0,0.08)" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
               <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800 }}>🛍️ {checkedCount} / {totalCount} items grabbed!</span>
               {checkedCount === totalCount && totalCount > 0 && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#06d6a0" }}>✓ All done!</span>}
             </div>
-            <div style={{ background:"#e2c89a", borderRadius:"100px", height:"12px", border:"2px solid #1a1a1a", overflow:"hidden" }}>
-              <div style={{ background:"#06d6a0", height:"100%", width:`${totalCount > 0 ? (checkedCount/totalCount)*100 : 0}%`, transition:"width 0.3s", borderRadius:"100px" }}/>
+            <div style={{ background:"#e8d8c4", borderRadius:"100px", height:"10px", border:"2px solid #1a1a1a", overflow:"hidden" }}>
+              <div style={{ background: checkedCount === totalCount && totalCount > 0 ? "#06d6a0" : "linear-gradient(90deg, #06d6a0, #4ae0b0)", height:"100%", width:`${totalCount > 0 ? (checkedCount/totalCount)*100 : 0}%`, transition:"width 0.4s cubic-bezier(0.16, 1, 0.3, 1)", borderRadius:"100px" }}/>
             </div>
           </div>
 
+          <div className="grocery-wrap">
           {GROCERY_SECTIONS.map(section => {
             const items = bySection[section];
             if (!items?.length) return null;
@@ -1289,7 +1368,9 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
                       style={{ width:"18px", height:"18px", cursor:"pointer", accentColor:"#06d6a0" }}/>
                     <span className="grocery-item-name">{item.name}</span>
                     <button onClick={() => toggleSkip(item.id)}
-                      style={{ background:"#f5e6c8", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"#7a5c3a", whiteSpace:"nowrap" }}>
+                      style={{ background:"#f5e6c8", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"#7a5c3a", whiteSpace:"nowrap", transition:"all 0.15s" }}
+                      onMouseEnter={e => { e.currentTarget.style.background="#FFD166"; e.currentTarget.style.borderColor="#1A0A00"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background="#f5e6c8"; e.currentTarget.style.borderColor="#c8b89a"; }}>
                       ✓ Have it
                     </button>
                   </div>
@@ -1297,6 +1378,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
               </div>
             );
           })}
+          </div>
 
           {/* Skipped items */}
           {groceryList.items.filter(i => i.skipped).length > 0 && (
@@ -1327,7 +1409,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       {showShare && (
         <div className="pm-modal-bg" onClick={() => setShowShare(false)}>
           <div className="pm-modal" style={{ maxWidth:"440px" }} onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowShare(false)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"#ff5252", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px" }}>✕</button>
+            <button onClick={() => setShowShare(false)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>
             <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"16px" }}>🔗 Share Grocery List</h3>
             <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#7a5c3a", marginBottom:"12px", fontWeight:600 }}>Anyone with this link can view and check off items in real time!</p>
             <div style={{ background:"#f5e6c8", border:"3px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", wordBreak:"break-all", fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"#1a1a1a" }}>
@@ -1401,7 +1483,7 @@ function AuthScreen({ onAuth }) {
           <div className="divider">or</div>
 
           {/* Email/password tabs */}
-          <div style={{ display:"flex", marginBottom:"18px", borderRadius:"10px", overflow:"hidden", border:"3px solid #1a1a1a", boxShadow:"3px 3px 0 #1a1a1a" }}>
+          <div style={{ display:"flex", marginBottom:"18px", overflow:"hidden", border:"3px solid #1a1a1a", borderRadius:"var(--radius-sm, 8px)", boxShadow:"0 2px 8px rgba(26,10,0,0.08)" }}>
             <button className={`auth-tab ${authTab === "login" ? "active" : ""}`} onClick={() => { setAuthTab("login"); setError(""); setMessage(""); }}>Log In</button>
             <button className={`auth-tab ${authTab === "signup" ? "active" : ""}`} onClick={() => { setAuthTab("signup"); setError(""); setMessage(""); }}>Sign Up</button>
           </div>
@@ -1415,8 +1497,8 @@ function AuthScreen({ onAuth }) {
             {error && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#ff5252", fontWeight:700, textAlign:"center" }}>{error}</p>}
             {message && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#06d6a0", fontWeight:700, textAlign:"center" }}>{message}</p>}
 
-            <button onClick={handleEmail} disabled={loading} className="pm-btn"
-              style={{ width:"100%", padding:"14px", background:"#E8421A", color:"#fff", fontSize:"15px", borderColor:"#E8421A" }}>
+            <button onClick={handleEmail} disabled={loading} className="pm-btn pm-btn-primary"
+              style={{ width:"100%", padding:"14px", fontSize:"15px" }}>
               {loading ? "..." : authTab === "login" ? "🔑 Log In" : "🎉 Create Account"}
             </button>
           </div>
@@ -1858,12 +1940,12 @@ export default function CooCheena() {
             <nav className="pm-desktop-nav">
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)} className="pm-btn"
-                  style={{ padding:"8px 14px", background: tab === t.id ? "#FFD166" : "#fff", color:"#1A0A00", fontSize:"13px" }}>
+                  style={{ padding:"8px 16px", background: tab === t.id ? "#FFD166" : "rgba(255,255,255,0.7)", color:"#1A0A00", fontSize:"13px", borderColor: tab === t.id ? "#1A0A00" : "rgba(26,10,0,0.2)" }}>
                   {t.label}
                 </button>
               ))}
               <button onClick={signOut} className="pm-btn"
-                style={{ padding:"8px 14px", background:"#1A0A00", color:"#fff", fontSize:"13px", marginLeft:"6px" }}>
+                style={{ padding:"8px 16px", background:"#1A0A00", color:"#fff", fontSize:"13px", marginLeft:"6px" }}>
                 Sign Out
               </button>
             </nav>
@@ -1923,12 +2005,12 @@ export default function CooCheena() {
 
               {/* AI input bar (idea + url modes) */}
               {mode !== "manual" && (<>
-              <div style={{ display:"flex", marginBottom:"28px", border:"3px solid #1A0A00", maxWidth:"560px" }}>
+              <div style={{ display:"flex", marginBottom:"28px", border:"3px solid #1A0A00", maxWidth:"560px", borderRadius:"12px", overflow:"hidden", boxShadow:"0 4px 16px rgba(26,10,0,0.08)" }}>
                 <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
                   placeholder={mode === "url" ? "https://www.allrecipes.com/recipe/..." : "e.g. lemon pasta, chicken + spinach..."}
-                  className="pm-input" style={{ flex:1, border:"none", outline:"none" }} />
+                  className="pm-input" style={{ flex:1, border:"none", outline:"none", borderRadius:0 }} />
                 <button onClick={handleSubmit} disabled={loading || !input.trim()} className="pm-btn"
-                  style={{ padding:"12px 24px", background: loading ? "#C4A882" : "#FFD166", color:"#1A0A00", whiteSpace:"nowrap", border:"none", borderLeft:"3px solid #1A0A00", fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"2px" }}>
+                  style={{ padding:"12px 24px", background: loading ? "#C4A882" : "#FFD166", color:"#1A0A00", whiteSpace:"nowrap", border:"none", borderLeft:"3px solid #1A0A00", borderRadius:0, fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"2px" }}>
                   {loading ? "Cooking..." : mode === "url" ? "Parse!" : "Generate!"}
                 </button>
               </div>
@@ -1948,7 +2030,7 @@ export default function CooCheena() {
               {previews.length > 0 && !loading && (
                 <div>
                   <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#1A0A00", marginBottom:"14px", textAlign:"center" }}>✨ Pick your favourite — or save them all!</p>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"0", border:"3px solid #1A0A00" }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px" }}>
                     {previews.map((r, i) => (
                       <RecipeCard key={r.id} recipe={r}
                         onClick={() => setSelected(r)}
@@ -2048,7 +2130,7 @@ export default function CooCheena() {
                   const active = filterCat === c;
                   return (
                     <button key={c} onClick={() => setFilterCat(c)} className="pm-btn"
-                      style={{ padding:"6px 14px", fontSize:"11px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.8px", background: active ? "#1A0A00" : "#FFF5E6", color: active ? "#FFF5E6" : "#1A0A00", borderColor:"#1A0A00", borderRadius:"0" }}>
+                      style={{ padding:"6px 14px", fontSize:"11px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.8px", background: active ? "#1A0A00" : "#FFF5E6", color: active ? "#FFF5E6" : "#1A0A00", borderColor: active ? "#1A0A00" : "rgba(26,10,0,0.2)" }}>
                       {c}
                     </button>
                   );
@@ -2067,7 +2149,7 @@ export default function CooCheena() {
               ) : (
                 <>
                   <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, color:"#7A5A3A", marginBottom:"12px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Drag any recipe card onto the Meal Plan calendar</p>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"0", border:"3px solid #1A0A00" }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px" }}>
                     {filtered.map((r,i) => (
                       <RecipeCard key={r.id} recipe={r} onClick={setSelected} onDelete={handleDelete}
                         wobble={["wobble-1","wobble-2","wobble-3"][i%3]}
