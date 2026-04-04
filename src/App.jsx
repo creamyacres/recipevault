@@ -426,6 +426,13 @@ const STYLES = `
   ::-webkit-scrollbar-thumb { background: #C4A882; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: #7A5A3A; }
 
+  /* ── Date inputs — make entire box clickable ── */
+  input[type="date"] { cursor: pointer; }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer;
+  }
+
   /* ── Selection color ── */
   ::selection { background: #FFD166; color: #1A0A00; }
 `
@@ -941,17 +948,25 @@ function DateRangePicker({ startDate, endDate, onChange }) {
     onChange(startDate, newEnd > maxEnd ? maxEnd : newEnd);
   };
   const dayCount = dateRangeDates(startDate, endDate).length;
+  const startRef = useRef(null);
+  const endRef = useRef(null);
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
-      <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A" }}>PLAN DATES</span>
-      <input type="date" value={startDate} min={today} onChange={handleStart}
-        className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
-      <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A" }}>→</span>
-      <input type="date" value={endDate} min={startDate} max={addDays(startDate, 6)} onChange={handleEnd}
-        className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
-      <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A", whiteSpace:"nowrap" }}>
-        {dayCount} day{dayCount !== 1 ? "s" : ""}
-      </span>
+    <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
+      <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A", whiteSpace:"nowrap" }}>PLAN DATES</span>
+      <div style={{ display:"flex", alignItems:"center", gap:"8px", flex:"1 1 auto", minWidth:0 }}>
+        <div onClick={() => startRef.current?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
+          <input ref={startRef} type="date" value={startDate} min={today} onChange={handleStart}
+            className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
+        </div>
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A", flexShrink:0 }}>→</span>
+        <div onClick={() => endRef.current?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
+          <input ref={endRef} type="date" value={endDate} min={startDate} max={addDays(startDate, 6)} onChange={handleEnd}
+            className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
+        </div>
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A", whiteSpace:"nowrap", flexShrink:0 }}>
+          {dayCount} day{dayCount !== 1 ? "s" : ""}
+        </span>
+      </div>
     </div>
   );
 }
@@ -1339,16 +1354,22 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       </div>
 
       {/* Date range filter */}
-      <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"8px 14px", marginBottom:"16px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
-        <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A" }}>DATES</span>
-        <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
-          className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
-        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A" }}>→</span>
-        <input type="date" value={groceryEnd} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryEnd}
-          className="pm-input" style={{ padding:"4px 8px", fontSize:"13px", width:"145px" }} />
-        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A" }}>
-          {activeDates.length} day{activeDates.length !== 1 ? "s" : ""}
-        </span>
+      <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
+        <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A", whiteSpace:"nowrap" }}>DATES</span>
+        <div style={{ display:"flex", alignItems:"center", gap:"8px", flex:"1 1 auto", minWidth:0 }}>
+          <div onClick={e => e.currentTarget.querySelector('input')?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
+            <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
+              className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
+          </div>
+          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A", flexShrink:0 }}>→</span>
+          <div onClick={e => e.currentTarget.querySelector('input')?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
+            <input type="date" value={groceryEnd} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryEnd}
+              className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
+          </div>
+          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A", whiteSpace:"nowrap", flexShrink:0 }}>
+            {activeDates.length} day{activeDates.length !== 1 ? "s" : ""}
+          </span>
+        </div>
       </div>
 
       {/* Planned meals summary */}
