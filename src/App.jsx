@@ -305,7 +305,7 @@ const STYLES = `
 
   /* ── Responsive mobile ── */
   @media (max-width: 768px) {
-    .cal-grid { grid-template-columns: 1fr; border-radius: var(--radius-md); }
+    .cal-grid { grid-template-columns: 1fr !important; border-radius: var(--radius-md); }
     .cal-day { border-right: none; border-bottom: 2px solid rgba(26,10,0,0.1); min-height: auto; }
     .cal-day:last-child { border-bottom: none; }
     .pm-modal { padding: 24px; border-radius: var(--radius-lg); }
