@@ -471,7 +471,7 @@ async function callClaude(system, user, maxTokens = 1500) {
   const res = await fetch(AI_PROXY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: maxTokens, system, messages: [{ role: "user", content: user }] })
+    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: maxTokens, system, messages: [{ role: "user", content: user }] })
   });
   if (!res.ok) { const err = await res.text(); console.error("AI proxy error:", res.status, err); throw new Error(`AI error ${res.status}`); }
   const data = await res.json();
@@ -485,7 +485,7 @@ async function callClaudeWithUrl(system, url, maxTokens = 1500) {
   const res = await fetch(AI_PROXY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: maxTokens, system, fetchUrl: url })
+    body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: maxTokens, system, fetchUrl: url })
   });
   if (!res.ok) { const err = await res.text(); console.error("AI proxy error:", res.status, err); throw new Error(`AI error ${res.status}`); }
   const data = await res.json();
