@@ -305,9 +305,30 @@ const STYLES = `
 
   /* ── Responsive mobile ── */
   @media (max-width: 768px) {
-    .cal-grid { grid-template-columns: 1fr !important; border-radius: var(--radius-md); }
-    .cal-day { border-right: none; border-bottom: 2px solid rgba(26,10,0,0.1); min-height: auto; }
-    .cal-day:last-child { border-bottom: none; }
+    .cal-grid {
+      grid-template-columns: 1fr !important;
+      border-radius: var(--radius-md);
+      border: none; box-shadow: none; gap: 14px; overflow: visible;
+      background: transparent;
+    }
+    .cal-day {
+      border-right: none; min-height: auto;
+      border: 3px solid #1A0A00; border-radius: var(--radius-md);
+      padding: 0; overflow: hidden;
+      box-shadow: 0 2px 10px rgba(26,10,0,0.06);
+    }
+    .cal-day:last-child { border-bottom: 3px solid #1A0A00; }
+    .cal-day-header {
+      font-size: 20px !important; letter-spacing: 2px !important;
+      padding: 10px 14px !important; margin-bottom: 0 !important;
+      background: #1A0A00; color: #FFF5E6 !important;
+      border-bottom: 3px solid #1A0A00 !important;
+      text-align: left !important;
+    }
+    .cal-day.easy-mode .cal-day-header { background: #2a3a50; }
+    .cal-day > *:not(.cal-day-header) { padding-left: 10px; padding-right: 10px; }
+    .cal-day > :nth-child(2) { padding-top: 10px; }
+    .cal-day > :last-child { padding-bottom: 10px; }
     .pm-modal { padding: 24px; border-radius: var(--radius-lg); }
     .cc-hero-heading { font-size: 52px !important; }
   }
