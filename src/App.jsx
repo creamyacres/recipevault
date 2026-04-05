@@ -2534,7 +2534,7 @@ export default function CooCheena() {
                 </div>
               ) : (
                 <>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, color:"var(--text-muted, #7A5A3A)", marginBottom:"12px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Drag any recipe card onto the Meal Plan calendar</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, color:"var(--text-muted, #7A5A3A)", marginBottom:"12px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Tap a recipe to view it, add it to a book, or create a new recipe book</p>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px" }}>
                     {filtered.map((r,i) => (
                       <RecipeCard key={r.id} recipe={r} onClick={setSelected} onDelete={handleDelete}
