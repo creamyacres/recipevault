@@ -702,6 +702,42 @@ function detectRawFood(recipes) {
   return [...found];
 }
 
+// ── Toxic/poisonous food detection ──
+const TOXIC_PATTERNS = [
+  /\bfugu\b/i, /\bpufferfish\b/i, /\bpuffer\s+fish\b/i, /\bblowfish\b/i,
+  /\belderberr(y|ies)\b.*\braw\b|\braw\b.*\belderberr(y|ies)\b/i,
+  /\brhubarb\s+lea(f|ves)\b/i,
+  /\bcastor\s+bean/i, /\bricin\b/i,
+  /\bgreen\s+potato/i, /\bpotato\s+sprout/i,
+  /\bsolanine\b/i,
+  /\baki\b|\backee\b/i,
+  /\bcassava\b.*\braw\b|\braw\b.*\bcassava\b/i,
+  /\bbitter\s+almond/i, /\bapricot\s+kernel/i, /\bcherry\s+pit/i, /\bapple\s+seed/i,
+  /\bamygdalin\b/i, /\bcyanide\b/i,
+  /\bdeath\s+cap\b/i, /\bamanita\b/i,
+  /\bmonkshood\b/i, /\baconite\b/i, /\bwolfsbane\b/i,
+  /\bbelladonna\b/i, /\bdeadly\s+nightshade\b/i,
+  /\bhemlock\b/i,
+  /\blilyof\s*the\s*valley\b|\blily\s+of\s+the\s+valley\b/i,
+];
+
+function detectToxicFood(recipes) {
+  const found = new Set();
+  const list = Array.isArray(recipes) ? recipes : [recipes];
+  list.forEach(r => {
+    const text = [
+      r.title, r.description,
+      ...(r.ingredients || []),
+      ...(r.steps || [])
+    ].filter(Boolean).join(" ");
+    TOXIC_PATTERNS.forEach(p => {
+      const m = text.match(p);
+      if (m) found.add(m[0].trim());
+    });
+  });
+  return [...found];
+}
+
 // ── Toast ──
 function useToast() {
   const [msg, setMsg] = useState("");
@@ -1873,6 +1909,7 @@ export default function CooCheena() {
   const [mealPlanExcludedBooks, setMealPlanExcludedBooks] = useState(() => load("rv_excluded_books", []));
   const [error, setError] = useState("");
   const [rawFoodWarning, setRawFoodWarning] = useState(null);
+  const [toxicFoodWarning, setToxicFoodWarning] = useState(null);
   const [tab, setTab] = useState("add");
   const [menuOpen, setMenuOpen] = useState(false);
   const [dragRecipe, setDragRecipe] = useState(null);
@@ -2128,16 +2165,18 @@ export default function CooCheena() {
         if (!result?.title) throw new Error();
         const parsed = { ...result, id: Date.now() };
         setPreview(parsed);
-        const rawItems = detectRawFood(parsed);
-        if (rawItems.length) setRawFoodWarning(rawItems);
+        const toxicItems = detectToxicFood(parsed);
+        if (toxicItems.length) setToxicFoodWarning(toxicItems);
+        else { const rawItems = detectRawFood(parsed); if (rawItems.length) setRawFoodWarning(rawItems); }
       } else {
         const result = await callClaude(SYS_RECIPE_GEN_3, `Give me 3 recipe ideas for: ${input.trim()}`, 4500);
         const arr = Array.isArray(result) ? result : result?.title ? [result] : null;
         if (!arr?.length) throw new Error();
         const mapped = arr.map((r, i) => ({ ...r, id: Date.now() + i }));
         setPreviews(mapped);
-        const rawItems = detectRawFood(mapped);
-        if (rawItems.length) setRawFoodWarning(rawItems);
+        const toxicItems = detectToxicFood(mapped);
+        if (toxicItems.length) setToxicFoodWarning(toxicItems);
+        else { const rawItems = detectRawFood(mapped); if (rawItems.length) setRawFoodWarning(rawItems); }
       }
     } catch { setError("Something went wrong! Try a different idea."); }
     setLoading(false);
@@ -2540,6 +2579,31 @@ export default function CooCheena() {
           </button>
         ))}
       </nav>
+
+      {/* Toxic food warning modal */}
+      {toxicFoodWarning && (
+        <div className="pm-modal-bg" onClick={() => setToxicFoodWarning(null)}>
+          <div className="pm-modal" style={{ maxWidth:"420px", textAlign:"center" }} onClick={e => e.stopPropagation()}>
+            <div style={{ background:"#E8421A", width:"64px", height:"64px", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 12px" }}>
+              <Warning size={36} weight="bold" color="#fff" />
+            </div>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"#E8421A", marginBottom:"10px" }}>Potentially Dangerous Ingredient</h3>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"var(--text-muted, #7a5c3a)", marginBottom:"16px", fontWeight:600, lineHeight:1.6 }}>
+              This recipe contains ingredients that can be <strong style={{ color:"var(--text, #1A0A00)" }}>toxic or poisonous</strong> if not prepared correctly by trained professionals. Improper preparation can cause serious illness or death.
+            </p>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:"6px", justifyContent:"center", marginBottom:"20px" }}>
+              {toxicFoodWarning.map((item, i) => (
+                <span key={i} style={{ background:"#1A0A00", border:"2px solid #E8421A", borderRadius:"20px", padding:"4px 14px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#E8421A" }}>{item}</span>
+              ))}
+            </div>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7a5c3a)", marginBottom:"16px", fontWeight:700, fontStyle:"italic" }}>
+              Please consult a professional before attempting this recipe.
+            </p>
+            <button onClick={() => setToxicFoodWarning(null)} className="pm-btn pm-btn-primary"
+              style={{ padding:"12px 32px", fontSize:"14px" }}>I Understand</button>
+          </div>
+        </div>
+      )}
 
       {/* Raw food warning modal */}
       {rawFoodWarning && (
