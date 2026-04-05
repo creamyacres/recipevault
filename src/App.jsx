@@ -34,6 +34,7 @@ const STYLES = `
     --bg-elevated: #fff;
     --text: #1A0A00;
     --text-muted: #7A5A3A;
+    --border-subtle: rgba(26,10,0,0.2);
   }
   [data-theme="dark"] {
     --bg: #1a1510;
@@ -41,6 +42,7 @@ const STYLES = `
     --bg-elevated: #2a2018;
     --text: #F0E6D6;
     --text-muted: #9a8a7a;
+    --border-subtle: rgba(255,255,255,0.1);
   }
 
   /* ── Buttons ── */
@@ -508,6 +510,10 @@ const STYLES = `
   [data-theme="dark"] .pm-hamburger-panel-item { color: #F0E6D6; border-bottom-color: rgba(255,255,255,0.08); }
   [data-theme="dark"] .pm-hamburger-panel-item:hover { background: #3a2a1a; }
   [data-theme="dark"] .pm-hamburger-btn { border-color: #3a2a1a; color: #F0E6D6; }
+  /* Force dark text on yellow/light backgrounds in dark mode */
+  [data-theme="dark"] .pm-btn-yellow { color: #1A0A00; }
+  [data-theme="dark"] .pm-stat-box { color: #1A0A00; }
+  [data-theme="dark"] .pm-stat-box * { color: #1A0A00; }
   [data-theme="dark"] ::selection { background: #E8421A; color: #fff; }
   [data-theme="dark"] ::-webkit-scrollbar-thumb { background: #4a3a2a; }
   [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #6a5a4a; }
@@ -885,7 +891,7 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
         <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
         <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
         <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
-          {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px" }}>⏱ {recipe.prepTime}</span>}
+          {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#1A0A00" }}>⏱ {recipe.prepTime}</span>}
           {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
         </div>
       </div>
@@ -995,13 +1001,13 @@ function EasyModeModal({ dates, onConfirm, onCancel }) {
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px", marginBottom:"24px" }}>
           {dates.map(d => (
             <button key={d} onClick={() => toggle(d)} className="pm-btn"
-              style={{ padding:"12px", background: selected.includes(d) ? "#457b9d" : "#fff", color: selected.includes(d) ? "#fff" : "#1a1a1a", fontSize:"15px" }}>
+              style={{ padding:"12px", background: selected.includes(d) ? "#457b9d" : "var(--bg-elevated, #fff)", color: selected.includes(d) ? "#fff" : "var(--text, #1a1a1a)", fontSize:"15px" }}>
               {selected.includes(d) ? "⚡" : "🍽️"} {formatDateLabel(d)}
             </button>
           ))}
         </div>
         <div style={{ display:"flex", gap:"10px" }}>
-          <button onClick={onCancel} className="pm-btn" style={{ flex:1, padding:"12px", background:"#f5e6c8", color:"var(--text, #1a1a1a)" }}>Cancel</button>
+          <button onClick={onCancel} className="pm-btn" style={{ flex:1, padding:"12px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)" }}>Cancel</button>
           <button onClick={() => onConfirm(selected)} className="pm-btn" style={{ flex:2, padding:"12px", background:"#ff5252", color:"#fff" }}>
             ✨ Generate My Plan!
           </button>
@@ -1170,14 +1176,14 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#ffd166", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>📅 Meal Plan</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>📅 Meal Plan</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={() => setShowEasyMode(true)} disabled={generating || recipes.length === 0} className="pm-btn"
             style={{ padding:"10px 18px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"14px" }}>
             {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}>🍳</span> Planning...</> : "⚡ AI Plan My Dates"}
           </button>
-          {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>🗑️ Clear</button>}
+          {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>🗑️ Clear</button>}
         </div>
       </div>
 
@@ -1267,7 +1273,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
               This will remove all meals from the selected dates. This cannot be undone.
             </p>
             <div style={{ display:"flex", gap:"10px", justifyContent:"center" }}>
-              <button onClick={() => setShowClearConfirm(false)} className="pm-btn" style={{ padding:"10px 20px", background:"#f5e6c8", color:"var(--text, #1a1a1a)", fontSize:"14px" }}>Cancel</button>
+              <button onClick={() => setShowClearConfirm(false)} className="pm-btn" style={{ padding:"10px 20px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)", fontSize:"14px" }}>Cancel</button>
               <button onClick={clearWeek} className="pm-btn" style={{ padding:"10px 20px", background:"#E8421A", color:"#fff", fontSize:"14px" }}>Yes, Clear</button>
             </div>
           </div>
@@ -1422,7 +1428,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>🛒 Grocery List</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>🛒 Grocery List</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={generateGroceryList} disabled={generating || uniqueRecipes.length === 0} className="pm-btn"
@@ -1432,7 +1438,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           {groceryList.items?.length > 0 && <>
             <button onClick={handleShare} className="pm-btn" style={{ padding:"10px 14px", background:"#457b9d", color:"#fff", fontSize:"13px" }}>🔗 Share</button>
             <button onClick={handlePrint} className="pm-btn" style={{ padding:"10px 14px", background:"#ffd166", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>🖨️ Print/PDF</button>
-            <button onClick={clearChecked} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>↺ Uncheck All</button>
+            <button onClick={clearChecked} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>↺ Uncheck All</button>
           </>}
         </div>
       </div>
@@ -1462,7 +1468,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"var(--text, #1a1a1a)", marginBottom:"8px" }}>📋 Based on {uniqueRecipes.length} planned recipes:</p>
           <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
             {uniqueRecipes.map(r => (
-              <span key={r.id} style={{ background:"#ffd166", border:"2px solid #1a1a1a", borderRadius:"20px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700 }}>{r.title}</span>
+              <span key={r.id} style={{ background:"#ffd166", border:"2px solid var(--text, #1a1a1a)", borderRadius:"20px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#1A0A00" }}>{r.title}</span>
             ))}
           </div>
         </div>
@@ -1494,7 +1500,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
                       style={{ width:"18px", height:"18px", cursor:"pointer", accentColor:"#06d6a0" }}/>
                     <span className="grocery-item-name">{item.name}</span>
                     <button onClick={() => toggleSkip(item.id)}
-                      style={{ background:"#f5e6c8", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"var(--text-muted, #7a5c3a)", whiteSpace:"nowrap", transition:"all 0.15s" }}
+                      style={{ background:"var(--bg-card, #f5e6c8)", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"var(--text-muted, #7a5c3a)", whiteSpace:"nowrap", transition:"all 0.15s" }}
                       onMouseEnter={e => { e.currentTarget.style.background="#FFD166"; e.currentTarget.style.borderColor="#1A0A00"; }}
                       onMouseLeave={e => { e.currentTarget.style.background="#f5e6c8"; e.currentTarget.style.borderColor="#c8b89a"; }}>
                       ✓ Have it
@@ -1538,7 +1544,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
             <button onClick={() => setShowShare(false)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>
             <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"16px" }}>🔗 Share Grocery List</h3>
             <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"var(--text-muted, #7a5c3a)", marginBottom:"12px", fontWeight:600 }}>Anyone with this link can view and check off items in real time!</p>
-            <div style={{ background:"#f5e6c8", border:"3px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", wordBreak:"break-all", fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"var(--text, #1a1a1a)" }}>
+            <div style={{ background:"var(--bg-card, #f5e6c8)", border:"3px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", wordBreak:"break-all", fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"var(--text, #1a1a1a)" }}>
               {shareUrl}
             </div>
             <button onClick={() => { navigator.clipboard?.writeText(shareUrl); toast("Copied!"); }} className="pm-btn"
@@ -2089,7 +2095,7 @@ export default function CooCheena() {
             <nav className="pm-desktop-nav">
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)} className="pm-btn"
-                  style={{ padding:"8px 16px", background: tab === t.id ? "#FFD166" : "rgba(255,255,255,0.7)", color:"var(--text, #1A0A00)", fontSize:"13px", borderColor: tab === t.id ? "#1A0A00" : "rgba(26,10,0,0.2)" }}>
+                  style={{ padding:"8px 16px", background: tab === t.id ? "#FFD166" : "var(--bg-elevated, rgba(255,255,255,0.7))", color: tab === t.id ? "#1A0A00" : "var(--text, #1A0A00)", fontSize:"13px", borderColor: tab === t.id ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))" }}>
                   {t.label}
                 </button>
               ))}
@@ -2168,7 +2174,7 @@ export default function CooCheena() {
                   {loading ? "Cooking..." : mode === "url" ? "Parse!" : "Generate!"}
                 </button>
               </div>
-              {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", fontSize:"14px", background:"#fff", border:"3px solid #E8421A", padding:"6px 16px", display:"inline-block" }}>{error}</span></div>}
+              {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", fontSize:"14px", background:"var(--bg-elevated, #fff)", border:"3px solid #E8421A", borderRadius:"8px", padding:"6px 16px", display:"inline-block" }}>{error}</span></div>}
               {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"var(--text, #1A0A00)", marginTop:"14px" }}>Crafting your recipes...</p></div>}
 
               {/* URL parse — single result */}
