@@ -1354,8 +1354,89 @@ Assign recipes for every date in the range. Only include meal keys where recipes
   );
 }
 
+// ── Staples Modal ──
+function StaplesModal({ staples, onAdd, onRemove, onClose }) {
+  const [name, setName] = useState("");
+  const [section, setSection] = useState("Other");
+
+  const handleAdd = () => {
+    if (!name.trim()) return;
+    onAdd(name, section);
+    setName("");
+  };
+
+  const bySection = GROCERY_SECTIONS.reduce((acc, s) => {
+    acc[s] = staples.filter(st => st.section === s);
+    return acc;
+  }, {});
+
+  const hasStaples = staples.length > 0;
+
+  return (
+    <div className="pm-modal-bg" onClick={onClose}>
+      <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}><X size={16} weight="bold" /></button>
+
+        <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"6px", display:"flex", alignItems:"center", gap:"8px" }}>
+          <Star size={24} weight="bold" color="#E8421A" /> Grocery Staples
+        </h3>
+        <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"var(--text-muted, #7a5c3a)", marginBottom:"18px", fontWeight:600 }}>
+          Items you always buy — they'll appear on every grocery list.
+        </p>
+
+        {/* Add form */}
+        <div style={{ display:"flex", gap:"8px", marginBottom:"20px", flexWrap:"wrap" }}>
+          <input value={name} onChange={e => setName(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") handleAdd(); }}
+            placeholder="e.g. Milk, Eggs, Bread..."
+            className="pm-input" style={{ flex:"2 1 160px", fontSize:"13px" }} />
+          <select value={section} onChange={e => setSection(e.target.value)}
+            className="pm-input" style={{ flex:"1 1 120px", fontSize:"13px", color:"var(--text, #1A0A00)", background:"var(--bg-elevated, #fff)" }}>
+            {GROCERY_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <button onClick={handleAdd} disabled={!name.trim()} className="pm-btn pm-btn-primary"
+            style={{ padding:"10px 18px", fontSize:"13px", whiteSpace:"nowrap" }}>+ Add</button>
+        </div>
+
+        {/* Staples list */}
+        {hasStaples ? (
+          <div className="grocery-wrap">
+            {GROCERY_SECTIONS.map(sec => {
+              const items = bySection[sec];
+              if (!items?.length) return null;
+              return (
+                <div key={sec} className="grocery-section">
+                  <div className="grocery-section-header">{sec}</div>
+                  {items.map(item => (
+                    <div key={item.id} className="grocery-item" style={{ justifyContent:"space-between" }}>
+                      <span className="grocery-item-name">{item.name}</span>
+                      <button onClick={() => onRemove(item.id)}
+                        style={{ background:"none", border:"none", cursor:"pointer", color:"#E8421A", padding:"4px", lineHeight:1, transition:"transform 0.15s" }}
+                        onMouseEnter={e => e.currentTarget.style.transform="scale(1.2)"}
+                        onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}>
+                        <Trash size={16} weight="bold" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ textAlign:"center", padding:"32px 16px", background:"var(--bg-card, #fff9ed)", border:"3px dashed #c8b89a", borderRadius:"14px" }}>
+            <Star size={36} weight="bold" color="var(--text-muted, #7a5c3a)" style={{ marginBottom:"8px" }} />
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>
+              No staples yet — add items above!
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Grocery List Tab ──
-function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast }) {
+function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast, staples, onShowStaples }) {
   const [generating, setGenerating] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [showShare, setShowShare] = useState(false);
@@ -1400,7 +1481,13 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       const result = await callClaude(SYS_GROCERY,
         `Consolidate and categorize these ingredients from ${uniqueRecipes.length} recipes: ${JSON.stringify(allIngredients)}`, 2000);
       if (result && Array.isArray(result)) {
-        setGroceryList({ items: result.map((item, i) => ({ ...item, id: i, checked: false, skipped: false })), generatedAt: Date.now() });
+        const aiItems = result.map((item, i) => ({ ...item, id: `ai-${i}`, checked: false, skipped: false }));
+        // Merge staples, deduplicating against AI results
+        const aiNames = aiItems.map(i => i.name.toLowerCase().replace(/[\d./½¼¾⅓⅔]+/g, "").trim());
+        const stapleItems = (staples || [])
+          .filter(s => !aiNames.some(n => n.includes(s.name.toLowerCase())))
+          .map((s, i) => ({ name: s.name, section: s.section, id: `staple-${i}`, checked: false, skipped: false, isStaple: true }));
+        setGroceryList({ items: [...aiItems, ...stapleItems], generatedAt: Date.now() });
         toast("Grocery list ready!");
       } else { toast("Couldn't generate list. Try again!"); }
     } catch { toast("Couldn't generate list. Try again!"); }
@@ -1443,6 +1530,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
             style={{ padding:"10px 16px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"13px" }}>
             {generating ? "Generating..." : <><Sparkle size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Generate from Meal Plan</>}
           </button>
+          <button onClick={onShowStaples} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-elevated, #fff)", color:"var(--text, #1a1a1a)", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px", borderColor:"var(--border-subtle, rgba(26,10,0,0.2))" }}><Star size={14} weight="bold" color="#E8421A" /> Staples{staples?.length > 0 ? ` (${staples.length})` : ""}</button>
           {groceryList.items?.length > 0 && <>
             <button onClick={handleShare} className="pm-btn" style={{ padding:"10px 14px", background:"#457b9d", color:"#fff", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}><LinkIcon size={14} weight="bold" /> Share</button>
             <button onClick={handlePrint} className="pm-btn" style={{ padding:"10px 14px", background:"#ffd166", color:"var(--text, #1a1a1a)", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}><Printer size={14} weight="bold" /> Print/PDF</button>
@@ -1731,6 +1819,8 @@ export default function CooCheena() {
     return { startDate: start, endDate: addDays(start, 6), days: {}, easyNights: [] };
   });
   const [groceryList, setGroceryList] = useState({ items: [] });
+  const [staples, setStaples] = useState([]);
+  const [showStaplesModal, setShowStaplesModal] = useState(false);
   const [mealPlanLoaded, setMealPlanLoaded] = useState(false);
   const [mealHistory, setMealHistory] = useState(() => load(KEYS.mealHistory, []));
 
@@ -1846,6 +1936,10 @@ export default function CooCheena() {
           }
         });
 
+      // Load grocery staples
+      supabase.from("grocery_staples").select("*").eq("user_id", user.id).order("section")
+        .then(({ data: staplesData }) => { if (staplesData) setStaples(staplesData.map(s => ({ id: s.id, name: s.name, section: s.section }))); });
+
       // Load recipe books
       const { data: booksData } = await supabase.from("recipe_books")
         .select("*").eq("user_id", user.id).order("created_at");
@@ -1919,7 +2013,7 @@ export default function CooCheena() {
     await supabase.auth.signOut();
     const start = todayISO();
     setRecipes([]); setMealPlan({ startDate: start, endDate: addDays(start, 6), days: {}, easyNights: [] });
-    setGroceryList({ items: [] }); setBooks([]); setActiveBook(null);
+    setGroceryList({ items: [] }); setStaples([]); setBooks([]); setActiveBook(null);
     toast("Signed out!");
   };
 
@@ -1942,6 +2036,26 @@ export default function CooCheena() {
     setBooks(prev => prev.filter(b => b.id !== bookId));
     if (activeBook === bookId) setActiveBook(null);
     toast("Book deleted.");
+  };
+
+  // ── Staple helpers ──
+  const addStaple = async (name, section) => {
+    if (!name.trim() || !user) return;
+    const { data, error: err } = await supabase.from("grocery_staples").insert({
+      user_id: user.id, name: name.trim(), section
+    }).select().single();
+    if (!err && data) {
+      setStaples(prev => [...prev, { id: data.id, name: data.name, section: data.section }]);
+      toast("Staple added!");
+    } else if (err?.code === "23505") {
+      toast("That staple already exists!");
+    }
+  };
+
+  const removeStaple = async (id) => {
+    if (!user) return;
+    await supabase.from("grocery_staples").delete().eq("id", id).eq("user_id", user.id);
+    setStaples(prev => prev.filter(s => s.id !== id));
   };
 
   const toggleRecipeInBook = async (bookId, recipeId) => {
@@ -2341,7 +2455,8 @@ export default function CooCheena() {
           {/* GROCERY LIST TAB */}
           {tab === "grocery" && (
             <GroceryListTab recipes={recipes} mealPlan={mealPlan}
-              groceryList={groceryList} setGroceryList={setGroceryList} toast={toast} />
+              groceryList={groceryList} setGroceryList={setGroceryList} toast={toast}
+              staples={staples} onShowStaples={() => setShowStaplesModal(true)} />
           )}
 
         </main>
@@ -2387,10 +2502,16 @@ export default function CooCheena() {
         ))}
       </nav>
 
+      {/* Staples modal */}
+      {showStaplesModal && <StaplesModal staples={staples} onAdd={addStaple} onRemove={removeStaple} onClose={() => setShowStaplesModal(false)} />}
+
       {/* Mobile hamburger slide-out */}
       {menuOpen && (
         <div className="pm-hamburger-overlay" onClick={() => setMenuOpen(false)}>
           <div className="pm-hamburger-panel" onClick={e => e.stopPropagation()}>
+            <button className="pm-hamburger-panel-item" onClick={() => { setShowStaplesModal(true); setMenuOpen(false); }}>
+              <Star size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Grocery Staples
+            </button>
             <button className="pm-hamburger-panel-item" onClick={() => { setDarkMode(d => !d); setMenuOpen(false); }}>
               {darkMode ? <><Sun size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Light Mode</> : <><Moon size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Dark Mode</>}
             </button>
