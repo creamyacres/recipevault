@@ -520,10 +520,12 @@ const STYLES = `
   [data-theme="dark"] .rb-book-card.active { background: #F0E6D6; }
   [data-theme="dark"] .rb-book-card.active .rb-book-name { color: #1a1510; }
   [data-theme="dark"] .rb-book-card.active .rb-book-emoji { color: #1a1510; }
+  [data-theme="dark"] .rb-book-emoji { color: #F0E6D6; }
   [data-theme="dark"] .rb-book-name { color: #F0E6D6; }
   [data-theme="dark"] .rb-new-book-btn { background: #2a2018; border-color: #4a3a2a; color: #7a6a5a; }
   [data-theme="dark"] .rb-new-book-btn:hover { background: #3a2a1a; border-color: #F0E6D6; color: #F0E6D6; }
-  [data-theme="dark"] .rb-new-book-form { background: #2a2018; border-color: #3a2a1a; }
+  [data-theme="dark"] .rb-new-book-form { background: #2a2018; border-color: #3a2a1a; color: #F0E6D6; }
+  [data-theme="dark"] .rb-new-book-form button { color: #F0E6D6; }
   [data-theme="dark"] .fb-btn { box-shadow: 0 4px 16px rgba(232,66,26,0.4); }
   [data-theme="dark"] .fb-panel { background: #231a12; border-color: #3a2a1a; }
   [data-theme="dark"] .pm-bottom-nav { background: rgba(30,22,16,0.95); border-top-color: #3a2a1a; }
@@ -2056,7 +2058,16 @@ export default function CooCheena() {
           }
         }
       } else if (booksData) {
-        setBooks(booksData.map(b => ({ id: b.id, name: b.name, emoji: b.emoji, recipeIds: b.recipe_ids || [] })));
+        // Migrate old emoji values to Phosphor icon keys
+        const EMOJI_TO_ICON = { "📖":"BookOpen", "📚":"BookOpen", "⭐":"Star", "★":"Star", "🌮":"ForkKnife", "🥗":"Leaf", "🍝":"BowlFood", "🍕":"Pizza", "🥘":"CookingPot", "🍜":"BowlFood" };
+        const migrated = booksData.map(b => {
+          const newEmoji = EMOJI_TO_ICON[b.emoji];
+          if (newEmoji) {
+            supabase.from("recipe_books").update({ emoji: newEmoji }).eq("id", b.id).then(() => {});
+          }
+          return { id: b.id, name: b.name, emoji: newEmoji || b.emoji, recipeIds: b.recipe_ids || [] };
+        });
+        setBooks(migrated);
       }
     };
     loadUserData();
