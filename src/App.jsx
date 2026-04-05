@@ -5,7 +5,7 @@ import {
   MagnifyingGlass, Timer, Fire, X, Lightning, Trash, ChatCircle, Link as LinkIcon,
   Lightbulb, Brain, List as ListIcon, Diamond, Star, Printer, Sun, Moon,
   FloppyDisk, Check, ArrowRight, HandPointing, Bug, Sparkle, ClipboardText,
-  Key, Confetti, Prohibit, BookOpen, ForkKnife, Package
+  Key, Confetti, Prohibit, BookOpen, ForkKnife, Package, Warning
 } from "@phosphor-icons/react";
 
 const SUPABASE_URL = "https://pmkfrzpyqcgkfujpdkdf.supabase.co";
@@ -668,6 +668,38 @@ function dateRangeDates(startDate, endDate) {
 function formatDateLabel(isoDate) {
   const d = new Date(isoDate + "T00:00:00");
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+// ── Raw food detection ──
+const RAW_PATTERNS = [
+  /\braw\s+(egg|fish|meat|chicken|pork|beef|shrimp|salmon|tuna|oyster|clam|mussel)/i,
+  /\buncooked\s+(egg|fish|meat|chicken|pork|beef|shrimp|seafood)/i,
+  /\braw\b.*\b(yolk|white)\b/i,
+  /\bsashimi\b/i,
+  /\btartare?\b/i,
+  /\bceviche\b/i,
+  /\bcarpaccio\b/i,
+  /\bcrudo\b/i,
+  /\braw\s+dough\b/i,
+  /\braw\s+batter\b/i,
+  /\bunpasteurized\b/i,
+];
+
+function detectRawFood(recipes) {
+  const found = new Set();
+  const list = Array.isArray(recipes) ? recipes : [recipes];
+  list.forEach(r => {
+    const text = [
+      r.title, r.description,
+      ...(r.ingredients || []),
+      ...(r.steps || [])
+    ].filter(Boolean).join(" ");
+    RAW_PATTERNS.forEach(p => {
+      const m = text.match(p);
+      if (m) found.add(m[0].trim());
+    });
+  });
+  return [...found];
 }
 
 // ── Toast ──
@@ -1840,6 +1872,7 @@ export default function CooCheena() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mealPlanExcludedBooks, setMealPlanExcludedBooks] = useState(() => load("rv_excluded_books", []));
   const [error, setError] = useState("");
+  const [rawFoodWarning, setRawFoodWarning] = useState(null);
   const [tab, setTab] = useState("add");
   const [menuOpen, setMenuOpen] = useState(false);
   const [dragRecipe, setDragRecipe] = useState(null);
@@ -2093,12 +2126,18 @@ export default function CooCheena() {
       if (isUrl) {
         const result = await callClaudeWithUrl(SYS_RECIPE_PARSE, input.trim());
         if (!result?.title) throw new Error();
-        setPreview({ ...result, id: Date.now() });
+        const parsed = { ...result, id: Date.now() };
+        setPreview(parsed);
+        const rawItems = detectRawFood(parsed);
+        if (rawItems.length) setRawFoodWarning(rawItems);
       } else {
         const result = await callClaude(SYS_RECIPE_GEN_3, `Give me 3 recipe ideas for: ${input.trim()}`, 4500);
         const arr = Array.isArray(result) ? result : result?.title ? [result] : null;
         if (!arr?.length) throw new Error();
-        setPreviews(arr.map((r, i) => ({ ...r, id: Date.now() + i })));
+        const mapped = arr.map((r, i) => ({ ...r, id: Date.now() + i }));
+        setPreviews(mapped);
+        const rawItems = detectRawFood(mapped);
+        if (rawItems.length) setRawFoodWarning(rawItems);
       }
     } catch { setError("Something went wrong! Try a different idea."); }
     setLoading(false);
@@ -2501,6 +2540,26 @@ export default function CooCheena() {
           </button>
         ))}
       </nav>
+
+      {/* Raw food warning modal */}
+      {rawFoodWarning && (
+        <div className="pm-modal-bg" onClick={() => setRawFoodWarning(null)}>
+          <div className="pm-modal" style={{ maxWidth:"420px", textAlign:"center" }} onClick={e => e.stopPropagation()}>
+            <div style={{ marginBottom:"12px" }}><Warning size={48} weight="bold" color="#E8421A" /></div>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>Raw Food Warning</h3>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"var(--text-muted, #7a5c3a)", marginBottom:"16px", fontWeight:600, lineHeight:1.6 }}>
+              This recipe contains ingredients that may be consumed raw or undercooked. Raw and undercooked foods can pose a health risk, especially for children, the elderly, pregnant women, and those with weakened immune systems.
+            </p>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:"6px", justifyContent:"center", marginBottom:"20px" }}>
+              {rawFoodWarning.map((item, i) => (
+                <span key={i} style={{ background:"#fff0ec", border:"2px solid #E8421A", borderRadius:"20px", padding:"3px 12px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#E8421A" }}>{item}</span>
+              ))}
+            </div>
+            <button onClick={() => setRawFoodWarning(null)} className="pm-btn pm-btn-primary"
+              style={{ padding:"12px 32px", fontSize:"14px" }}>Got It</button>
+          </div>
+        </div>
+      )}
 
       {/* Staples modal */}
       {showStaplesModal && <StaplesModal staples={staples} onAdd={addStaple} onRemove={removeStaple} onClose={() => setShowStaplesModal(false)} />}
