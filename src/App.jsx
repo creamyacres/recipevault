@@ -29,6 +29,18 @@ const STYLES = `
     --shadow-hard: 4px 4px 0 #1A0A00;
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --bg: #FFF5E6;
+    --bg-card: #fff9ed;
+    --bg-elevated: #fff;
+    --text: #1A0A00;
+    --text-muted: #7A5A3A;
+  }
+  [data-theme="dark"] {
+    --bg: #1a1510;
+    --bg-card: #2a2018;
+    --bg-elevated: #2a2018;
+    --text: #F0E6D6;
+    --text-muted: #9a8a7a;
   }
 
   /* ── Buttons ── */
@@ -110,11 +122,13 @@ const STYLES = `
   }
 
   /* ── Modal ── */
+  body.modal-open { overflow: hidden; position: fixed; width: 100%; }
   .pm-modal-bg {
     position: fixed; inset: 0; background: rgba(26,10,0,0.5);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px;
     animation: modalBgIn 0.25s var(--ease-out);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   .pm-modal {
     background: #FFF5E6; border: 4px solid #1A0A00; border-radius: var(--radius-lg);
@@ -122,6 +136,7 @@ const STYLES = `
     max-height: 88vh; overflow-y: auto; padding: 36px; position: relative;
     box-shadow: 0 24px 80px rgba(26,10,0,0.2);
     animation: modalIn 0.3s var(--ease-spring);
+    -webkit-overflow-scrolling: touch;
   }
   @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -435,6 +450,71 @@ const STYLES = `
 
   /* ── Selection color ── */
   ::selection { background: #FFD166; color: #1A0A00; }
+
+  /* ── Dark Mode ── */
+  [data-theme="dark"] body { background: #1a1510; color: #F0E6D6; }
+  [data-theme="dark"] .pm-header { background: rgba(30,22,16,0.92); border-bottom-color: #3a2a1a; }
+  [data-theme="dark"] .cc-ticker { background: #a8321a; border-bottom-color: #3a2a1a; }
+  [data-theme="dark"] .pm-card { background: #2a2018; border-color: #3a2a1a; }
+  [data-theme="dark"] .pm-card:hover { background: #3a2a1a; }
+  [data-theme="dark"] .pm-section { background: #2a2018; border-color: #3a2a1a; }
+  [data-theme="dark"] .pm-input { background: #2a2018; border-color: #3a2a1a; color: #F0E6D6; }
+  [data-theme="dark"] .pm-input::placeholder { color: #7a6a5a; }
+  [data-theme="dark"] .pm-input:focus { border-color: #E8421A; box-shadow: 0 0 0 3px rgba(232,66,26,0.2); }
+  [data-theme="dark"] .pm-btn { border-color: #3a2a1a; }
+  [data-theme="dark"] .pm-btn-ghost { background: #2a2018; color: #F0E6D6; }
+  [data-theme="dark"] .pm-btn-ghost:hover { background: #F0E6D6; color: #1a1510; }
+  [data-theme="dark"] .pm-modal-bg { background: rgba(0,0,0,0.6); }
+  [data-theme="dark"] .pm-modal { background: #231a12; border-color: #3a2a1a; }
+  [data-theme="dark"] .pm-stat-box { background: #3a2a1a; border-color: #4a3a2a; }
+  [data-theme="dark"] .pm-tag { border-color: #4a3a2a; }
+  [data-theme="dark"] .auth-card { background: #231a12; border-color: #3a2a1a; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  [data-theme="dark"] .auth-tab:not(.active) { background: #2a2018; color: #F0E6D6; border-color: #3a2a1a; }
+  [data-theme="dark"] .auth-tab:not(.active):hover { background: #3a2a1a; }
+  [data-theme="dark"] .google-btn { background: #2a2018; border-color: #3a2a1a; color: #F0E6D6; }
+  [data-theme="dark"] .google-btn:hover { background: #3a2a1a; }
+  [data-theme="dark"] .divider { color: #7a6a5a; }
+  [data-theme="dark"] .divider::before, [data-theme="dark"] .divider::after { border-top-color: #3a2a1a; }
+  [data-theme="dark"] .cal-grid { border-color: #3a2a1a; }
+  [data-theme="dark"] .cal-day { background: #231a12; border-right-color: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .cal-day.easy-mode { background: #1a2530; }
+  [data-theme="dark"] .cal-day.drag-over { background: #3a2a1a; }
+  [data-theme="dark"] .cal-day-header { color: #F0E6D6; border-bottom-color: rgba(255,255,255,0.1); }
+  [data-theme="dark"] .cal-meal-slot { border-color: #3a2a1a; color: #7a6a5a; }
+  [data-theme="dark"] .cal-meal-slot:hover { border-color: #E8421A; color: #E8421A; background: rgba(232,66,26,0.08); }
+  [data-theme="dark"] .cal-meal-slot.filled { background: #3a2a1a; border-color: #4a3a2a; color: #F0E6D6; }
+  [data-theme="dark"] .grocery-wrap { border-color: #3a2a1a; }
+  [data-theme="dark"] .grocery-section { border-bottom-color: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .grocery-section-header { background: #2a2018; color: #FFD166; }
+  [data-theme="dark"] .grocery-item { background: #231a12; border-bottom-color: rgba(255,255,255,0.04); }
+  [data-theme="dark"] .grocery-item:hover { background: #2a2018; }
+  [data-theme="dark"] .grocery-item.checked { background: #1a1510; }
+  [data-theme="dark"] .grocery-item-name { color: #F0E6D6; }
+  [data-theme="dark"] .toast { background: #F0E6D6; color: #1a1510; border-color: #E8421A; }
+  [data-theme="dark"] .rb-book-card { background: #2a2018; border-color: #3a2a1a; }
+  [data-theme="dark"] .rb-book-card:hover { background: #3a2a1a; }
+  [data-theme="dark"] .rb-book-card.active { background: #F0E6D6; }
+  [data-theme="dark"] .rb-book-card.active .rb-book-name { color: #1a1510; }
+  [data-theme="dark"] .rb-book-name { color: #F0E6D6; }
+  [data-theme="dark"] .rb-new-book-btn { background: #2a2018; border-color: #4a3a2a; color: #7a6a5a; }
+  [data-theme="dark"] .rb-new-book-btn:hover { background: #3a2a1a; border-color: #F0E6D6; color: #F0E6D6; }
+  [data-theme="dark"] .rb-new-book-form { background: #2a2018; border-color: #3a2a1a; }
+  [data-theme="dark"] .fb-btn { box-shadow: 0 4px 16px rgba(232,66,26,0.4); }
+  [data-theme="dark"] .fb-panel { background: #231a12; border-color: #3a2a1a; }
+  [data-theme="dark"] .pm-bottom-nav { background: rgba(30,22,16,0.95); border-top-color: #3a2a1a; }
+  [data-theme="dark"] .pm-bottom-nav-item { color: #F0E6D6; border-right-color: rgba(255,255,255,0.06); }
+  [data-theme="dark"] .pm-hamburger-overlay { background: rgba(0,0,0,0.5); }
+  [data-theme="dark"] .pm-hamburger-panel { background: #231a12; border-left-color: #3a2a1a; }
+  [data-theme="dark"] .pm-hamburger-panel-item { color: #F0E6D6; border-bottom-color: rgba(255,255,255,0.08); }
+  [data-theme="dark"] .pm-hamburger-panel-item:hover { background: #3a2a1a; }
+  [data-theme="dark"] .pm-hamburger-btn { border-color: #3a2a1a; color: #F0E6D6; }
+  [data-theme="dark"] ::selection { background: #E8421A; color: #fff; }
+  [data-theme="dark"] ::-webkit-scrollbar-thumb { background: #4a3a2a; }
+  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #6a5a4a; }
+  @media (max-width: 768px) {
+    [data-theme="dark"] .cal-day { border-color: #3a2a1a; }
+    [data-theme="dark"] .cal-day-header { background: #2a2018 !important; color: #FFD166 !important; border-bottom-color: #3a2a1a !important; }
+  }
 `
 
 // ── EmailJS feedback config ──
@@ -1144,12 +1224,16 @@ Assign recipes for every date in the range. Only include meal keys where recipes
                     {slotRecipes.length > 0 ? (
                       <div className="cal-meal-slot filled" style={{ borderColor: MEAL_COLORS[meal], background: MEAL_COLORS[meal] + "22", flexDirection:"column", alignItems:"stretch", gap:"3px", cursor:"default" }}>
                         {slotRecipes.map(r => (
-                          <div key={r.id} style={{ display:"flex", alignItems:"flex-start", gap:"2px" }}>
+                          <div key={r.id} style={{ display:"flex", alignItems:"center", gap:"4px" }}>
                             <span style={{ fontSize:"10px", lineHeight:1.2, flex:1 }}>{r.title}</span>
-                            <button onClick={() => removeFromSlot(date, meal, r.id)} style={{ flexShrink:0, background:"#E8421A", border:"1px solid #1A0A00", borderRadius:"50%", width:"13px", height:"13px", fontSize:"7px", color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1 }}>✕</button>
+                            <button onClick={() => removeFromSlot(date, meal, r.id)} style={{ flexShrink:0, background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"50%", width:"22px", height:"22px", fontSize:"10px", color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1, transition:"transform 0.15s" }}
+                              onMouseEnter={e => e.currentTarget.style.transform="scale(1.15)"}
+                              onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}>✕</button>
                           </div>
                         ))}
-                        <button onClick={() => setPickerFor({ day: date, meal })} style={{ marginTop:"2px", fontSize:"9px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", background:"none", border:"1px dashed #E8421A", borderRadius:"4px", cursor:"pointer", padding:"1px 4px", alignSelf:"flex-start" }}>+ add</button>
+                        <button onClick={() => setPickerFor({ day: date, meal })} style={{ marginTop:"3px", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", background:"rgba(232,66,26,0.06)", border:"2px dashed #E8421A", borderRadius:"6px", cursor:"pointer", padding:"4px 10px", alignSelf:"stretch", textAlign:"center", transition:"all 0.15s" }}
+                          onMouseEnter={e => { e.currentTarget.style.background="rgba(232,66,26,0.15)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background="rgba(232,66,26,0.06)"; }}>+ add</button>
                       </div>
                     ) : (
                       <div className={`cal-meal-slot ${dragOver === slotKey ? "drag-over" : ""}`}
@@ -1506,7 +1590,7 @@ function AuthScreen({ onAuth }) {
     <>
       <style>{GOOGLE_FONTS}</style>
       <style>{STYLES}</style>
-      <div style={{ minHeight:"100vh", background:"#FFF5E6", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
+      <div style={{ minHeight:"100vh", background:"var(--bg, #FFF5E6)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
         <div className="auth-card">
           <div style={{ textAlign:"center", marginBottom:"28px" }}>
             <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
@@ -1625,6 +1709,7 @@ function FeedbackWidget({ user }) {
 export default function CooCheena() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => load("rv_dark_mode", false));
 
   const [recipes, setRecipes] = useState([]);
   const [mealPlan, setMealPlan] = useState(() => {
@@ -1655,6 +1740,28 @@ export default function CooCheena() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dragRecipe, setDragRecipe] = useState(null);
   const { msg: toastMsg, show: toastShow, toast } = useToast();
+
+  // ── Dark mode toggle ──
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+    save("rv_dark_mode", darkMode);
+  }, [darkMode]);
+
+  // ── Lock body scroll when modals are open (prevents background scroll on mobile) ──
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    if (selected) {
+      document.body.classList.add("modal-open");
+      document.body.style.top = `-${scrollY}px`;
+    }
+    return () => {
+      if (document.body.classList.contains("modal-open")) {
+        document.body.classList.remove("modal-open");
+        document.body.style.top = "";
+        window.scrollTo(0, scrollY);
+      }
+    };
+  }, [selected]);
 
   // ── Auth listener ──
   useEffect(() => {
@@ -1951,7 +2058,7 @@ export default function CooCheena() {
       <>
         <style>{GOOGLE_FONTS}</style>
         <style>{STYLES}</style>
-        <div style={{ minHeight:"100vh", background:"#FFF5E6", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ minHeight:"100vh", background:"var(--bg, #FFF5E6)", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <div style={{ textAlign:"center" }}>
             <div className="cooking-anim">🍳</div>
             <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Loading...</p>
@@ -1967,12 +2074,12 @@ export default function CooCheena() {
     <>
       <style>{GOOGLE_FONTS}</style>
       <style>{STYLES}</style>
-      <div style={{ minHeight:"100vh", background:"#FFF5E6" }}>
+      <div style={{ minHeight:"100vh", background:"var(--bg, #FFF5E6)" }}>
 
         {/* Header */}
         <header className="pm-header">
           <div style={{ maxWidth:"1100px", margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", height:"68px", padding:"0 24px" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+            <div onClick={() => setTab("add")} style={{ display:"flex", alignItems:"center", gap:"10px", cursor:"pointer" }}>
               <span style={{ fontSize:"28px" }}>🍳</span>
               <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"3px" }}>
                 <span style={{ color:"#1A0A00" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
@@ -1986,8 +2093,13 @@ export default function CooCheena() {
                   {t.label}
                 </button>
               ))}
+              <button onClick={() => setDarkMode(d => !d)} className="pm-btn"
+                style={{ padding:"8px 12px", fontSize:"16px", marginLeft:"4px", background: darkMode ? "#FFD166" : "#2a2018", color: darkMode ? "#1A0A00" : "#FFD166", borderColor: darkMode ? "#1A0A00" : "#3a2a1a", lineHeight:1 }}
+                title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
+                {darkMode ? "☀️" : "🌙"}
+              </button>
               <button onClick={signOut} className="pm-btn"
-                style={{ padding:"8px 16px", background:"#1A0A00", color:"#fff", fontSize:"13px", marginLeft:"6px" }}>
+                style={{ padding:"8px 16px", background:"#1A0A00", color:"#fff", fontSize:"13px" }}>
                 Sign Out
               </button>
             </nav>
@@ -2265,6 +2377,9 @@ export default function CooCheena() {
       {menuOpen && (
         <div className="pm-hamburger-overlay" onClick={() => setMenuOpen(false)}>
           <div className="pm-hamburger-panel" onClick={e => e.stopPropagation()}>
+            <button className="pm-hamburger-panel-item" onClick={() => { setDarkMode(d => !d); setMenuOpen(false); }}>
+              {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+            </button>
             <button className="pm-hamburger-panel-item danger" onClick={() => { signOut(); setMenuOpen(false); }}>
               Sign Out
             </button>
