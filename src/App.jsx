@@ -713,7 +713,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
     setSaving(false);
   };
 
-  const L  = { fontFamily:"'Bebas Neue',cursive", fontSize:"17px", letterSpacing:"1px", color:"#1A0A00", display:"block", marginBottom:"6px" };
+  const L  = { fontFamily:"'Bebas Neue',cursive", fontSize:"17px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"block", marginBottom:"6px" };
   const S  = { marginBottom:"20px" };
   const iS = { width:"100%", boxSizing:"border-box" };
 
@@ -764,7 +764,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
         <label style={L}>Ingredients</label>
         {ingredients.map((ing, i) => (
           <div key={i} style={{ display:"flex", gap:"6px", marginBottom:"6px", alignItems:"center" }}>
-            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#7A5A3A", minWidth:"18px", textAlign:"right" }}>{i + 1}.</span>
+            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"var(--text-muted, #7A5A3A)", minWidth:"18px", textAlign:"right" }}>{i + 1}.</span>
             <input value={ing} onChange={e => updateList(setIngredients, i, e.target.value)}
               placeholder="e.g. 2 cups flour"
               className="pm-input" style={{ flex:1 }}
@@ -784,7 +784,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
         <label style={L}>Steps</label>
         {steps.map((step, i) => (
           <div key={i} style={{ display:"flex", gap:"6px", marginBottom:"8px", alignItems:"flex-start" }}>
-            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#7A5A3A", minWidth:"18px", textAlign:"right", paddingTop:"10px" }}>{i + 1}.</span>
+            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"var(--text-muted, #7A5A3A)", minWidth:"18px", textAlign:"right", paddingTop:"10px" }}>{i + 1}.</span>
             <textarea value={step} onChange={e => updateList(setSteps, i, e.target.value)}
               placeholder={`Step ${i + 1}…`}
               className="pm-input" rows={2}
@@ -805,10 +805,10 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
         {tags.length > 0 && (
           <div style={{ display:"flex", gap:"6px", flexWrap:"wrap", marginBottom:"8px" }}>
             {tags.map(t => (
-              <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"#1a1a1a", display:"flex", alignItems:"center", gap:"4px" }}>
+              <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"var(--text, #1a1a1a)", display:"flex", alignItems:"center", gap:"4px" }}>
                 {t}
                 <button onClick={() => setTags(prev => prev.filter(x => x !== t))}
-                  style={{ background:"none", border:"none", cursor:"pointer", fontSize:"10px", fontWeight:800, lineHeight:1, padding:0, color:"#1a1a1a" }}>✕</button>
+                  style={{ background:"none", border:"none", cursor:"pointer", fontSize:"10px", fontWeight:800, lineHeight:1, padding:0, color:"var(--text, #1a1a1a)" }}>✕</button>
               </span>
             ))}
           </div>
@@ -882,8 +882,8 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
             onMouseEnter={e => e.currentTarget.style.transform="scale(1.15)"}
             onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}>✕</button>
         </div>
-        <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
-        <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7A5A3A", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
+        <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
+        <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
         <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
           {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px" }}>⏱ {recipe.prepTime}</span>}
           {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
@@ -917,24 +917,24 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
         <div style={{ padding:"24px 36px 36px" }}>
         {imgError && <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>}
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"12px" }}>
-          {recipe.tags?.map(t => <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"#1a1a1a" }}>{t}</span>)}
+          {recipe.tags?.map(t => <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"var(--text, #1a1a1a)" }}>{t}</span>)}
         </div>
-        <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"36px", letterSpacing:"1px", color:"#1A0A00", margin:"0 0 8px", lineHeight:1, paddingRight:"40px" }}>{recipe.title}</h2>
-        <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7A5A3A", fontWeight:700, margin:"0 0 20px", fontSize:"14px", lineHeight:1.6 }}>{recipe.description}</p>
+        <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"36px", letterSpacing:"1px", color:"var(--text, #1A0A00)", margin:"0 0 8px", lineHeight:1, paddingRight:"40px" }}>{recipe.title}</h2>
+        <p style={{ fontFamily:"'Nunito',sans-serif", color:"var(--text-muted, #7A5A3A)", fontWeight:700, margin:"0 0 20px", fontSize:"14px", lineHeight:1.6 }}>{recipe.description}</p>
         <div style={{ display:"flex", gap:"10px", flexWrap:"wrap", marginBottom:"20px" }}>
           {recipe.prepTime && <div className="pm-stat-box"><div style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px" }}>{recipe.prepTime}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"1px" }}>Prep</div></div>}
           {recipe.cookTime && <div className="pm-stat-box" style={{ background:"#E8421A" }}><div style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#fff" }}>{recipe.cookTime}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"1px", color:"#fff" }}>Cook</div></div>}
           {recipe.servings && <div className="pm-stat-box" style={{ background:"#FFD166" }}><div style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px" }}>{recipe.servings}</div><div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"1px" }}>Servings</div></div>}
         </div>
         <div className="pm-section wobble-1" style={{ marginBottom:"14px" }}>
-          <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>Ingredients</h4>
-          <ul style={{ fontFamily:"'Nunito',sans-serif", color:"#1a1a1a", lineHeight:1.9, paddingLeft:"20px" }}>
+          <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>Ingredients</h4>
+          <ul style={{ fontFamily:"'Nunito',sans-serif", color:"var(--text, #1a1a1a)", lineHeight:1.9, paddingLeft:"20px" }}>
             {recipe.ingredients?.map((ing,i) => <li key={i} style={{ fontSize:"13px", fontWeight:600 }}>{ing}</li>)}
           </ul>
         </div>
         <div className="pm-section wobble-2" style={{ marginBottom:"18px" }}>
-          <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>Instructions</h4>
-          <ol style={{ fontFamily:"'Nunito',sans-serif", color:"#1a1a1a", lineHeight:1.8, paddingLeft:"22px" }}>
+          <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>Instructions</h4>
+          <ol style={{ fontFamily:"'Nunito',sans-serif", color:"var(--text, #1a1a1a)", lineHeight:1.8, paddingLeft:"22px" }}>
             {recipe.steps?.map((step,i) => <li key={i} style={{ fontSize:"13px", fontWeight:600, marginBottom:"8px" }}>{step}</li>)}
           </ol>
         </div>
@@ -958,7 +958,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
         </div>
         {recipe._saved && books.length > 0 && onToggleBook && (
           <div style={{ borderTop:"3px dashed #1a1a1a", paddingTop:"18px", marginTop:"6px" }}>
-            <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>📚 Add to Book</h4>
+            <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>📚 Add to Book</h4>
             <div style={{ display:"flex", flexWrap:"wrap", gap:"8px" }}>
               {books.map(book => {
                 const inBook = book.recipeIds.includes(recipe.id);
@@ -987,8 +987,8 @@ function EasyModeModal({ dates, onConfirm, onCancel }) {
       <div className="pm-modal" style={{ maxWidth:"480px" }} onClick={e => e.stopPropagation()}>
         <div style={{ textAlign:"center", marginBottom:"24px" }}>
           <div style={{ fontSize:"48px", marginBottom:"8px" }}>⚡</div>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>Which nights are Easy Mode?</h2>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", marginTop:"8px", fontWeight:600 }}>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>Which nights are Easy Mode?</h2>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"var(--text-muted, #7a5c3a)", marginTop:"8px", fontWeight:600 }}>
             Easy Mode nights get quick recipes (≤30 min total). Tap the nights you'll be busy or tired!
           </p>
         </div>
@@ -1001,7 +1001,7 @@ function EasyModeModal({ dates, onConfirm, onCancel }) {
           ))}
         </div>
         <div style={{ display:"flex", gap:"10px" }}>
-          <button onClick={onCancel} className="pm-btn" style={{ flex:1, padding:"12px", background:"#f5e6c8", color:"#1a1a1a" }}>Cancel</button>
+          <button onClick={onCancel} className="pm-btn" style={{ flex:1, padding:"12px", background:"#f5e6c8", color:"var(--text, #1a1a1a)" }}>Cancel</button>
           <button onClick={() => onConfirm(selected)} className="pm-btn" style={{ flex:2, padding:"12px", background:"#ff5252", color:"#fff" }}>
             ✨ Generate My Plan!
           </button>
@@ -1031,19 +1031,19 @@ function DateRangePicker({ startDate, endDate, onChange }) {
   const startRef = useRef(null);
   const endRef = useRef(null);
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
-      <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A", whiteSpace:"nowrap" }}>PLAN DATES</span>
+    <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"var(--bg-card, #fff9ed)", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
+      <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap" }}>PLAN DATES</span>
       <div style={{ display:"flex", alignItems:"center", gap:"8px", flex:"1 1 auto", minWidth:0 }}>
         <div onClick={() => startRef.current?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
           <input ref={startRef} type="date" value={startDate} min={today} onChange={handleStart}
             className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
         </div>
-        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A", flexShrink:0 }}>→</span>
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", flexShrink:0 }}>→</span>
         <div onClick={() => endRef.current?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
           <input ref={endRef} type="date" value={endDate} min={startDate} max={addDays(startDate, 6)} onChange={handleEnd}
             className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
         </div>
-        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A", whiteSpace:"nowrap", flexShrink:0 }}>
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap", flexShrink:0 }}>
           {dayCount} day{dayCount !== 1 ? "s" : ""}
         </span>
       </div>
@@ -1170,14 +1170,14 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#ffd166", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>📅 Meal Plan</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>📅 Meal Plan</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={() => setShowEasyMode(true)} disabled={generating || recipes.length === 0} className="pm-btn"
             style={{ padding:"10px 18px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"14px" }}>
             {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}>🍳</span> Planning...</> : "⚡ AI Plan My Dates"}
           </button>
-          {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"13px" }}>🗑️ Clear</button>}
+          {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>🗑️ Clear</button>}
         </div>
       </div>
 
@@ -1191,14 +1191,14 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       </div>
 
       {recipes.length === 0 && (
-        <div style={{ textAlign:"center", padding:"40px", background:"#fff9ed", border:"3px dashed #c8b89a", borderRadius:"16px", marginBottom:"20px" }}>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"16px", fontWeight:700, color:"#7a5c3a" }}>Add some recipes first, then come back to plan your meals! 🍽️</p>
+        <div style={{ textAlign:"center", padding:"40px", background:"var(--bg-card, #fff9ed)", border:"3px dashed #c8b89a", borderRadius:"16px", marginBottom:"20px" }}>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"16px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>Add some recipes first, then come back to plan your meals! 🍽️</p>
         </div>
       )}
 
       {/* Legend */}
       <div style={{ display:"flex", gap:"10px", marginBottom:"12px", flexWrap:"wrap", alignItems:"center" }}>
-        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#7a5c3a" }}>Legend:</span>
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>Legend:</span>
         <span style={{ background:"#e8f5ff", border:"2px solid #457b9d", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#457b9d" }}>⚡ Easy Mode</span>
         {MEALS.map(m => <span key={m} style={{ background: MEAL_COLORS[m], border:"2px solid #1a1a1a", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700 }}>{m}</span>)}
       </div>
@@ -1250,9 +1250,9 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       </div>
 
       {/* Picker hint */}
-      <div style={{ background:"#fff9ed", border:"3px dashed #c8b89a", borderRadius:"12px", padding:"14px 20px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"10px" }}>
+      <div style={{ background:"var(--bg-card, #fff9ed)", border:"3px dashed #c8b89a", borderRadius:"12px", padding:"14px 20px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"10px" }}>
         <span style={{ fontSize:"20px" }}>👆</span>
-        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7a5c3a" }}>
+        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>
           Click any <strong>+</strong> slot to pick a recipe from your library!
         </span>
       </div>
@@ -1262,12 +1262,12 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       {showClearConfirm && (
         <div className="pm-modal-bg" onClick={() => setShowClearConfirm(false)}>
           <div className="pm-modal" style={{ maxWidth:"400px", textAlign:"center" }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"10px" }}>Clear Meal Plan?</h3>
-            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"#7a5c3a", marginBottom:"20px" }}>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>Clear Meal Plan?</h3>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"var(--text-muted, #7a5c3a)", marginBottom:"20px" }}>
               This will remove all meals from the selected dates. This cannot be undone.
             </p>
             <div style={{ display:"flex", gap:"10px", justifyContent:"center" }}>
-              <button onClick={() => setShowClearConfirm(false)} className="pm-btn" style={{ padding:"10px 20px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"14px" }}>Cancel</button>
+              <button onClick={() => setShowClearConfirm(false)} className="pm-btn" style={{ padding:"10px 20px", background:"#f5e6c8", color:"var(--text, #1a1a1a)", fontSize:"14px" }}>Cancel</button>
               <button onClick={clearWeek} className="pm-btn" style={{ padding:"10px 20px", background:"#E8421A", color:"#fff", fontSize:"14px" }}>Yes, Clear</button>
             </div>
           </div>
@@ -1293,7 +1293,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
         <div className="pm-modal-bg" onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }}>
           <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>
-            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"14px", paddingRight:"40px" }}>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"14px", paddingRight:"40px" }}>
               Pick a recipe for {formatDateLabel(pickerFor.day)} {pickerFor.meal}
             </h3>
             <div style={{ position:"relative", marginBottom:"10px" }}>
@@ -1303,7 +1303,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
                 style={{ width:"100%", paddingLeft:"32px", boxSizing:"border-box", fontSize:"13px", padding:"8px 10px 8px 32px" }} />
               {pickerSearch && (
                 <button onClick={() => setPickerSearch("")}
-                  style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"14px", color:"#7A5A3A", fontWeight:800 }}>✕</button>
+                  style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"14px", color:"var(--text-muted, #7A5A3A)", fontWeight:800 }}>✕</button>
               )}
             </div>
             <div style={{ display:"flex", gap:"5px", flexWrap:"wrap", marginBottom:"12px" }}>
@@ -1316,18 +1316,18 @@ Assign recipes for every date in the range. Only include meal keys where recipes
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:"8px", maxHeight:"50vh", overflowY:"auto" }}>
               {pickerRecipes.length === 0 ? (
-                <div style={{ textAlign:"center", padding:"32px 0", fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A" }}>
+                <div style={{ textAlign:"center", padding:"32px 0", fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7A5A3A)" }}>
                   No recipes match — <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={() => { setPickerSearch(""); setPickerCat("All"); }}>clear filters</span>
                 </div>
               ) : pickerRecipes.map(r => (
                 <div key={r.id} onClick={() => { setSlot(pickerFor.day, pickerFor.meal, r.id); setPickerFor(null); setPickerSearch(""); setPickerCat("All"); toast("📅 Added!"); }}
-                  style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 14px", background:"#fff9ed", border:"2px solid rgba(26,10,0,0.12)", borderRadius:"10px", cursor:"pointer", transition:"all 0.2s cubic-bezier(0.16, 1, 0.3, 1)" }}
+                  style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 14px", background:"var(--bg-card, #fff9ed)", border:"2px solid rgba(26,10,0,0.12)", borderRadius:"10px", cursor:"pointer", transition:"all 0.2s cubic-bezier(0.16, 1, 0.3, 1)" }}
                   onMouseEnter={e => { e.currentTarget.style.background="#ffd166"; e.currentTarget.style.borderColor="#1a1a1a"; e.currentTarget.style.transform="translateY(-1px)"; }}
                   onMouseLeave={e => { e.currentTarget.style.background="#fff9ed"; e.currentTarget.style.borderColor="rgba(26,10,0,0.12)"; e.currentTarget.style.transform="none"; }}>
                   <span className="pm-tag" style={{ background: (CAT_COLORS[r.category]||CAT_COLORS.Other).bg, color:(CAT_COLORS[r.category]||CAT_COLORS.Other).text, flexShrink:0 }}>{r.category}</span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800 }}>{r.title}</div>
-                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"#7a5c3a" }}>⏱ {r.prepTime} · 🔥 {r.cookTime}</div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"var(--text-muted, #7a5c3a)" }}>⏱ {r.prepTime} · 🔥 {r.cookTime}</div>
                   </div>
                 </div>
               ))}
@@ -1422,7 +1422,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>🛒 Grocery List</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>🛒 Grocery List</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={generateGroceryList} disabled={generating || uniqueRecipes.length === 0} className="pm-btn"
@@ -1431,26 +1431,26 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           </button>
           {groceryList.items?.length > 0 && <>
             <button onClick={handleShare} className="pm-btn" style={{ padding:"10px 14px", background:"#457b9d", color:"#fff", fontSize:"13px" }}>🔗 Share</button>
-            <button onClick={handlePrint} className="pm-btn" style={{ padding:"10px 14px", background:"#ffd166", color:"#1a1a1a", fontSize:"13px" }}>🖨️ Print/PDF</button>
-            <button onClick={clearChecked} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"#1a1a1a", fontSize:"13px" }}>↺ Uncheck All</button>
+            <button onClick={handlePrint} className="pm-btn" style={{ padding:"10px 14px", background:"#ffd166", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>🖨️ Print/PDF</button>
+            <button onClick={clearChecked} className="pm-btn" style={{ padding:"10px 14px", background:"#f5e6c8", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>↺ Uncheck All</button>
           </>}
         </div>
       </div>
 
       {/* Date range filter */}
-      <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"#fff9ed", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
-        <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"#7A5A3A", whiteSpace:"nowrap" }}>DATES</span>
+      <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"var(--bg-card, #fff9ed)", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
+        <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap" }}>DATES</span>
         <div style={{ display:"flex", alignItems:"center", gap:"8px", flex:"1 1 auto", minWidth:0 }}>
           <div onClick={e => e.currentTarget.querySelector('input')?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
             <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
               className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
           </div>
-          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A", flexShrink:0 }}>→</span>
+          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", flexShrink:0 }}>→</span>
           <div onClick={e => e.currentTarget.querySelector('input')?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
             <input type="date" value={groceryEnd} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryEnd}
               className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
           </div>
-          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"#7A5A3A", whiteSpace:"nowrap", flexShrink:0 }}>
+          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap", flexShrink:0 }}>
             {activeDates.length} day{activeDates.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -1458,8 +1458,8 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
 
       {/* Planned meals summary */}
       {uniqueRecipes.length > 0 && (
-        <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.06)", padding:"14px 18px", marginBottom:"20px" }}>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"#1a1a1a", marginBottom:"8px" }}>📋 Based on {uniqueRecipes.length} planned recipes:</p>
+        <div style={{ background:"var(--bg-card, #fff9ed)", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.06)", padding:"14px 18px", marginBottom:"20px" }}>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"var(--text, #1a1a1a)", marginBottom:"8px" }}>📋 Based on {uniqueRecipes.length} planned recipes:</p>
           <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
             {uniqueRecipes.map(r => (
               <span key={r.id} style={{ background:"#ffd166", border:"2px solid #1a1a1a", borderRadius:"20px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700 }}>{r.title}</span>
@@ -1471,7 +1471,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       {groceryList.items?.length > 0 ? (
         <>
           {/* Progress bar */}
-          <div style={{ background:"#fff9ed", border:"3px solid #1a1a1a", borderRadius:"14px", padding:"16px 20px", marginBottom:"20px", boxShadow:"0 4px 20px rgba(26,10,0,0.08)" }}>
+          <div style={{ background:"var(--bg-card, #fff9ed)", border:"3px solid #1a1a1a", borderRadius:"14px", padding:"16px 20px", marginBottom:"20px", boxShadow:"0 4px 20px rgba(26,10,0,0.08)" }}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
               <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800 }}>🛍️ {checkedCount} / {totalCount} items grabbed!</span>
               {checkedCount === totalCount && totalCount > 0 && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#06d6a0" }}>✓ All done!</span>}
@@ -1494,7 +1494,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
                       style={{ width:"18px", height:"18px", cursor:"pointer", accentColor:"#06d6a0" }}/>
                     <span className="grocery-item-name">{item.name}</span>
                     <button onClick={() => toggleSkip(item.id)}
-                      style={{ background:"#f5e6c8", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"#7a5c3a", whiteSpace:"nowrap", transition:"all 0.15s" }}
+                      style={{ background:"#f5e6c8", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"var(--text-muted, #7a5c3a)", whiteSpace:"nowrap", transition:"all 0.15s" }}
                       onMouseEnter={e => { e.currentTarget.style.background="#FFD166"; e.currentTarget.style.borderColor="#1A0A00"; }}
                       onMouseLeave={e => { e.currentTarget.style.background="#f5e6c8"; e.currentTarget.style.borderColor="#c8b89a"; }}>
                       ✓ Have it
@@ -1509,11 +1509,11 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           {/* Skipped items */}
           {groceryList.items.filter(i => i.skipped).length > 0 && (
             <div style={{ marginTop:"20px" }}>
-              <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"#7a5c3a", marginBottom:"8px" }}>✓ Already have ({groceryList.items.filter(i=>i.skipped).length}):</p>
+              <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"var(--text-muted, #7a5c3a)", marginBottom:"8px" }}>✓ Already have ({groceryList.items.filter(i=>i.skipped).length}):</p>
               <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
                 {groceryList.items.filter(i => i.skipped).map(item => (
                   <span key={item.id} onClick={() => toggleSkip(item.id)}
-                    style={{ background:"#e2c89a", border:"2px solid #c8b89a", borderRadius:"20px", padding:"3px 12px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, cursor:"pointer", textDecoration:"line-through", color:"#7a5c3a" }}>
+                    style={{ background:"#e2c89a", border:"2px solid #c8b89a", borderRadius:"20px", padding:"3px 12px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, cursor:"pointer", textDecoration:"line-through", color:"var(--text-muted, #7a5c3a)" }}>
                     {item.name}
                   </span>
                 ))}
@@ -1524,8 +1524,8 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       ) : (
         <div style={{ textAlign:"center", padding:"80px 20px" }}>
           <div style={{ fontSize:"52px", marginBottom:"16px" }}>🛒</div>
-          <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"8px" }}>No grocery list yet!</p>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"#7a5c3a" }}>
+          <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"8px" }}>No grocery list yet!</p>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>
             {uniqueRecipes.length === 0 ? "Plan some meals in the 📅 Meal Plan tab first!" : "Hit \"Generate from Meal Plan\" to build your list!"}
           </p>
         </div>
@@ -1536,13 +1536,13 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
         <div className="pm-modal-bg" onClick={() => setShowShare(false)}>
           <div className="pm-modal" style={{ maxWidth:"440px" }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setShowShare(false)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>
-            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"16px" }}>🔗 Share Grocery List</h3>
-            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#7a5c3a", marginBottom:"12px", fontWeight:600 }}>Anyone with this link can view and check off items in real time!</p>
-            <div style={{ background:"#f5e6c8", border:"3px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", wordBreak:"break-all", fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"#1a1a1a" }}>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"16px" }}>🔗 Share Grocery List</h3>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"var(--text-muted, #7a5c3a)", marginBottom:"12px", fontWeight:600 }}>Anyone with this link can view and check off items in real time!</p>
+            <div style={{ background:"#f5e6c8", border:"3px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", wordBreak:"break-all", fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"var(--text, #1a1a1a)" }}>
               {shareUrl}
             </div>
             <button onClick={() => { navigator.clipboard?.writeText(shareUrl); toast("Copied!"); }} className="pm-btn"
-              style={{ width:"100%", padding:"12px", background:"#06d6a0", color:"#1a1a1a" }}>📋 Copy Link</button>
+              style={{ width:"100%", padding:"12px", background:"#06d6a0", color:"var(--text, #1a1a1a)" }}>📋 Copy Link</button>
           </div>
         </div>
       )}
@@ -1595,9 +1595,9 @@ function AuthScreen({ onAuth }) {
           <div style={{ textAlign:"center", marginBottom:"28px" }}>
             <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
             <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"3px" }}>
-              <span style={{ color:"#1A0A00" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
+              <span style={{ color:"var(--text, #1A0A00)" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
             </h1>
-            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"#7A5A3A", fontWeight:800, marginTop:"4px", textTransform:"uppercase", letterSpacing:"1px" }}>Your kitchen, your recipes.</p>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"var(--text-muted, #7A5A3A)", fontWeight:800, marginTop:"4px", textTransform:"uppercase", letterSpacing:"1px" }}>Your kitchen, your recipes.</p>
           </div>
 
           {/* Google login */}
@@ -1672,13 +1672,13 @@ function FeedbackWidget({ user }) {
           {done ? (
             <div style={{ textAlign:"center", padding:"16px 0" }}>
               <div style={{ fontSize:"38px", marginBottom:"8px" }}>✅</div>
-              <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"#1A0A00" }}>Thanks! We'll look into it.</p>
+              <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>Thanks! We'll look into it.</p>
             </div>
           ) : (
             <>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px" }}>
-                <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"#1A0A00" }}>Send Feedback</h3>
-                <button onClick={close} style={{ background:"none", border:"none", fontSize:"18px", cursor:"pointer", color:"#7A5A3A", lineHeight:1 }}>✕</button>
+                <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>Send Feedback</h3>
+                <button onClick={close} style={{ background:"none", border:"none", fontSize:"18px", cursor:"pointer", color:"var(--text-muted, #7A5A3A)", lineHeight:1 }}>✕</button>
               </div>
               <div style={{ display:"flex", gap:"4px", marginBottom:"12px" }}>
                 {["Bug", "Feature", "General"].map(t => (
@@ -2061,7 +2061,7 @@ export default function CooCheena() {
         <div style={{ minHeight:"100vh", background:"var(--bg, #FFF5E6)", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <div style={{ textAlign:"center" }}>
             <div className="cooking-anim">🍳</div>
-            <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Loading...</p>
+            <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"var(--text, #1A0A00)", marginTop:"14px" }}>Loading...</p>
           </div>
         </div>
       </>
@@ -2082,14 +2082,14 @@ export default function CooCheena() {
             <div onClick={() => setTab("add")} style={{ display:"flex", alignItems:"center", gap:"10px", cursor:"pointer" }}>
               <span style={{ fontSize:"28px" }}>🍳</span>
               <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"3px" }}>
-                <span style={{ color:"#1A0A00" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
+                <span style={{ color:"var(--text, #1A0A00)" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
               </h1>
             </div>
             {/* Desktop nav */}
             <nav className="pm-desktop-nav">
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)} className="pm-btn"
-                  style={{ padding:"8px 16px", background: tab === t.id ? "#FFD166" : "rgba(255,255,255,0.7)", color:"#1A0A00", fontSize:"13px", borderColor: tab === t.id ? "#1A0A00" : "rgba(26,10,0,0.2)" }}>
+                  style={{ padding:"8px 16px", background: tab === t.id ? "#FFD166" : "rgba(255,255,255,0.7)", color:"var(--text, #1A0A00)", fontSize:"13px", borderColor: tab === t.id ? "#1A0A00" : "rgba(26,10,0,0.2)" }}>
                   {t.label}
                 </button>
               ))}
@@ -2132,10 +2132,10 @@ export default function CooCheena() {
           {tab === "add" && (
             <div style={{ maxWidth:"640px", margin:"0 auto" }}>
               <div style={{ marginBottom:"32px" }}>
-                <h2 className="cc-hero-heading" style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"80px", lineHeight:0.9, letterSpacing:"2px", color:"#1A0A00", marginBottom:"24px" }}>
-                  <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span style={{WebkitTextStroke:"3px #1A0A00", color:"transparent"}}>Cooking?</span>
+                <h2 className="cc-hero-heading" style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"80px", lineHeight:0.9, letterSpacing:"2px", color:"var(--text, #1A0A00)", marginBottom:"24px" }}>
+                  <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span style={{WebkitTextStroke:"3px var(--text, #1A0A00)", color:"transparent"}}>Cooking?</span>
                 </h2>
-                <p style={{ fontFamily:"'Nunito',sans-serif", color:"#7A5A3A", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>
+                <p style={{ fontFamily:"'Nunito',sans-serif", color:"var(--text-muted, #7A5A3A)", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>
                   {mode === "manual" ? "Fill in your recipe details below." : "Paste a URL or describe what you want to make!"}
                 </p>
               </div>
@@ -2164,26 +2164,26 @@ export default function CooCheena() {
                   placeholder={mode === "url" ? "https://www.allrecipes.com/recipe/..." : "e.g. lemon pasta, chicken + spinach..."}
                   className="pm-input" style={{ flex:1, border:"none", outline:"none", borderRadius:0 }} />
                 <button onClick={handleSubmit} disabled={loading || !input.trim()} className="pm-btn"
-                  style={{ padding:"12px 24px", background: loading ? "#C4A882" : "#FFD166", color:"#1A0A00", whiteSpace:"nowrap", border:"none", borderLeft:"3px solid #1A0A00", borderRadius:0, fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"2px" }}>
+                  style={{ padding:"12px 24px", background: loading ? "#C4A882" : "#FFD166", color:"var(--text, #1A0A00)", whiteSpace:"nowrap", border:"none", borderLeft:"3px solid #1A0A00", borderRadius:0, fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"2px" }}>
                   {loading ? "Cooking..." : mode === "url" ? "Parse!" : "Generate!"}
                 </button>
               </div>
               {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", fontSize:"14px", background:"#fff", border:"3px solid #E8421A", padding:"6px 16px", display:"inline-block" }}>{error}</span></div>}
-              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"#1A0A00", marginTop:"14px" }}>Crafting your recipes...</p></div>}
+              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"var(--text, #1A0A00)", marginTop:"14px" }}>Crafting your recipes...</p></div>}
 
               {/* URL parse — single result */}
               {preview && !loading && (
                 <div>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#1A0A00", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I found!</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"var(--text, #1A0A00)", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I found!</p>
                   <RecipeCard recipe={preview} onClick={() => setSelected(preview)} onDelete={() => setPreview(null)} wobble="wobble-1" />
-                  <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#7A5A3A", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click the card to view details & save!</p>
+                  <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"var(--text-muted, #7A5A3A)", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click the card to view details & save!</p>
                 </div>
               )}
 
               {/* From Idea — 3 options */}
               {previews.length > 0 && !loading && (
                 <div>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#1A0A00", marginBottom:"14px", textAlign:"center" }}>✨ Pick your favourite — or save them all!</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"var(--text, #1A0A00)", marginBottom:"14px", textAlign:"center" }}>✨ Pick your favourite — or save them all!</p>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px" }}>
                     {previews.map((r, i) => (
                       <RecipeCard key={r.id} recipe={r}
@@ -2192,7 +2192,7 @@ export default function CooCheena() {
                         wobble={["wobble-1","wobble-2","wobble-3"][i % 3]} />
                     ))}
                   </div>
-                  <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#7A5A3A", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click any card to view details & save!</p>
+                  <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"var(--text-muted, #7A5A3A)", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click any card to view details & save!</p>
                 </div>
               )}
               </>)}
@@ -2203,7 +2203,7 @@ export default function CooCheena() {
           {tab === "library" && (
             <div>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"18px", flexWrap:"wrap", gap:"10px" }}>
-                <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"2px", color:"#1A0A00", borderBottom:"3px solid #1A0A00", paddingBottom:"8px" }}>Your Library</h2>
+                <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"2px", color:"var(--text, #1A0A00)", borderBottom:"3px solid #1A0A00", paddingBottom:"8px" }}>Your Library</h2>
               </div>
 
               {/* Search bar */}
@@ -2218,7 +2218,7 @@ export default function CooCheena() {
                 />
                 {searchQuery && (
                   <button onClick={() => setSearchQuery("")}
-                    style={{ position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"16px", color:"#7A5A3A", fontWeight:800, lineHeight:1 }}>✕</button>
+                    style={{ position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"16px", color:"var(--text-muted, #7A5A3A)", fontWeight:800, lineHeight:1 }}>✕</button>
                 )}
               </div>
 
@@ -2293,16 +2293,16 @@ export default function CooCheena() {
               {filtered.length === 0 ? (
                 <div style={{ textAlign:"center", padding:"80px 20px" }}>
                   <div style={{ fontSize:"52px", marginBottom:"16px" }}>{searchQuery ? "🔍" : "📖"}</div>
-                  <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", marginBottom:"8px" }}>
+                  <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"8px" }}>
                     {searchQuery ? `No results for "${searchQuery}"` : "No recipes yet!"}
                   </p>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"#7a5c3a" }}>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>
                     {searchQuery ? <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={() => setSearchQuery("")}>Clear search</span> : 'Head to "✏️ Add" to get started'}
                   </p>
                 </div>
               ) : (
                 <>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, color:"#7A5A3A", marginBottom:"12px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Drag any recipe card onto the Meal Plan calendar</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, color:"var(--text-muted, #7A5A3A)", marginBottom:"12px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Drag any recipe card onto the Meal Plan calendar</p>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px" }}>
                     {filtered.map((r,i) => (
                       <RecipeCard key={r.id} recipe={r} onClick={setSelected} onDelete={handleDelete}
