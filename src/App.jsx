@@ -393,11 +393,12 @@ const STYLES = `
       display: flex; position: fixed; bottom: 0; left: 0; right: 0;
       background: rgba(255,245,230,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border-top: 3px solid #1A0A00; z-index: 100; height: 64px;
+      overflow: hidden;
     }
     .pm-bottom-nav-item {
       flex: 1; display: flex; flex-direction: column; align-items: center;
       justify-content: center; gap: 1px; border: none; background: none;
-      cursor: pointer; padding: 6px 2px;
+      cursor: pointer; padding: 6px 2px; height: 64px; box-sizing: border-box;
       border-right: 1px solid rgba(26,10,0,0.1);
       font-family: 'Bebas Neue', cursive; font-size: 9px; letter-spacing: 1px; color: #1A0A00;
       transition: all 0.2s var(--ease-out); position: relative;
