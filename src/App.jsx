@@ -2261,7 +2261,7 @@ export default function CooCheena() {
             <div style={{ maxWidth:"640px", margin:"0 auto" }}>
               <div style={{ marginBottom:"32px" }}>
                 <h2 className="cc-hero-heading" style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"80px", lineHeight:0.9, letterSpacing:"2px", color:"var(--text, #1A0A00)", marginBottom:"24px" }}>
-                  <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span className="outline-text" style={{WebkitTextStroke:"3px var(--text, #1A0A00)", color:"transparent"}}>Cooking?</span>
+                  <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span className="outline-text" style={{WebkitTextStroke:"2px var(--text, #1A0A00)", color:"transparent", letterSpacing:"4px"}}>Cooking?</span>
                 </h2>
                 <p style={{ fontFamily:"'Nunito',sans-serif", color:"var(--text-muted, #7A5A3A)", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>
                   {mode === "manual" ? "Fill in your recipe details below." : "Paste a URL or describe what you want to make!"}
