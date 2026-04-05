@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
+import {
+  CookingPot, CalendarBlank, ShoppingCart, Books, PencilSimple,
+  MagnifyingGlass, Timer, Fire, X, Lightning, Trash, ChatCircle, Link as LinkIcon,
+  Lightbulb, Brain, List as ListIcon, Diamond, Star, Printer, Sun, Moon,
+  FloppyDisk, Check, ArrowRight, HandPointing, Bug, Sparkle, ClipboardText,
+  Key, Confetti, Prohibit, BookOpen, ForkKnife, Package
+} from "@phosphor-icons/react";
 
 const SUPABASE_URL = "https://pmkfrzpyqcgkfujpdkdf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_bMU1GrxhDzwSV2P3eggzog_iltkZU9i";
@@ -777,7 +784,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
               onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); setIngredients(prev => [...prev, ""]); } }} />
             {ingredients.length > 1 && (
               <button onClick={() => removeItem(setIngredients, i)}
-                style={{ background:"none", border:"none", cursor:"pointer", fontSize:"15px", color:"#C4A882", fontWeight:800, padding:"0 2px", lineHeight:1 }}>✕</button>
+                style={{ background:"none", border:"none", cursor:"pointer", fontSize:"15px", color:"#C4A882", fontWeight:800, padding:"0 2px", lineHeight:1 }}><X size={14} weight="bold" /></button>
             )}
           </div>
         ))}
@@ -797,7 +804,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
               style={{ flex:1, resize:"vertical", fontFamily:"'Nunito',sans-serif", fontSize:"13px" }} />
             {steps.length > 1 && (
               <button onClick={() => removeItem(setSteps, i)}
-                style={{ background:"none", border:"none", cursor:"pointer", fontSize:"15px", color:"#C4A882", fontWeight:800, padding:"0 2px", marginTop:"8px", lineHeight:1 }}>✕</button>
+                style={{ background:"none", border:"none", cursor:"pointer", fontSize:"15px", color:"#C4A882", fontWeight:800, padding:"0 2px", marginTop:"8px", lineHeight:1 }}><X size={14} weight="bold" /></button>
             )}
           </div>
         ))}
@@ -814,7 +821,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
               <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"var(--text, #1a1a1a)", display:"flex", alignItems:"center", gap:"4px" }}>
                 {t}
                 <button onClick={() => setTags(prev => prev.filter(x => x !== t))}
-                  style={{ background:"none", border:"none", cursor:"pointer", fontSize:"10px", fontWeight:800, lineHeight:1, padding:0, color:"var(--text, #1a1a1a)" }}>✕</button>
+                  style={{ background:"none", border:"none", cursor:"pointer", fontSize:"10px", fontWeight:800, lineHeight:1, padding:0, color:"var(--text, #1a1a1a)" }}><X size={10} weight="bold" /></button>
               </span>
             ))}
           </div>
@@ -838,7 +845,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
               return (
                 <button key={book.id} onClick={() => toggleBook(book.id)} className="pm-btn"
                   style={{ padding:"7px 14px", fontSize:"12px", background: sel ? "#1A0A00" : "#FFF5E6", color: sel ? "#FFF5E6" : "#1A0A00" }}>
-                  {sel ? "✓ " : ""}{book.emoji} {book.name}
+                  {sel ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}{book.emoji} {book.name}
                 </button>
               );
             })}
@@ -851,7 +858,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
         <button onClick={onCancel} className="pm-btn pm-btn-ghost" style={{ flex:1 }}>Cancel</button>
         <button onClick={handleSave} disabled={saving || !title.trim()} className="pm-btn pm-btn-primary"
           style={{ flex:2, fontSize:"16px", padding:"12px", opacity: saving || !title.trim() ? 0.6 : 1 }}>
-          {saving ? "Saving…" : "💾 Save Recipe"}
+          {saving ? "Saving…" : <><FloppyDisk size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Save Recipe</>}
         </button>
       </div>
     </div>
@@ -886,13 +893,13 @@ function RecipeCard({ recipe, onClick, onDelete, wobble = "", draggable = false,
           <button onClick={e => { e.stopPropagation(); onDelete(recipe.id); }}
             style={{ background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"50%", width:"26px", height:"26px", cursor:"pointer", fontSize:"12px", color:"#fff", fontWeight:800, lineHeight:1, flexShrink:0, transition:"transform 0.15s", display:"flex", alignItems:"center", justifyContent:"center" }}
             onMouseEnter={e => e.currentTarget.style.transform="scale(1.15)"}
-            onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}>✕</button>
+            onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}><X size={12} weight="bold" /></button>
         </div>
         <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", margin:"6px 0 4px", lineHeight:1.1 }}>{recipe.title}</h3>
         <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", margin:"0 0 10px", lineHeight:1.4 }}>{recipe.description}</p>
         <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
-          {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#1A0A00" }}>⏱ {recipe.prepTime}</span>}
-          {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#fff" }}>🔥 {recipe.cookTime}</span>}
+          {recipe.prepTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#FFD166", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#1A0A00", display:"inline-flex", alignItems:"center", gap:"3px" }}><Timer size={12} weight="bold" /> {recipe.prepTime}</span>}
+          {recipe.cookTime && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:800, background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"6px", padding:"2px 8px", color:"#fff", display:"inline-flex", alignItems:"center", gap:"3px" }}><Fire size={12} weight="bold" /> {recipe.cookTime}</span>}
         </div>
       </div>
     </div>
@@ -917,11 +924,11 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
               style={{ width:"100%", height:"220px", objectFit:"cover", display:"block", borderBottom:"4px solid #1A0A00" }}
             />
             <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"60px", background:"linear-gradient(transparent, rgba(26,10,0,0.15))", pointerEvents:"none" }} />
-            <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"12px", right:"12px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", zIndex:2, borderColor:"transparent", borderRadius:"50%" }}>✕</button>
+            <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"12px", right:"12px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", zIndex:2, borderColor:"transparent", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}><X size={16} weight="bold" /></button>
           </div>
         )}
         <div style={{ padding:"24px 36px 36px" }}>
-        {imgError && <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>}
+        {imgError && <button onClick={onClose} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}><X size={16} weight="bold" /></button>}
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"12px" }}>
           {recipe.tags?.map(t => <span key={t} className="pm-tag" style={{ background:"#c8b8ff", color:"var(--text, #1a1a1a)" }}>{t}</span>)}
         </div>
@@ -952,7 +959,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
             {!recipe._saved ? (
               <button onClick={() => { onSave({ ...recipe, category, _saved:true }); setSaved(true); }} className="pm-btn"
                 style={{ background: saved ? "#FFD166" : "#E8421A", color: saved ? "#1A0A00" : "#fff", padding:"10px 24px", flex:1, borderColor: saved ? "#1A0A00" : "#E8421A" }}>
-                {saved ? "✓ Saved!" : "Save Recipe!"}
+                {saved ? <><Check size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Saved!</> : "Save Recipe!"}
               </button>
             ) : category !== (recipe.category || "Other") ? (
               <button onClick={() => onSave({ ...recipe, category })} className="pm-btn"
@@ -964,14 +971,14 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
         </div>
         {recipe._saved && books.length > 0 && onToggleBook && (
           <div style={{ borderTop:"3px dashed #1a1a1a", paddingTop:"18px", marginTop:"6px" }}>
-            <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>📚 Add to Book</h4>
+            <h4 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"10px", display:"flex", alignItems:"center", gap:"6px" }}><Books size={20} weight="bold" /> Add to Book</h4>
             <div style={{ display:"flex", flexWrap:"wrap", gap:"8px" }}>
               {books.map(book => {
                 const inBook = book.recipeIds.includes(recipe.id);
                 return (
                   <button key={book.id} onClick={() => onToggleBook(book.id, recipe.id)} className="pm-btn"
                     style={{ padding:"7px 14px", fontSize:"12px", background: inBook ? "#1A0A00" : "#FFF5E6", color: inBook ? "#FFF5E6" : "#1A0A00" }}>
-                    {inBook ? "✓ " : ""}{book.emoji} {book.name}
+                    {inBook ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}{book.emoji} {book.name}
                   </button>
                 );
               })}
@@ -992,7 +999,7 @@ function EasyModeModal({ dates, onConfirm, onCancel }) {
     <div className="pm-modal-bg">
       <div className="pm-modal" style={{ maxWidth:"480px" }} onClick={e => e.stopPropagation()}>
         <div style={{ textAlign:"center", marginBottom:"24px" }}>
-          <div style={{ fontSize:"48px", marginBottom:"8px" }}>⚡</div>
+          <div style={{ fontSize:"48px", marginBottom:"8px" }}><Lightning size={48} weight="bold" color="#E8421A" /></div>
           <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>Which nights are Easy Mode?</h2>
           <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", color:"var(--text-muted, #7a5c3a)", marginTop:"8px", fontWeight:600 }}>
             Easy Mode nights get quick recipes (≤30 min total). Tap the nights you'll be busy or tired!
@@ -1002,14 +1009,14 @@ function EasyModeModal({ dates, onConfirm, onCancel }) {
           {dates.map(d => (
             <button key={d} onClick={() => toggle(d)} className="pm-btn"
               style={{ padding:"12px", background: selected.includes(d) ? "#457b9d" : "var(--bg-elevated, #fff)", color: selected.includes(d) ? "#fff" : "var(--text, #1a1a1a)", fontSize:"15px" }}>
-              {selected.includes(d) ? "⚡" : "🍽️"} {formatDateLabel(d)}
+              {selected.includes(d) ? <Lightning size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> : <ForkKnife size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} />} {formatDateLabel(d)}
             </button>
           ))}
         </div>
         <div style={{ display:"flex", gap:"10px" }}>
           <button onClick={onCancel} className="pm-btn" style={{ flex:1, padding:"12px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)" }}>Cancel</button>
           <button onClick={() => onConfirm(selected)} className="pm-btn" style={{ flex:2, padding:"12px", background:"#ff5252", color:"#fff" }}>
-            ✨ Generate My Plan!
+            <Sparkle size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Generate My Plan!
           </button>
         </div>
       </div>
@@ -1044,7 +1051,7 @@ function DateRangePicker({ startDate, endDate, onChange }) {
           <input ref={startRef} type="date" value={startDate} min={today} onChange={handleStart}
             className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
         </div>
-        <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", flexShrink:0 }}>→</span>
+        <ArrowRight size={14} weight="bold" style={{ color:"var(--text-muted, #7A5A3A)", flexShrink:0 }} />
         <div onClick={() => endRef.current?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
           <input ref={endRef} type="date" value={endDate} min={startDate} max={addDays(startDate, 6)} onChange={handleEnd}
             className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
@@ -1098,7 +1105,7 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, me
   const handleDrop = (e, date, meal) => {
     e.preventDefault();
     const id = e.dataTransfer.getData("recipeId");
-    if (id) { setSlot(date, meal, id); toast("📅 Added to " + formatDateLabel(date) + "!"); }
+    if (id) { setSlot(date, meal, id); toast("Added to " + formatDateLabel(date) + "!"); }
     setDragOver(null);
   };
 
@@ -1112,7 +1119,7 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, me
     const lunchRecipes = recipes.filter(r => r.category === "Lunch");
 
     if (dinnerRecipes.length < 3) {
-      toast("⚠️ Add more dinner recipes first!"); setGenerating(false); return;
+      toast("Add more dinner recipes first!"); setGenerating(false); return;
     }
 
     const toList = arr => arr.map(r => ({
@@ -1151,9 +1158,9 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
       setMealHistory(newHistory.filter(h => h.addedAt > twoWeeksAgo));
       setMealPlan(prev => ({ ...prev, days: newDays, easyNights }));
-      toast("✨ Plan generated! Drag to adjust.");
+      toast("Plan generated! Drag to adjust.");
     } else {
-      toast("⚠️ Couldn't generate plan. Try again!");
+      toast("Couldn't generate plan. Try again!");
     }
     setGenerating(false);
   };
@@ -1168,7 +1175,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
     activeDates.forEach(date => { delete clearedDays[date]; });
     setMealPlan(prev => ({ ...prev, days: clearedDays, easyNights: [] }));
     setShowClearConfirm(false);
-    toast("🗑️ Plan cleared!");
+    toast("Plan cleared!");
   };
 
   return (
@@ -1176,14 +1183,14 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#ffd166", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>📅 Meal Plan</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", display:"flex", alignItems:"center", gap:"8px" }}><CalendarBlank size={28} weight="bold" /> Meal Plan</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={() => setShowEasyMode(true)} disabled={generating || recipes.length === 0} className="pm-btn"
             style={{ padding:"10px 18px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"14px" }}>
-            {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}>🍳</span> Planning...</> : "⚡ AI Plan My Dates"}
+            {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}><CookingPot size={16} weight="bold" /></span> Planning...</> : <><Lightning size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> AI Plan My Dates</>}
           </button>
-          {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>🗑️ Clear</button>}
+          {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}><Trash size={14} weight="bold" /> Clear</button>}
         </div>
       </div>
 
@@ -1198,14 +1205,14 @@ Assign recipes for every date in the range. Only include meal keys where recipes
 
       {recipes.length === 0 && (
         <div style={{ textAlign:"center", padding:"40px", background:"var(--bg-card, #fff9ed)", border:"3px dashed #c8b89a", borderRadius:"16px", marginBottom:"20px" }}>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"16px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>Add some recipes first, then come back to plan your meals! 🍽️</p>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"16px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>Add some recipes first, then come back to plan your meals!</p>
         </div>
       )}
 
       {/* Legend */}
       <div style={{ display:"flex", gap:"10px", marginBottom:"12px", flexWrap:"wrap", alignItems:"center" }}>
         <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>Legend:</span>
-        <span style={{ background:"#e8f5ff", border:"2px solid #457b9d", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#457b9d" }}>⚡ Easy Mode</span>
+        <span style={{ background:"#e8f5ff", border:"2px solid #457b9d", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#457b9d", display:"inline-flex", alignItems:"center", gap:"3px" }}><Lightning size={12} weight="bold" /> Easy Mode</span>
         {MEALS.map(m => <span key={m} style={{ background: MEAL_COLORS[m], border:"2px solid #1a1a1a", borderRadius:"6px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700 }}>{m}</span>)}
       </div>
 
@@ -1216,7 +1223,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
           return (
             <div key={date} className={`cal-day ${isEasy ? "easy-mode" : ""}`}>
               <div className="cal-day-header" style={{ fontSize:"11px", lineHeight:1.2, padding:"6px 4px" }}>
-                {isEasy && <span style={{ color:"#457b9d" }}>⚡</span>} {formatDateLabel(date)}
+                {isEasy && <Lightning size={12} weight="bold" style={{ color:"#457b9d", verticalAlign:"middle", marginRight:2 }} />} {formatDateLabel(date)}
               </div>
               {MEALS.map(meal => {
                 const slotRecipes = getSlot(date, meal);
@@ -1234,7 +1241,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
                             <span style={{ fontSize:"10px", lineHeight:1.2, flex:1 }}>{r.title}</span>
                             <button onClick={() => removeFromSlot(date, meal, r.id)} style={{ flexShrink:0, background:"#E8421A", border:"2px solid #1A0A00", borderRadius:"50%", width:"22px", height:"22px", fontSize:"10px", color:"#fff", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0, lineHeight:1, transition:"transform 0.15s" }}
                               onMouseEnter={e => e.currentTarget.style.transform="scale(1.15)"}
-                              onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}>✕</button>
+                              onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}><X size={10} weight="bold" /></button>
                           </div>
                         ))}
                         <button onClick={() => setPickerFor({ day: date, meal })} style={{ marginTop:"3px", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", background:"rgba(232,66,26,0.06)", border:"2px dashed #E8421A", borderRadius:"6px", cursor:"pointer", padding:"4px 10px", alignSelf:"stretch", textAlign:"center", transition:"all 0.15s" }}
@@ -1257,7 +1264,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
 
       {/* Picker hint */}
       <div style={{ background:"var(--bg-card, #fff9ed)", border:"3px dashed #c8b89a", borderRadius:"12px", padding:"14px 20px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"10px" }}>
-        <span style={{ fontSize:"20px" }}>👆</span>
+        <HandPointing size={20} weight="bold" color="var(--text-muted, #7a5c3a)" />
         <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>
           Click any <strong>+</strong> slot to pick a recipe from your library!
         </span>
@@ -1298,18 +1305,18 @@ Assign recipes for every date in the range. Only include meal keys where recipes
         return (
         <div className="pm-modal-bg" onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }}>
           <div className="pm-modal" style={{ maxWidth:"520px" }} onClick={e => e.stopPropagation()}>
-            <button onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>
+            <button onClick={() => { setPickerFor(null); setPickerSearch(""); setPickerCat("All"); }} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}><X size={16} weight="bold" /></button>
             <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"26px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"14px", paddingRight:"40px" }}>
               Pick a recipe for {formatDateLabel(pickerFor.day)} {pickerFor.meal}
             </h3>
             <div style={{ position:"relative", marginBottom:"10px" }}>
-              <span style={{ position:"absolute", left:"10px", top:"50%", transform:"translateY(-50%)", fontSize:"14px", pointerEvents:"none" }}>🔍</span>
+              <MagnifyingGlass size={14} weight="bold" style={{ position:"absolute", left:"10px", top:"50%", transform:"translateY(-50%)", pointerEvents:"none", color:"var(--text-muted, #7A5A3A)" }} />
               <input value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
                 placeholder="Search recipes, ingredients…" className="pm-input"
                 style={{ width:"100%", paddingLeft:"32px", boxSizing:"border-box", fontSize:"13px", padding:"8px 10px 8px 32px" }} />
               {pickerSearch && (
                 <button onClick={() => setPickerSearch("")}
-                  style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"14px", color:"var(--text-muted, #7A5A3A)", fontWeight:800 }}>✕</button>
+                  style={{ position:"absolute", right:"8px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"14px", color:"var(--text-muted, #7A5A3A)", fontWeight:800 }}><X size={14} weight="bold" /></button>
               )}
             </div>
             <div style={{ display:"flex", gap:"5px", flexWrap:"wrap", marginBottom:"12px" }}>
@@ -1326,14 +1333,14 @@ Assign recipes for every date in the range. Only include meal keys where recipes
                   No recipes match — <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={() => { setPickerSearch(""); setPickerCat("All"); }}>clear filters</span>
                 </div>
               ) : pickerRecipes.map(r => (
-                <div key={r.id} onClick={() => { setSlot(pickerFor.day, pickerFor.meal, r.id); setPickerFor(null); setPickerSearch(""); setPickerCat("All"); toast("📅 Added!"); }}
+                <div key={r.id} onClick={() => { setSlot(pickerFor.day, pickerFor.meal, r.id); setPickerFor(null); setPickerSearch(""); setPickerCat("All"); toast("Added!"); }}
                   style={{ display:"flex", alignItems:"center", gap:"12px", padding:"10px 14px", background:"var(--bg-card, #fff9ed)", border:"2px solid rgba(26,10,0,0.12)", borderRadius:"10px", cursor:"pointer", transition:"all 0.2s cubic-bezier(0.16, 1, 0.3, 1)" }}
                   onMouseEnter={e => { e.currentTarget.style.background="#ffd166"; e.currentTarget.style.borderColor="#1a1a1a"; e.currentTarget.style.transform="translateY(-1px)"; }}
                   onMouseLeave={e => { e.currentTarget.style.background="#fff9ed"; e.currentTarget.style.borderColor="rgba(26,10,0,0.12)"; e.currentTarget.style.transform="none"; }}>
                   <span className="pm-tag" style={{ background: (CAT_COLORS[r.category]||CAT_COLORS.Other).bg, color:(CAT_COLORS[r.category]||CAT_COLORS.Other).text, flexShrink:0 }}>{r.category}</span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800 }}>{r.title}</div>
-                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"var(--text-muted, #7a5c3a)" }}>⏱ {r.prepTime} · 🔥 {r.cookTime}</div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"var(--text-muted, #7a5c3a)", display:"flex", alignItems:"center", gap:"3px" }}><Timer size={11} weight="bold" /> {r.prepTime} · <Fire size={11} weight="bold" /> {r.cookTime}</div>
                   </div>
                 </div>
               ))}
@@ -1385,7 +1392,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
   const uniqueRecipes = plannedRecipes.filter((r,i,a) => a.findIndex(x => x.id === r.id) === i);
 
   const generateGroceryList = async () => {
-    if (uniqueRecipes.length === 0) { toast("⚠️ Plan some meals first!"); return; }
+    if (uniqueRecipes.length === 0) { toast("Plan some meals first!"); return; }
     setGenerating(true);
     try {
       const allIngredients = uniqueRecipes.flatMap(r => r.ingredients || []);
@@ -1393,9 +1400,9 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
         `Consolidate and categorize these ingredients from ${uniqueRecipes.length} recipes: ${JSON.stringify(allIngredients)}`, 2000);
       if (result && Array.isArray(result)) {
         setGroceryList({ items: result.map((item, i) => ({ ...item, id: i, checked: false, skipped: false })), generatedAt: Date.now() });
-        toast("🛒 Grocery list ready!");
-      } else { toast("⚠️ Couldn't generate list. Try again!"); }
-    } catch { toast("⚠️ Couldn't generate list. Try again!"); }
+        toast("Grocery list ready!");
+      } else { toast("Couldn't generate list. Try again!"); }
+    } catch { toast("Couldn't generate list. Try again!"); }
     setGenerating(false);
   };
 
@@ -1418,8 +1425,8 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       navigator.clipboard?.writeText(url).catch(() => {});
       setShareUrl(url);
       setShowShare(true);
-      toast("🔗 Share link copied!");
-    } catch { toast("⚠️ Couldn't generate link"); }
+      toast("Share link copied!");
+    } catch { toast("Couldn't generate link"); }
   };
 
   const handlePrint = () => window.print();
@@ -1428,16 +1435,16 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
     <div>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"inline-block", background:"#06d6a0", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.1)", padding:"8px 22px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00" }}>🛒 Grocery List</h2>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", display:"flex", alignItems:"center", gap:"8px" }}><ShoppingCart size={28} weight="bold" /> Grocery List</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
           <button onClick={generateGroceryList} disabled={generating || uniqueRecipes.length === 0} className="pm-btn"
             style={{ padding:"10px 16px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"13px" }}>
-            {generating ? "Generating..." : "✨ Generate from Meal Plan"}
+            {generating ? "Generating..." : <><Sparkle size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Generate from Meal Plan</>}
           </button>
           {groceryList.items?.length > 0 && <>
-            <button onClick={handleShare} className="pm-btn" style={{ padding:"10px 14px", background:"#457b9d", color:"#fff", fontSize:"13px" }}>🔗 Share</button>
-            <button onClick={handlePrint} className="pm-btn" style={{ padding:"10px 14px", background:"#ffd166", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>🖨️ Print/PDF</button>
+            <button onClick={handleShare} className="pm-btn" style={{ padding:"10px 14px", background:"#457b9d", color:"#fff", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}><LinkIcon size={14} weight="bold" /> Share</button>
+            <button onClick={handlePrint} className="pm-btn" style={{ padding:"10px 14px", background:"#ffd166", color:"var(--text, #1a1a1a)", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}><Printer size={14} weight="bold" /> Print/PDF</button>
             <button onClick={clearChecked} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)", fontSize:"13px" }}>↺ Uncheck All</button>
           </>}
         </div>
@@ -1451,7 +1458,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
             <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
               className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
           </div>
-          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", flexShrink:0 }}>→</span>
+          <ArrowRight size={14} weight="bold" style={{ color:"var(--text-muted, #7A5A3A)", flexShrink:0 }} />
           <div onClick={e => e.currentTarget.querySelector('input')?.showPicker?.()} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
             <input type="date" value={groceryEnd} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryEnd}
               className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
@@ -1465,7 +1472,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       {/* Planned meals summary */}
       {uniqueRecipes.length > 0 && (
         <div style={{ background:"var(--bg-card, #fff9ed)", border:"3px solid #1a1a1a", borderRadius:"14px", boxShadow:"0 4px 16px rgba(26,10,0,0.06)", padding:"14px 18px", marginBottom:"20px" }}>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"var(--text, #1a1a1a)", marginBottom:"8px" }}>📋 Based on {uniqueRecipes.length} planned recipes:</p>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"var(--text, #1a1a1a)", marginBottom:"8px", display:"flex", alignItems:"center", gap:"6px" }}><ClipboardText size={16} weight="bold" /> Based on {uniqueRecipes.length} planned recipes:</p>
           <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
             {uniqueRecipes.map(r => (
               <span key={r.id} style={{ background:"#ffd166", border:"2px solid var(--text, #1a1a1a)", borderRadius:"20px", padding:"2px 10px", fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:700, color:"#1A0A00" }}>{r.title}</span>
@@ -1479,8 +1486,8 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           {/* Progress bar */}
           <div style={{ background:"var(--bg-card, #fff9ed)", border:"3px solid #1a1a1a", borderRadius:"14px", padding:"16px 20px", marginBottom:"20px", boxShadow:"0 4px 20px rgba(26,10,0,0.08)" }}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
-              <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800 }}>🛍️ {checkedCount} / {totalCount} items grabbed!</span>
-              {checkedCount === totalCount && totalCount > 0 && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#06d6a0" }}>✓ All done!</span>}
+              <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, display:"inline-flex", alignItems:"center", gap:"4px" }}><Package size={16} weight="bold" /> {checkedCount} / {totalCount} items grabbed!</span>
+              {checkedCount === totalCount && totalCount > 0 && <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"#06d6a0", display:"inline-flex", alignItems:"center", gap:"4px" }}><Check size={16} weight="bold" /> All done!</span>}
             </div>
             <div style={{ background:"#e8d8c4", borderRadius:"100px", height:"10px", border:"2px solid #1a1a1a", overflow:"hidden" }}>
               <div style={{ background: checkedCount === totalCount && totalCount > 0 ? "#06d6a0" : "linear-gradient(90deg, #06d6a0, #4ae0b0)", height:"100%", width:`${totalCount > 0 ? (checkedCount/totalCount)*100 : 0}%`, transition:"width 0.4s cubic-bezier(0.16, 1, 0.3, 1)", borderRadius:"100px" }}/>
@@ -1503,7 +1510,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
                       style={{ background:"var(--bg-card, #f5e6c8)", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"var(--text-muted, #7a5c3a)", whiteSpace:"nowrap", transition:"all 0.15s" }}
                       onMouseEnter={e => { e.currentTarget.style.background="#FFD166"; e.currentTarget.style.borderColor="#1A0A00"; }}
                       onMouseLeave={e => { e.currentTarget.style.background="#f5e6c8"; e.currentTarget.style.borderColor="#c8b89a"; }}>
-                      ✓ Have it
+                      <Check size={12} weight="bold" style={{ verticalAlign:"middle", marginRight:2 }} /> Have it
                     </button>
                   </div>
                 ))}
@@ -1515,7 +1522,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
           {/* Skipped items */}
           {groceryList.items.filter(i => i.skipped).length > 0 && (
             <div style={{ marginTop:"20px" }}>
-              <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"var(--text-muted, #7a5c3a)", marginBottom:"8px" }}>✓ Already have ({groceryList.items.filter(i=>i.skipped).length}):</p>
+              <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:800, color:"var(--text-muted, #7a5c3a)", marginBottom:"8px", display:"flex", alignItems:"center", gap:"4px" }}><Check size={14} weight="bold" /> Already have ({groceryList.items.filter(i=>i.skipped).length}):</p>
               <div style={{ display:"flex", flexWrap:"wrap", gap:"6px" }}>
                 {groceryList.items.filter(i => i.skipped).map(item => (
                   <span key={item.id} onClick={() => toggleSkip(item.id)}
@@ -1529,10 +1536,10 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
         </>
       ) : (
         <div style={{ textAlign:"center", padding:"80px 20px" }}>
-          <div style={{ fontSize:"52px", marginBottom:"16px" }}>🛒</div>
+          <div style={{ fontSize:"52px", marginBottom:"16px" }}><ShoppingCart size={52} weight="bold" color="var(--text-muted, #7a5c3a)" /></div>
           <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"8px" }}>No grocery list yet!</p>
           <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>
-            {uniqueRecipes.length === 0 ? "Plan some meals in the 📅 Meal Plan tab first!" : "Hit \"Generate from Meal Plan\" to build your list!"}
+            {uniqueRecipes.length === 0 ? "Plan some meals in the Meal Plan tab first!" : "Hit \"Generate from Meal Plan\" to build your list!"}
           </p>
         </div>
       )}
@@ -1541,14 +1548,14 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast 
       {showShare && (
         <div className="pm-modal-bg" onClick={() => setShowShare(false)}>
           <div className="pm-modal" style={{ maxWidth:"440px" }} onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowShare(false)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%" }}>✕</button>
-            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"16px" }}>🔗 Share Grocery List</h3>
+            <button onClick={() => setShowShare(false)} className="pm-btn" style={{ position:"absolute", top:"16px", right:"16px", background:"rgba(26,10,0,0.7)", backdropFilter:"blur(6px)", color:"#fff", width:"34px", height:"34px", padding:0, fontSize:"16px", borderColor:"transparent", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}><X size={16} weight="bold" /></button>
+            <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"16px", display:"flex", alignItems:"center", gap:"8px" }}><LinkIcon size={24} weight="bold" /> Share Grocery List</h3>
             <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"var(--text-muted, #7a5c3a)", marginBottom:"12px", fontWeight:600 }}>Anyone with this link can view and check off items in real time!</p>
             <div style={{ background:"var(--bg-card, #f5e6c8)", border:"3px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", wordBreak:"break-all", fontFamily:"'Nunito',sans-serif", fontSize:"11px", color:"var(--text, #1a1a1a)" }}>
               {shareUrl}
             </div>
             <button onClick={() => { navigator.clipboard?.writeText(shareUrl); toast("Copied!"); }} className="pm-btn"
-              style={{ width:"100%", padding:"12px", background:"#06d6a0", color:"var(--text, #1a1a1a)" }}>📋 Copy Link</button>
+              style={{ width:"100%", padding:"12px", background:"#06d6a0", color:"var(--text, #1a1a1a)", display:"inline-flex", alignItems:"center", justifyContent:"center", gap:"6px" }}><ClipboardText size={16} weight="bold" /> Copy Link</button>
           </div>
         </div>
       )}
@@ -1576,7 +1583,7 @@ function AuthScreen({ onAuth }) {
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setMessage("✅ Check your email to confirm your account, then log in!");
+        setMessage("Check your email to confirm your account, then log in!");
         setLoading(false); return;
       }
     } catch (e) { setError(e.message || "Something went wrong."); }
@@ -1599,7 +1606,7 @@ function AuthScreen({ onAuth }) {
       <div style={{ minHeight:"100vh", background:"var(--bg, #FFF5E6)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}>
         <div className="auth-card">
           <div style={{ textAlign:"center", marginBottom:"28px" }}>
-            <div style={{ fontSize:"52px", marginBottom:"8px" }}>🍳</div>
+            <div style={{ fontSize:"52px", marginBottom:"8px" }}><CookingPot size={52} weight="bold" color="#E8421A" /></div>
             <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"48px", letterSpacing:"3px" }}>
               <span style={{ color:"var(--text, #1A0A00)" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
             </h1>
@@ -1631,7 +1638,7 @@ function AuthScreen({ onAuth }) {
 
             <button onClick={handleEmail} disabled={loading} className="pm-btn pm-btn-primary"
               style={{ width:"100%", padding:"14px", fontSize:"15px" }}>
-              {loading ? "..." : authTab === "login" ? "🔑 Log In" : "🎉 Create Account"}
+              {loading ? "..." : authTab === "login" ? <><Key size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Log In</> : <><Confetti size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Create Account</>}
             </button>
           </div>
         </div>
@@ -1670,27 +1677,27 @@ function FeedbackWidget({ user }) {
 
   return (
     <>
-      <button className="fb-btn" onClick={() => setOpen(o => !o)}>
-        💬 Feedback
+      <button className="fb-btn" onClick={() => setOpen(o => !o)} style={{ display:"inline-flex", alignItems:"center", gap:"6px" }}>
+        <ChatCircle size={16} weight="bold" /> Feedback
       </button>
       {open && (
         <div className="fb-panel">
           {done ? (
             <div style={{ textAlign:"center", padding:"16px 0" }}>
-              <div style={{ fontSize:"38px", marginBottom:"8px" }}>✅</div>
+              <div style={{ marginBottom:"8px" }}><Check size={38} weight="bold" color="#06d6a0" /></div>
               <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>Thanks! We'll look into it.</p>
             </div>
           ) : (
             <>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"14px" }}>
                 <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"1px", color:"var(--text, #1A0A00)" }}>Send Feedback</h3>
-                <button onClick={close} style={{ background:"none", border:"none", fontSize:"18px", cursor:"pointer", color:"var(--text-muted, #7A5A3A)", lineHeight:1 }}>✕</button>
+                <button onClick={close} style={{ background:"none", border:"none", fontSize:"18px", cursor:"pointer", color:"var(--text-muted, #7A5A3A)", lineHeight:1 }}><X size={18} weight="bold" /></button>
               </div>
               <div style={{ display:"flex", gap:"4px", marginBottom:"12px" }}>
                 {["Bug", "Feature", "General"].map(t => (
                   <button key={t} onClick={() => setType(t)} className="pm-btn"
                     style={{ flex:1, padding:"5px 4px", fontSize:"10px", background: type === t ? "#1A0A00" : "#FFF5E6", color: type === t ? "#FFF5E6" : "#1A0A00" }}>
-                    {t === "Bug" ? "🐛 Bug" : t === "Feature" ? "✨ Feature" : "💬 General"}
+                    {t === "Bug" ? <><Bug size={12} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} /> Bug</> : t === "Feature" ? <><Sparkle size={12} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} /> Feature</> : <><ChatCircle size={12} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} /> General</>}
                   </button>
                 ))}
               </div>
@@ -1701,7 +1708,7 @@ function FeedbackWidget({ user }) {
               {err && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#E8421A", marginBottom:"8px" }}>Something went wrong — try again!</p>}
               <button onClick={handleSubmit} disabled={sending || !msg.trim()} className="pm-btn pm-btn-primary"
                 style={{ width:"100%", padding:"10px" }}>
-                {sending ? "Sending..." : "Send →"}
+                {sending ? "Sending..." : <><span>Send</span> <ArrowRight size={14} weight="bold" style={{ verticalAlign:"middle" }} /></>}
               </button>
             </>
           )}
@@ -1730,7 +1737,7 @@ export default function CooCheena() {
   const [activeBook, setActiveBook] = useState(null);
   const [showNewBook, setShowNewBook] = useState(false);
   const [newBookName, setNewBookName] = useState("");
-  const [newBookEmoji, setNewBookEmoji] = useState("📖");
+  const [newBookEmoji, setNewBookEmoji] = useState("📚");
 
   const [input, setInput] = useState("");
   const [mode, setMode] = useState("generate");
@@ -1859,12 +1866,12 @@ export default function CooCheena() {
           if (savedRecipe) {
             setRecipes(prev => [{ id: savedRecipe.id, ...starterRecipe, _saved: true }, ...prev]);
             const { data: newBook } = await supabase.from("recipe_books").insert({
-              user_id: user.id, name: "Getting Started", emoji: "⭐",
+              user_id: user.id, name: "Getting Started", emoji: "★",
               recipe_ids: [savedRecipe.id]
             }).select().single();
             if (newBook) {
               setBooks([{ id: newBook.id, name: newBook.name, emoji: newBook.emoji, recipeIds: newBook.recipe_ids || [] }]);
-              toast("🎉 Welcome! Your Getting Started book is ready!");
+              toast("Welcome! Your Getting Started book is ready!");
             }
           }
         }
@@ -1912,7 +1919,7 @@ export default function CooCheena() {
     const start = todayISO();
     setRecipes([]); setMealPlan({ startDate: start, endDate: addDays(start, 6), days: {}, easyNights: [] });
     setGroceryList({ items: [] }); setBooks([]); setActiveBook(null);
-    toast("👋 Signed out!");
+    toast("Signed out!");
   };
 
   // ── Book helpers ──
@@ -1923,8 +1930,8 @@ export default function CooCheena() {
     }).select().single();
     if (!err && data) {
       setBooks(prev => [...prev, { id: data.id, name: data.name, emoji: data.emoji, recipeIds: data.recipe_ids || [] }]);
-      setNewBookName(""); setNewBookEmoji("📖"); setShowNewBook(false);
-      toast("📚 Book created!");
+      setNewBookName(""); setNewBookEmoji("📚"); setShowNewBook(false);
+      toast("Book created!");
     }
   };
 
@@ -1933,7 +1940,7 @@ export default function CooCheena() {
     await supabase.from("recipe_books").delete().eq("id", bookId).eq("user_id", user.id);
     setBooks(prev => prev.filter(b => b.id !== bookId));
     if (activeBook === bookId) setActiveBook(null);
-    toast("🗑️ Book deleted.");
+    toast("Book deleted.");
   };
 
   const toggleRecipeInBook = async (bookId, recipeId) => {
@@ -1996,17 +2003,17 @@ export default function CooCheena() {
       const { error } = await supabase.from("recipes").update(updateFields).eq("id", recipe.id).eq("user_id", user.id);
       if (!error) {
         setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, ...recipe } : r));
-        toast("✅ Recipe updated!");
+        toast("Recipe updated!");
         return { ...recipe };
-      } else { toast("❌ Failed to update recipe."); return null; }
+      } else { toast("Failed to update recipe."); return null; }
     } else {
       const { data, error } = await supabase.from("recipes").insert(dbRecipe).select().single();
       if (!error && data) {
         const saved = { id: data.id, ...recipe, _saved: true };
         setRecipes(prev => [saved, ...prev.filter(r => r.id !== recipe.id)]);
-        toast("✅ Recipe saved!");
+        toast("Recipe saved!");
         return saved;
-      } else { toast("❌ Failed to save recipe."); return null; }
+      } else { toast("Failed to save recipe."); return null; }
     }
   };
 
@@ -2034,7 +2041,7 @@ export default function CooCheena() {
     if (!user) return;
     await supabase.from("recipes").delete().eq("id", id).eq("user_id", user.id);
     setRecipes(prev => prev.filter(r => r.id !== id));
-    toast("🗑️ Recipe deleted.");
+    toast("Recipe deleted.");
   };
   let filtered = filterCat === "All" ? recipes : recipes.filter(r => r.category === filterCat);
   if (activeBook !== null) {
@@ -2052,10 +2059,10 @@ export default function CooCheena() {
   }
 
   const TABS = [
-    { id: "add", label: "✏️ Add" },
-    { id: "library", label: `📚 Recipes (${recipes.length})` },
-    { id: "calendar", label: "📅 Meal Plan" },
-    { id: "grocery", label: "🛒 Grocery List" },
+    { id: "add", label: "Add", icon: <PencilSimple size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> },
+    { id: "library", label: `Recipes (${recipes.length})`, icon: <Books size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> },
+    { id: "calendar", label: "Meal Plan", icon: <CalendarBlank size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> },
+    { id: "grocery", label: "Grocery List", icon: <ShoppingCart size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> },
   ];
 
   // Auth gate
@@ -2066,7 +2073,7 @@ export default function CooCheena() {
         <style>{STYLES}</style>
         <div style={{ minHeight:"100vh", background:"var(--bg, #FFF5E6)", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <div style={{ textAlign:"center" }}>
-            <div className="cooking-anim">🍳</div>
+            <div className="cooking-anim"><CookingPot size={44} weight="bold" color="#E8421A" /></div>
             <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"var(--text, #1A0A00)", marginTop:"14px" }}>Loading...</p>
           </div>
         </div>
@@ -2086,7 +2093,7 @@ export default function CooCheena() {
         <header className="pm-header">
           <div style={{ maxWidth:"1100px", margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", height:"68px", padding:"0 24px" }}>
             <div onClick={() => setTab("add")} style={{ display:"flex", alignItems:"center", gap:"10px", cursor:"pointer" }}>
-              <span style={{ fontSize:"28px" }}>🍳</span>
+              <CookingPot size={28} weight="bold" color="#E8421A" />
               <h1 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"3px" }}>
                 <span style={{ color:"var(--text, #1A0A00)" }}>Coo</span><span style={{ color:"#E8421A" }}>Cheena</span>
               </h1>
@@ -2096,13 +2103,13 @@ export default function CooCheena() {
               {TABS.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)} className="pm-btn"
                   style={{ padding:"8px 16px", background: tab === t.id ? "#FFD166" : "var(--bg-elevated, rgba(255,255,255,0.7))", color: tab === t.id ? "#1A0A00" : "var(--text, #1A0A00)", fontSize:"13px", borderColor: tab === t.id ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))" }}>
-                  {t.label}
+                  {t.icon}{t.label}
                 </button>
               ))}
               <button onClick={() => setDarkMode(d => !d)} className="pm-btn"
-                style={{ padding:"8px 12px", fontSize:"16px", marginLeft:"4px", background: darkMode ? "#FFD166" : "#2a2018", color: darkMode ? "#1A0A00" : "#FFD166", borderColor: darkMode ? "#1A0A00" : "#3a2a1a", lineHeight:1 }}
+                style={{ padding:"8px 12px", fontSize:"16px", marginLeft:"4px", background: darkMode ? "#FFD166" : "#2a2018", color: darkMode ? "#1A0A00" : "#FFD166", borderColor: darkMode ? "#1A0A00" : "#3a2a1a", lineHeight:1, display:"flex", alignItems:"center", justifyContent:"center" }}
                 title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
-                {darkMode ? "☀️" : "🌙"}
+                {darkMode ? <Sun size={18} weight="bold" /> : <Moon size={18} weight="bold" />}
               </button>
               <button onClick={signOut} className="pm-btn"
                 style={{ padding:"8px 16px", background:"#1A0A00", color:"#fff", fontSize:"13px" }}>
@@ -2111,7 +2118,7 @@ export default function CooCheena() {
             </nav>
             {/* Mobile hamburger button */}
             <button className="pm-hamburger-btn" onClick={() => setMenuOpen(true)} aria-label="Menu">
-              ☰
+              <ListIcon size={22} weight="bold" />
             </button>
           </div>
         </header>
@@ -2119,16 +2126,16 @@ export default function CooCheena() {
         {/* Ticker */}
         <div className="cc-ticker">
           <div className="cc-ticker-inner">
-            <span className="cc-ticker-item">WHAT'S FOR DINNER?</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">YOUR KITCHEN YOUR RULES</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">WHAT'S FOR DINNER?</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot">✦</span>
-            <span className="cc-ticker-item">YOUR KITCHEN YOUR RULES</span><span className="cc-ticker-dot">✦</span>
+            <span className="cc-ticker-item">WHAT'S FOR DINNER?</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">YOUR KITCHEN YOUR RULES</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">WHAT'S FOR DINNER?</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">AI POWERED RECIPES</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">MEAL PLAN YOUR WEEK</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">GROCERY LIST READY</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
+            <span className="cc-ticker-item">YOUR KITCHEN YOUR RULES</span><span className="cc-ticker-dot"><Diamond size={10} weight="fill" /></span>
           </div>
         </div>
 
@@ -2146,11 +2153,11 @@ export default function CooCheena() {
                 </p>
               </div>
               <div style={{ display:"flex", gap:"10px", marginBottom:"24px", flexWrap:"wrap" }}>
-                {[{ val:"generate", label:"💡 From Idea" }, { val:"url", label:"🔗 From URL" }, { val:"manual", label:"🧠 From Memory" }].map(m => (
+                {[{ val:"generate", label:"From Idea", icon: <Lightbulb size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"url", label:"From URL", icon: <LinkIcon size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"manual", label:"From Memory", icon: <Brain size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }].map(m => (
                   <button key={m.val} onClick={() => { setMode(m.val); setPreview(null); setPreviews([]); setError(""); }}
                     className="pm-btn"
                     style={{ padding:"11px 22px", background: mode === m.val ? "#E8421A" : "#FFF5E6", color: mode === m.val ? "#fff" : "#1A0A00", borderColor: mode === m.val ? "#E8421A" : "#1A0A00" }}>
-                    {m.label}
+                    {m.icon}{m.label}
                   </button>
                 ))}
               </div>
@@ -2175,12 +2182,12 @@ export default function CooCheena() {
                 </button>
               </div>
               {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", fontSize:"14px", background:"var(--bg-elevated, #fff)", border:"3px solid #E8421A", borderRadius:"8px", padding:"6px 16px", display:"inline-block" }}>{error}</span></div>}
-              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim">🍳</div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"var(--text, #1A0A00)", marginTop:"14px" }}>Crafting your recipes...</p></div>}
+              {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim"><CookingPot size={44} weight="bold" color="#E8421A" /></div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"var(--text, #1A0A00)", marginTop:"14px" }}>Crafting your recipes...</p></div>}
 
               {/* URL parse — single result */}
               {preview && !loading && (
                 <div>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"var(--text, #1A0A00)", marginBottom:"12px", textAlign:"center" }}>✨ Here's what I found!</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"var(--text, #1A0A00)", marginBottom:"12px", textAlign:"center", display:"flex", alignItems:"center", justifyContent:"center", gap:"6px" }}><Sparkle size={16} weight="bold" color="#E8421A" /> Here's what I found!</p>
                   <RecipeCard recipe={preview} onClick={() => setSelected(preview)} onDelete={() => setPreview(null)} wobble="wobble-1" />
                   <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"var(--text-muted, #7A5A3A)", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click the card to view details & save!</p>
                 </div>
@@ -2189,7 +2196,7 @@ export default function CooCheena() {
               {/* From Idea — 3 options */}
               {previews.length > 0 && !loading && (
                 <div>
-                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"var(--text, #1A0A00)", marginBottom:"14px", textAlign:"center" }}>✨ Pick your favourite — or save them all!</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"var(--text, #1A0A00)", marginBottom:"14px", textAlign:"center", display:"flex", alignItems:"center", justifyContent:"center", gap:"6px" }}><Sparkle size={16} weight="bold" color="#E8421A" /> Pick your favourite — or save them all!</p>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(260px, 1fr))", gap:"16px" }}>
                     {previews.map((r, i) => (
                       <RecipeCard key={r.id} recipe={r}
@@ -2214,7 +2221,7 @@ export default function CooCheena() {
 
               {/* Search bar */}
               <div style={{ position:"relative", marginBottom:"18px" }}>
-                <span style={{ position:"absolute", left:"12px", top:"50%", transform:"translateY(-50%)", fontSize:"16px", pointerEvents:"none" }}>🔍</span>
+                <MagnifyingGlass size={16} weight="bold" style={{ position:"absolute", left:"12px", top:"50%", transform:"translateY(-50%)", pointerEvents:"none", color:"var(--text-muted, #7A5A3A)" }} />
                 <input
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
@@ -2224,7 +2231,7 @@ export default function CooCheena() {
                 />
                 {searchQuery && (
                   <button onClick={() => setSearchQuery("")}
-                    style={{ position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"16px", color:"var(--text-muted, #7A5A3A)", fontWeight:800, lineHeight:1 }}>✕</button>
+                    style={{ position:"absolute", right:"10px", top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", fontSize:"16px", color:"var(--text-muted, #7A5A3A)", fontWeight:800, lineHeight:1 }}><X size={16} weight="bold" /></button>
                 )}
               </div>
 
@@ -2232,7 +2239,7 @@ export default function CooCheena() {
               <div className="rb-shelf">
                 {/* All Recipes card */}
                 <div className={`rb-book-card ${activeBook === null ? "active" : ""}`} onClick={() => setActiveBook(null)}>
-                  <span className="rb-book-emoji">📚</span>
+                  <span className="rb-book-emoji"><Books size={30} weight="bold" /></span>
                   <span className="rb-book-name">All Recipes</span>
                   <span className="rb-book-count">{recipes.length} recipe{recipes.length !== 1 ? "s" : ""}</span>
                 </div>
@@ -2242,7 +2249,7 @@ export default function CooCheena() {
                   return (
                     <div key={book.id} className={`rb-book-card ${activeBook === book.id ? "active" : ""}`}
                       onClick={() => setActiveBook(activeBook === book.id ? null : book.id)}>
-                      <button className="rb-book-delete" onClick={e => { e.stopPropagation(); deleteBook(book.id); }}>✕</button>
+                      <button className="rb-book-delete" onClick={e => { e.stopPropagation(); deleteBook(book.id); }}><X size={9} weight="bold" /></button>
                       <span className="rb-book-emoji">{book.emoji}</span>
                       <span className="rb-book-name">{book.name}</span>
                       <span className="rb-book-count">{book.recipeIds.length} recipe{book.recipeIds.length !== 1 ? "s" : ""}</span>
@@ -2250,7 +2257,7 @@ export default function CooCheena() {
                         onClick={e => { e.stopPropagation(); toggleBookMealPlan(book.id); }}
                         title={excluded ? "Excluded from meal plan — click to include" : "Included in meal plan — click to exclude"}
                         style={{ background:"none", border:"none", cursor:"pointer", fontSize:"13px", padding:"0", lineHeight:1, opacity: excluded ? 1 : 0.35, marginTop:"2px" }}>
-                        {excluded ? "🚫" : "📅"}
+                        {excluded ? <Prohibit size={13} weight="bold" color="#E8421A" /> : <CalendarBlank size={13} weight="bold" />}
                       </button>
                     </div>
                   );
@@ -2298,12 +2305,12 @@ export default function CooCheena() {
               </div>
               {filtered.length === 0 ? (
                 <div style={{ textAlign:"center", padding:"80px 20px" }}>
-                  <div style={{ fontSize:"52px", marginBottom:"16px" }}>{searchQuery ? "🔍" : "📖"}</div>
+                  <div style={{ fontSize:"52px", marginBottom:"16px" }}>{searchQuery ? <MagnifyingGlass size={52} weight="bold" color="var(--text-muted, #7a5c3a)" /> : <BookOpen size={52} weight="bold" color="var(--text-muted, #7a5c3a)" />}</div>
                   <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"8px" }}>
                     {searchQuery ? `No results for "${searchQuery}"` : "No recipes yet!"}
                   </p>
                   <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"14px", fontWeight:700, color:"var(--text-muted, #7a5c3a)" }}>
-                    {searchQuery ? <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={() => setSearchQuery("")}>Clear search</span> : 'Head to "✏️ Add" to get started'}
+                    {searchQuery ? <span style={{ cursor:"pointer", textDecoration:"underline" }} onClick={() => setSearchQuery("")}>Clear search</span> : 'Head to "Add" to get started'}
                   </p>
                 </div>
               ) : (
@@ -2366,10 +2373,10 @@ export default function CooCheena() {
       {/* Mobile bottom nav */}
       <nav className="pm-bottom-nav">
         {[
-          { id:"add",      icon:"✏️", label:"ADD"     },
-          { id:"library",  icon:"📚", label:"RECIPES" },
-          { id:"calendar", icon:"📅", label:"MEALS"   },
-          { id:"grocery",  icon:"🛒", label:"GROCERY" },
+          { id:"add",      icon:<PencilSimple size={22} weight="bold" />, label:"ADD"     },
+          { id:"library",  icon:<Books size={22} weight="bold" />, label:"RECIPES" },
+          { id:"calendar", icon:<CalendarBlank size={22} weight="bold" />, label:"MEALS"   },
+          { id:"grocery",  icon:<ShoppingCart size={22} weight="bold" />, label:"GROCERY" },
         ].map(t => (
           <button key={t.id} className={`pm-bottom-nav-item${tab === t.id ? " active" : ""}`}
             onClick={() => setTab(t.id)}>
@@ -2384,7 +2391,7 @@ export default function CooCheena() {
         <div className="pm-hamburger-overlay" onClick={() => setMenuOpen(false)}>
           <div className="pm-hamburger-panel" onClick={e => e.stopPropagation()}>
             <button className="pm-hamburger-panel-item" onClick={() => { setDarkMode(d => !d); setMenuOpen(false); }}>
-              {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+              {darkMode ? <><Sun size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Light Mode</> : <><Moon size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Dark Mode</>}
             </button>
             <button className="pm-hamburger-panel-item danger" onClick={() => { signOut(); setMenuOpen(false); }}>
               Sign Out
