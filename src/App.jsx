@@ -844,7 +844,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
               const sel = selectedBooks.includes(book.id);
               return (
                 <button key={book.id} onClick={() => toggleBook(book.id)} className="pm-btn"
-                  style={{ padding:"7px 14px", fontSize:"12px", background: sel ? "#1A0A00" : "#FFF5E6", color: sel ? "#FFF5E6" : "#1A0A00" }}>
+                  style={{ padding:"7px 14px", fontSize:"12px", background: sel ? "#1A0A00" : "var(--bg-elevated, #FFF5E6)", color: sel ? "#FFF5E6" : "var(--text, #1A0A00)" }}>
                   {sel ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}{book.emoji} {book.name}
                 </button>
               );
@@ -977,7 +977,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
                 const inBook = book.recipeIds.includes(recipe.id);
                 return (
                   <button key={book.id} onClick={() => onToggleBook(book.id, recipe.id)} className="pm-btn"
-                    style={{ padding:"7px 14px", fontSize:"12px", background: inBook ? "#1A0A00" : "#FFF5E6", color: inBook ? "#FFF5E6" : "#1A0A00" }}>
+                    style={{ padding:"7px 14px", fontSize:"12px", background: inBook ? "#1A0A00" : "var(--bg-elevated, #FFF5E6)", color: inBook ? "#FFF5E6" : "var(--text, #1A0A00)" }}>
                     {inBook ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}{book.emoji} {book.name}
                   </button>
                 );
@@ -1322,7 +1322,7 @@ Assign recipes for every date in the range. Only include meal keys where recipes
             <div style={{ display:"flex", gap:"5px", flexWrap:"wrap", marginBottom:"12px" }}>
               {["All", ...CATEGORIES].map(c => (
                 <button key={c} onClick={() => setPickerCat(c)} className="pm-btn"
-                  style={{ padding:"4px 10px", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.7px", background: pickerCat === c ? "#1A0A00" : "#FFF5E6", color: pickerCat === c ? "#FFF5E6" : "#1A0A00", borderColor:"#1A0A00" }}>
+                  style={{ padding:"4px 10px", fontSize:"10px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.7px", background: pickerCat === c ? "#1A0A00" : "var(--bg-elevated, #FFF5E6)", color: pickerCat === c ? "#FFF5E6" : "var(--text, #1A0A00)", borderColor:"#1A0A00" }}>
                   {c}
                 </button>
               ))}
@@ -1696,7 +1696,7 @@ function FeedbackWidget({ user }) {
               <div style={{ display:"flex", gap:"4px", marginBottom:"12px" }}>
                 {["Bug", "Feature", "General"].map(t => (
                   <button key={t} onClick={() => setType(t)} className="pm-btn"
-                    style={{ flex:1, padding:"5px 4px", fontSize:"10px", background: type === t ? "#1A0A00" : "#FFF5E6", color: type === t ? "#FFF5E6" : "#1A0A00" }}>
+                    style={{ flex:1, padding:"5px 4px", fontSize:"10px", background: type === t ? "#1A0A00" : "var(--bg-elevated, #FFF5E6)", color: type === t ? "#FFF5E6" : "var(--text, #1A0A00)" }}>
                     {t === "Bug" ? <><Bug size={12} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} /> Bug</> : t === "Feature" ? <><Sparkle size={12} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} /> Feature</> : <><ChatCircle size={12} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} /> General</>}
                   </button>
                 ))}
@@ -2156,7 +2156,7 @@ export default function CooCheena() {
                 {[{ val:"generate", label:"From Idea", icon: <Lightbulb size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"url", label:"From URL", icon: <LinkIcon size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"manual", label:"From Memory", icon: <Brain size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }].map(m => (
                   <button key={m.val} onClick={() => { setMode(m.val); setPreview(null); setPreviews([]); setError(""); }}
                     className="pm-btn"
-                    style={{ padding:"11px 22px", background: mode === m.val ? "#E8421A" : "#FFF5E6", color: mode === m.val ? "#fff" : "#1A0A00", borderColor: mode === m.val ? "#E8421A" : "#1A0A00" }}>
+                    style={{ padding:"11px 22px", background: mode === m.val ? "#E8421A" : "var(--bg-elevated, #FFF5E6)", color: mode === m.val ? "#fff" : "var(--text, #1A0A00)", borderColor: mode === m.val ? "#E8421A" : "var(--border-subtle, #1A0A00)" }}>
                     {m.icon}{m.label}
                   </button>
                 ))}
@@ -2177,7 +2177,7 @@ export default function CooCheena() {
                   placeholder={mode === "url" ? "https://www.allrecipes.com/recipe/..." : "e.g. lemon pasta, chicken + spinach..."}
                   className="pm-input" style={{ flex:1, border:"none", outline:"none", borderRadius:0 }} />
                 <button onClick={handleSubmit} disabled={loading || !input.trim()} className="pm-btn"
-                  style={{ padding:"12px 24px", background: loading ? "#C4A882" : "#FFD166", color:"var(--text, #1A0A00)", whiteSpace:"nowrap", border:"none", borderLeft:"3px solid #1A0A00", borderRadius:0, fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"2px" }}>
+                  style={{ padding:"12px 24px", background: loading ? "#C4A882" : "#FFD166", color:"#1A0A00", whiteSpace:"nowrap", border:"none", borderLeft:"3px solid #1A0A00", borderRadius:0, fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"2px" }}>
                   {loading ? "Cooking..." : mode === "url" ? "Parse!" : "Generate!"}
                 </button>
               </div>
@@ -2297,7 +2297,7 @@ export default function CooCheena() {
                   const active = filterCat === c;
                   return (
                     <button key={c} onClick={() => setFilterCat(c)} className="pm-btn"
-                      style={{ padding:"6px 14px", fontSize:"11px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.8px", background: active ? "#1A0A00" : "#FFF5E6", color: active ? "#FFF5E6" : "#1A0A00", borderColor: active ? "#1A0A00" : "rgba(26,10,0,0.2)" }}>
+                      style={{ padding:"6px 14px", fontSize:"11px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.8px", background: active ? "#1A0A00" : "var(--bg-elevated, #FFF5E6)", color: active ? "#FFF5E6" : "var(--text, #1A0A00)", borderColor: active ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))" }}>
                       {c}
                     </button>
                   );
