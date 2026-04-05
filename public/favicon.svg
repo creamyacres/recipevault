@@ -1,13 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <!-- Background -->
-  <rect width="64" height="64" fill="#E8421A"/>
-  <!-- Pan body -->
-  <ellipse cx="34" cy="38" rx="18" ry="13" fill="#1A0A00"/>
-  <ellipse cx="34" cy="38" rx="15" ry="10" fill="#FFF5E6"/>
-  <!-- Handle -->
-  <rect x="6" y="35" width="20" height="6" rx="3" fill="#1A0A00"/>
+  <rect width="64" height="64" rx="14" fill="#E8421A"/>
+  <!-- Pot body -->
+  <rect x="14" y="28" width="36" height="22" rx="4" fill="#FFF5E6"/>
+  <!-- Pot rim -->
+  <rect x="10" y="26" width="44" height="6" rx="3" fill="#1A0A00"/>
+  <!-- Handles -->
+  <rect x="6" y="27" width="8" height="4" rx="2" fill="#1A0A00"/>
+  <rect x="50" y="27" width="8" height="4" rx="2" fill="#1A0A00"/>
+  <!-- Lid knob -->
+  <rect x="27" y="21" width="10" height="5" rx="2.5" fill="#1A0A00"/>
   <!-- Steam wisps -->
-  <path d="M27 22 Q29 17 27 12" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-  <path d="M34 20 Q36 15 34 10" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-  <path d="M41 22 Q43 17 41 12" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M24 18 Q26 13 24 8" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M32 16 Q34 11 32 6" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M40 18 Q42 13 40 8" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round" fill="none"/>
 </svg>
