@@ -914,7 +914,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
   const [imgError, setImgError] = useState(false);
   return (
     <div className="pm-modal-bg" onClick={onClose}>
-      <div className="pm-modal" onClick={e => e.stopPropagation()} style={{ padding: 0, overflow:"hidden" }}>
+      <div className="pm-modal" onClick={e => e.stopPropagation()} style={{ padding: 0, overflowX:"hidden" }}>
         {!imgError && (
           <div style={{ position:"relative" }}>
             <img
