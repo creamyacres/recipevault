@@ -5,8 +5,21 @@ import {
   MagnifyingGlass, Timer, Fire, X, Lightning, Trash, ChatCircle, Link as LinkIcon,
   Lightbulb, Brain, List as ListIcon, Diamond, Star, Printer, Sun, Moon,
   FloppyDisk, Check, ArrowRight, HandPointing, Bug, Sparkle, ClipboardText,
-  Key, Confetti, Prohibit, BookOpen, ForkKnife, Package, Warning
+  Key, Confetti, Prohibit, BookOpen, ForkKnife, Package, Warning,
+  Cookie, Leaf, Pizza, Coffee, Hamburger, IceCream, Wine, Egg, Fish,
+  Carrot, Pepper, BowlFood, Cake, Bread, Flower
 } from "@phosphor-icons/react";
+
+const BOOK_ICONS = {
+  BookOpen, Star, ForkKnife, CookingPot, Fire, Cookie, Leaf, Pizza,
+  Coffee, Hamburger, IceCream, Wine, Egg, Fish, Carrot, Pepper, BowlFood, Cake, Bread, Flower
+};
+
+const BookIcon = ({ icon, size = 30, ...props }) => {
+  const Comp = BOOK_ICONS[icon];
+  if (Comp) return <Comp size={size} weight="bold" {...props} />;
+  return <span style={{ fontSize: size, lineHeight: 1 }}>{icon}</span>;
+};
 
 const SUPABASE_URL = "https://pmkfrzpyqcgkfujpdkdf.supabase.co";
 const SUPABASE_KEY = "sb_publishable_bMU1GrxhDzwSV2P3eggzog_iltkZU9i";
@@ -296,7 +309,8 @@ const STYLES = `
   .rb-book-card.active { background: #1A0A00; box-shadow: 0 4px 16px rgba(26,10,0,0.2); }
   .rb-book-card.active .rb-book-name { color: #FFF5E6; }
   .rb-book-card.active .rb-book-count { color: #FFD166; }
-  .rb-book-emoji { font-size: 30px; line-height: 1; }
+  .rb-book-emoji { font-size: 30px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .rb-book-card.active .rb-book-emoji { color: #FFF5E6; }
   .rb-book-name {
     font-family: 'Bebas Neue', cursive; font-size: 13px; letter-spacing: 1px;
     color: #1A0A00; line-height: 1.2; word-break: break-word; width: 100%;
@@ -505,6 +519,7 @@ const STYLES = `
   [data-theme="dark"] .rb-book-card:hover { background: #3a2a1a; }
   [data-theme="dark"] .rb-book-card.active { background: #F0E6D6; }
   [data-theme="dark"] .rb-book-card.active .rb-book-name { color: #1a1510; }
+  [data-theme="dark"] .rb-book-card.active .rb-book-emoji { color: #1a1510; }
   [data-theme="dark"] .rb-book-name { color: #F0E6D6; }
   [data-theme="dark"] .rb-new-book-btn { background: #2a2018; border-color: #4a3a2a; color: #7a6a5a; }
   [data-theme="dark"] .rb-new-book-btn:hover { background: #3a2a1a; border-color: #F0E6D6; color: #F0E6D6; }
@@ -914,7 +929,7 @@ function ManualRecipeForm({ books = [], onSave, onCancel }) {
               return (
                 <button key={book.id} onClick={() => toggleBook(book.id)} className="pm-btn"
                   style={{ padding:"7px 14px", fontSize:"12px", background: sel ? "#1A0A00" : "var(--bg-elevated, #FFF5E6)", color: sel ? "#FFF5E6" : "var(--text, #1A0A00)" }}>
-                  {sel ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}{book.emoji} {book.name}
+                  {sel ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}<BookIcon icon={book.emoji} size={14} style={{ verticalAlign:"middle", marginRight:2 }} /> {book.name}
                 </button>
               );
             })}
@@ -1047,7 +1062,7 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
                 return (
                   <button key={book.id} onClick={() => onToggleBook(book.id, recipe.id)} className="pm-btn"
                     style={{ padding:"7px 14px", fontSize:"12px", background: inBook ? "#1A0A00" : "var(--bg-elevated, #FFF5E6)", color: inBook ? "#FFF5E6" : "var(--text, #1A0A00)" }}>
-                    {inBook ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}{book.emoji} {book.name}
+                    {inBook ? <><Check size={12} weight="bold" style={{ marginRight:4 }} /></> : ""}<BookIcon icon={book.emoji} size={14} style={{ verticalAlign:"middle", marginRight:2 }} /> {book.name}
                   </button>
                 );
               })}
@@ -1896,7 +1911,7 @@ export default function CooCheena() {
   const [activeBook, setActiveBook] = useState(null);
   const [showNewBook, setShowNewBook] = useState(false);
   const [newBookName, setNewBookName] = useState("");
-  const [newBookEmoji, setNewBookEmoji] = useState("📚");
+  const [newBookEmoji, setNewBookEmoji] = useState("BookOpen");
 
   const [input, setInput] = useState("");
   const [mode, setMode] = useState("generate");
@@ -2031,7 +2046,7 @@ export default function CooCheena() {
           if (savedRecipe) {
             setRecipes(prev => [{ id: savedRecipe.id, ...starterRecipe, _saved: true }, ...prev]);
             const { data: newBook } = await supabase.from("recipe_books").insert({
-              user_id: user.id, name: "Getting Started", emoji: "★",
+              user_id: user.id, name: "Getting Started", emoji: "Star",
               recipe_ids: [savedRecipe.id]
             }).select().single();
             if (newBook) {
@@ -2095,7 +2110,7 @@ export default function CooCheena() {
     }).select().single();
     if (!err && data) {
       setBooks(prev => [...prev, { id: data.id, name: data.name, emoji: data.emoji, recipeIds: data.recipe_ids || [] }]);
-      setNewBookName(""); setNewBookEmoji("📚"); setShowNewBook(false);
+      setNewBookName(""); setNewBookEmoji("BookOpen"); setShowNewBook(false);
       toast("Book created!");
     }
   };
@@ -2443,7 +2458,7 @@ export default function CooCheena() {
                     <div key={book.id} className={`rb-book-card ${activeBook === book.id ? "active" : ""}`}
                       onClick={() => setActiveBook(activeBook === book.id ? null : book.id)}>
                       <button className="rb-book-delete" onClick={e => { e.stopPropagation(); deleteBook(book.id); }}><X size={9} weight="bold" /></button>
-                      <span className="rb-book-emoji">{book.emoji}</span>
+                      <span className="rb-book-emoji"><BookIcon icon={book.emoji} size={30} /></span>
                       <span className="rb-book-name">{book.name}</span>
                       <span className="rb-book-count">{book.recipeIds.length} recipe{book.recipeIds.length !== 1 ? "s" : ""}</span>
                       <button
@@ -2459,10 +2474,10 @@ export default function CooCheena() {
                 {showNewBook ? (
                   <div className="rb-new-book-form">
                     <div style={{ display:"flex", gap:"4px", flexWrap:"wrap" }}>
-                      {["📖","⭐","🌮","🥗","🍝","🍕","🥘","🍜"].map(e => (
-                        <button key={e} onClick={() => setNewBookEmoji(e)}
-                          style={{ fontSize:"18px", background: newBookEmoji === e ? "#FFD166" : "none", border: newBookEmoji === e ? "2px solid #1A0A00" : "2px solid transparent", cursor:"pointer", padding:"2px", borderRadius:"2px" }}>
-                          {e}
+                      {Object.entries(BOOK_ICONS).map(([key, Icon]) => (
+                        <button key={key} onClick={() => setNewBookEmoji(key)}
+                          style={{ background: newBookEmoji === key ? "#FFD166" : "none", border: newBookEmoji === key ? "2px solid #1A0A00" : "2px solid transparent", cursor:"pointer", padding:"4px", borderRadius:"2px", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <Icon size={18} weight="bold" />
                         </button>
                       ))}
                     </div>
