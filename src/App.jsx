@@ -770,10 +770,90 @@ function todayISO() {
 // ── Ingredient Parsing ──
 const FRACTION_MAP = { "½":0.5, "⅓":0.333, "⅔":0.667, "¼":0.25, "¾":0.75, "⅛":0.125, "⅜":0.375, "⅝":0.625, "⅞":0.875 };
 
+// Prep verbs that describe how an ingredient is processed (typically harmless to strip)
+const PREP_MODIFIERS = new Set([
+  "chopped","diced","sliced","minced","grated","shredded","crushed","peeled",
+  "crumbled","melted","softened","halved","quartered","cubed","julienned",
+  "seeded","deseeded","deveined","cored","pitted","stoned","drained","rinsed",
+  "packed","sifted","beaten","whisked","divided","trimmed","stemmed","skinned",
+  "boned","ground","mashed","pureed","blended","zested","juiced","squeezed",
+  "torn","scrubbed","washed","thawed","blanched","steamed","boiled","fried",
+  "baked","roasted","toasted","browned","caramelized","wilted","seared",
+  "marinated","brined","drained","reserved","strained","frozen","canned",
+  "jarred","bottled","crumbled","flaked","ribboned","spiralized","crushed",
+  "split","scored","scooped","trimmed","clarified","cured","smoked","poached",
+  "sweated","reduced","whipped","creamed","folded","sliced","slivered",
+  "rough chopped","roughly chopped","finely chopped","coarsely chopped",
+  "thinly sliced","thickly sliced","finely diced","coarsely grated","finely grated",
+]);
+
+// Size, quality, freshness, and dietary descriptors
+const SIZE_MODIFIERS = new Set([
+  "small","medium","large","jumbo","baby","mini","big","tiny","huge",
+  "ripe","overripe","underripe","fresh","stale","whole","half","quarter",
+  "thick","thin","long","short","wide","narrow","heaping","level","scant",
+  "generous","light","heavy","firm","soft","hard","tender","crisp","crispy",
+  "lean","fatty","boneless","skinless","organic","wild","farmed","plain",
+  "greek","raw","uncooked","cooked","cold","hot","warm","dried","frozen",
+  "salted","unsalted","sweetened","unsweetened","skim","whole","reduced",
+  "extra","virgin","premium","natural","plain","pure","real","quality",
+  "good","best","fancy","standard","regular","mild","medium","sharp","aged",
+  "young","old","new","seasonal","ripe","tart","sweet","sour","bitter",
+  "salty","spicy","mild","strong","weak","light","dark","white","black",
+  "red","green","yellow","brown","golden","blonde","clear",
+]);
+
+// Multi-word phrases to remove before tokenization (regex-escaped, hyphens normalized to spaces)
+const MULTI_WORD_PHRASES_RE = /\b(extra virgin|extra large|extra small|extra firm|low sodium|reduced sodium|low fat|fat free|nonfat|no fat|whole grain|whole wheat|grass fed|pasture raised|free range|cage free|bone in|skin on|skinless and boneless|boneless and skinless|room temperature|at room temperature|to taste|for serving|for garnish|for topping|for sprinkling|for drizzling|for brushing|for dusting|as needed|optional|plus more|plus more for serving|plus extra|plus additional|or more to taste|to drizzle|to top|to sprinkle|to garnish|finely chopped|roughly chopped|coarsely chopped|thinly sliced|thickly sliced|finely diced|finely grated|coarsely grated|cut into|broken into|torn into|each cut|each peeled|peeled and chopped|peeled and diced|peeled and minced|peeled and sliced|seeded and diced|seeded and chopped|stemmed and chopped|trimmed and chopped|drained and rinsed|drained and chopped|cooked and crumbled|cooked and shredded|cooked and diced|cut in half|cut in halves|cut in quarters|halved lengthwise|sliced thin|sliced thinly|sliced into rounds|cut into rounds|cut into wedges|cut into strips|cut into pieces|cut into chunks|cut into cubes|cut into florets)\b/g;
+
+// Irregular plurals that need special handling
+const IRREGULAR_PLURALS = {
+  tomatoes:"tomato", potatoes:"potato", loaves:"loaf", halves:"half",
+  leaves:"leaf", knives:"knife", lives:"life", wolves:"wolf",
+  shelves:"shelf", thieves:"thief", calves:"calf", scarves:"scarf",
+  cherries:"cherry", berries:"berry", strawberries:"strawberry",
+  blueberries:"blueberry", raspberries:"raspberry", cranberries:"cranberry",
+  blackberries:"blackberry", gooseberries:"gooseberry",
+  anchovies:"anchovy", chilies:"chili", chillies:"chili",
+  geese:"goose", mice:"mouse", feet:"foot", teeth:"tooth", men:"man", women:"woman",
+  // Common food irregulars
+  loaves:"loaf", roes:"roe",
+};
+
+function cleanItemString(s) {
+  if (!s) return "";
+  // Drop everything after first comma (prep instructions: "garlic, minced")
+  s = s.split(",")[0].trim();
+  // Drop everything after first semicolon
+  s = s.split(";")[0].trim();
+  // Normalize hyphens to spaces (so "extra-virgin" tokenizes as two words)
+  s = s.replace(/[-–—]/g, " ");
+  // Remove multi-word phrases
+  s = s.replace(MULTI_WORD_PHRASES_RE, " ");
+  // Collapse whitespace
+  s = s.replace(/\s+/g, " ").trim();
+  // Tokenize
+  let tokens = s.split(/\s+/).filter(Boolean);
+  // Strip leading modifiers (single words)
+  while (tokens.length > 1 && (PREP_MODIFIERS.has(tokens[0]) || SIZE_MODIFIERS.has(tokens[0]) || tokens[0] === "of" || tokens[0] === "the" || tokens[0] === "a" || tokens[0] === "an")) {
+    tokens.shift();
+  }
+  // Strip trailing modifiers
+  while (tokens.length > 1 && (PREP_MODIFIERS.has(tokens[tokens.length - 1]) || SIZE_MODIFIERS.has(tokens[tokens.length - 1]) || tokens[tokens.length - 1] === "or")) {
+    tokens.pop();
+  }
+  // Strip trailing "and X" leftovers (e.g., "garlic and" after dropping ", minced")
+  if (tokens.length > 1 && tokens[tokens.length - 1] === "and") tokens.pop();
+  return tokens.join(" ").trim();
+}
+
 function parseIngredient(str) {
   if (!str || typeof str !== "string") return { quantity: null, unit: null, item: str || "", original: str || "" };
   const original = str.trim();
   let s = original.toLowerCase().trim();
+
+  // Strip ALL parentheticals up front (e.g., "1 (14 oz) can diced tomatoes" → "1  can diced tomatoes")
+  s = s.replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
 
   // Extract quantity
   let quantity = null;
@@ -811,11 +891,7 @@ function parseIngredient(str) {
     }
   }
 
-  // Handle parenthetical sizes: "(14 oz)" or "(14.5 oz)"
-  s = s.replace(/\([\d.]+\s*oz\)/i, "").trim();
-  s = s.replace(/\([\d.]+\s*g\)/i, "").trim();
-
-  // Extract unit
+  // Extract unit (now safe to match — parentheticals already gone)
   let unit = null;
   const unitMatch = s.match(/^([a-z]+\.?)\s/);
   if (unitMatch && UNIT_MAP[unitMatch[1].replace(/\.$/, "")]) {
@@ -826,17 +902,56 @@ function parseIngredient(str) {
   // Strip leading "of"
   s = s.replace(/^of\s+/, "");
 
-  return { quantity, unit, item: s, original };
+  // Clean modifiers from the item portion
+  const item = cleanItemString(s);
+
+  return { quantity, unit, item, original };
 }
 
 function normalizeItemName(name) {
-  return name.toLowerCase().trim()
-    .replace(/ies$/, "y")       // berries → berry
-    .replace(/ves$/, "f")       // halves → half
-    .replace(/oes$/, "o")       // tomatoes → tomato
-    .replace(/es$/, "")         // peaches → peach (but not "cheese")
-    .replace(/s$/, "")          // carrots → carrot
-    .replace(/\s+/g, " ");
+  let n = (name || "").toLowerCase().trim().replace(/\s+/g, " ");
+  if (!n) return n;
+  // Exact-match irregular plurals
+  if (IRREGULAR_PLURALS[n]) return IRREGULAR_PLURALS[n];
+  // Multi-word: normalize the LAST word (e.g., "cherry tomatoes" → "cherry tomato")
+  const words = n.split(" ");
+  let last = words[words.length - 1];
+  if (IRREGULAR_PLURALS[last]) {
+    last = IRREGULAR_PLURALS[last];
+  } else if (/(x|ch|sh)es$/.test(last)) {
+    last = last.replace(/(x|ch|sh)es$/, "$1");          // boxes → box, dishes → dish
+  } else if (/ies$/.test(last)) {
+    last = last.replace(/ies$/, "y");                    // berries → berry
+  } else if (/oes$/.test(last)) {
+    last = last.replace(/oes$/, "o");                    // tomatoes → tomato
+  } else if (/[^aeious]s$/.test(last) && !last.endsWith("ss")) {
+    last = last.replace(/s$/, "");                       // carrots → carrot (but skip "cheese", "swiss")
+  }
+  words[words.length - 1] = last;
+  return words.join(" ");
+}
+
+// Pluralize the LAST word of a phrase based on count (for grocery list display)
+const PLURAL_IRREGULAR = {
+  tomato:"tomatoes", potato:"potatoes", leaf:"leaves", loaf:"loaves",
+  half:"halves", knife:"knives", life:"lives", wolf:"wolves",
+  shelf:"shelves", calf:"calves", scarf:"scarves",
+  berry:"berries", cherry:"cherries", strawberry:"strawberries",
+  blueberry:"blueberries", raspberry:"raspberries", cranberry:"cranberries",
+  blackberry:"blackberries", anchovy:"anchovies", chili:"chilies",
+  goose:"geese", mouse:"mice", foot:"feet", tooth:"teeth", man:"men", woman:"women",
+};
+function pluralizeItem(phrase, count) {
+  if (!phrase || count <= 1) return phrase;
+  const parts = phrase.split(" ");
+  let last = parts[parts.length - 1];
+  if (PLURAL_IRREGULAR[last]) last = PLURAL_IRREGULAR[last];
+  else if (/[^aeiou]y$/.test(last)) last = last.slice(0, -1) + "ies";
+  else if (/(s|x|z|ch|sh)$/.test(last)) last = last + "es";
+  else if (/[^aeiou]o$/.test(last)) last = last + "es";
+  else if (!/s$/.test(last)) last = last + "s";
+  parts[parts.length - 1] = last;
+  return parts.join(" ");
 }
 
 function consolidateIngredients(ingredients) {
@@ -870,10 +985,12 @@ function consolidateIngredients(ingredients) {
         return;
       }
       const qty = data.quantity % 1 === 0 ? data.quantity.toString() : data.quantity.toFixed(1).replace(/\.0$/, "");
+      const displayItem = data.items[0].item;
       if (unit === "_none") {
-        name = `${qty} ${data.items[0].item}`;
+        name = `${qty} ${pluralizeItem(displayItem, data.quantity)}`;
       } else {
-        name = `${qty} ${unit}${data.quantity > 1 && !unit.endsWith("s") && unit.length > 2 ? "s" : ""} ${data.items[0].item}`;
+        const unitDisplay = pluralizeItem(unit, data.quantity);
+        name = `${qty} ${unitDisplay} ${displayItem}`;
       }
       result.push({ name, item: key });
     });
