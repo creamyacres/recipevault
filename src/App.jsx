@@ -7,7 +7,7 @@ import {
   FloppyDisk, Check, ArrowRight, HandPointing, Bug, Sparkle, ClipboardText,
   Key, Confetti, Prohibit, BookOpen, ForkKnife, Package, Warning,
   Cookie, Leaf, Pizza, Coffee, Hamburger, IceCream, Wine, Egg, Fish,
-  Carrot, Pepper, BowlFood, Cake, Bread, Flower
+  Carrot, Pepper, BowlFood, Cake, Bread, Flower, GearSix
 } from "@phosphor-icons/react";
 
 const BOOK_ICONS = {
@@ -597,6 +597,112 @@ const KEYS = {
   mealHistory: "rv2_history",
 };
 
+// ── Meal Plan Settings Defaults ──
+const DEFAULT_MEAL_SETTINGS = {
+  preferredProteins: [],
+  repeatAvoidanceDays: 14,
+  mealsToGenerate: ["Breakfast", "Dinner"],
+};
+
+// ── Protein Keywords ──
+const PROTEIN_KEYWORDS = {
+  chicken: ["chicken", "poultry", "turkey"],
+  beef: ["beef", "steak", "ground beef", "sirloin", "chuck", "brisket"],
+  pork: ["pork", "ham", "bacon", "sausage", "prosciutto", "pancetta"],
+  fish: ["salmon", "tuna", "cod", "tilapia", "shrimp", "prawns", "fish", "halibut", "mahi", "scallops", "crab", "lobster", "mussels", "clams", "anchovies", "sardines"],
+  lamb: ["lamb"],
+  vegetarian: [],
+};
+const ALL_MEAT_KEYWORDS = Object.values(PROTEIN_KEYWORDS).flat();
+
+// ── Ingredient Section Map ──
+const INGREDIENT_SECTION_MAP = {
+  // Produce
+  garlic:"Produce", onion:"Produce", tomato:"Produce", lettuce:"Produce", carrot:"Produce",
+  celery:"Produce", potato:"Produce", "sweet potato":"Produce", pepper:"Produce",
+  "bell pepper":"Produce", jalapeño:"Produce", jalapeno:"Produce", lemon:"Produce",
+  lime:"Produce", avocado:"Produce", cilantro:"Produce", basil:"Produce", parsley:"Produce",
+  ginger:"Produce", spinach:"Produce", kale:"Produce", broccoli:"Produce", cauliflower:"Produce",
+  zucchini:"Produce", cucumber:"Produce", mushroom:"Produce", corn:"Produce", pea:"Produce",
+  "green bean":"Produce", asparagus:"Produce", cabbage:"Produce", scallion:"Produce",
+  "green onion":"Produce", shallot:"Produce", leek:"Produce", radish:"Produce",
+  eggplant:"Produce", squash:"Produce", pumpkin:"Produce", beet:"Produce", turnip:"Produce",
+  apple:"Produce", banana:"Produce", orange:"Produce", berry:"Produce", strawberry:"Produce",
+  blueberry:"Produce", raspberry:"Produce", mango:"Produce", pineapple:"Produce",
+  peach:"Produce", pear:"Produce", grape:"Produce", watermelon:"Produce", mint:"Produce",
+  rosemary:"Produce", thyme:"Produce", oregano:"Produce", dill:"Produce", sage:"Produce",
+  chive:"Produce", arugula:"Produce", "bok choy":"Produce",
+  // Meat & Seafood
+  chicken:"Meat & Seafood", beef:"Meat & Seafood", pork:"Meat & Seafood", steak:"Meat & Seafood",
+  "ground beef":"Meat & Seafood", "ground turkey":"Meat & Seafood", "ground pork":"Meat & Seafood",
+  bacon:"Meat & Seafood", sausage:"Meat & Seafood", ham:"Meat & Seafood", turkey:"Meat & Seafood",
+  lamb:"Meat & Seafood", salmon:"Meat & Seafood", tuna:"Meat & Seafood", shrimp:"Meat & Seafood",
+  cod:"Meat & Seafood", tilapia:"Meat & Seafood", halibut:"Meat & Seafood", crab:"Meat & Seafood",
+  lobster:"Meat & Seafood", scallop:"Meat & Seafood", mussels:"Meat & Seafood", clams:"Meat & Seafood",
+  prosciutto:"Meat & Seafood", pancetta:"Meat & Seafood", anchovy:"Meat & Seafood", anchovies:"Meat & Seafood",
+  // Dairy & Eggs
+  milk:"Dairy & Eggs", butter:"Dairy & Eggs", cheese:"Dairy & Eggs", egg:"Dairy & Eggs",
+  cream:"Dairy & Eggs", "heavy cream":"Dairy & Eggs", "sour cream":"Dairy & Eggs",
+  yogurt:"Dairy & Eggs", "cream cheese":"Dairy & Eggs", parmesan:"Dairy & Eggs",
+  mozzarella:"Dairy & Eggs", cheddar:"Dairy & Eggs", ricotta:"Dairy & Eggs", feta:"Dairy & Eggs",
+  "half and half":"Dairy & Eggs", whipping:"Dairy & Eggs",
+  // Pantry & Dry Goods
+  flour:"Pantry & Dry Goods", sugar:"Pantry & Dry Goods", "brown sugar":"Pantry & Dry Goods",
+  rice:"Pantry & Dry Goods", pasta:"Pantry & Dry Goods", noodle:"Pantry & Dry Goods",
+  spaghetti:"Pantry & Dry Goods", penne:"Pantry & Dry Goods", linguine:"Pantry & Dry Goods",
+  oil:"Pantry & Dry Goods", "olive oil":"Pantry & Dry Goods", "vegetable oil":"Pantry & Dry Goods",
+  vinegar:"Pantry & Dry Goods", "soy sauce":"Pantry & Dry Goods", "fish sauce":"Pantry & Dry Goods",
+  salt:"Pantry & Dry Goods", "black pepper":"Pantry & Dry Goods", cumin:"Pantry & Dry Goods",
+  paprika:"Pantry & Dry Goods", "chili powder":"Pantry & Dry Goods", cinnamon:"Pantry & Dry Goods",
+  nutmeg:"Pantry & Dry Goods", turmeric:"Pantry & Dry Goods", cayenne:"Pantry & Dry Goods",
+  "baking powder":"Pantry & Dry Goods", "baking soda":"Pantry & Dry Goods",
+  vanilla:"Pantry & Dry Goods", honey:"Pantry & Dry Goods", "maple syrup":"Pantry & Dry Goods",
+  ketchup:"Pantry & Dry Goods", mustard:"Pantry & Dry Goods", mayonnaise:"Pantry & Dry Goods",
+  "tomato sauce":"Pantry & Dry Goods", "tomato paste":"Pantry & Dry Goods",
+  "coconut milk":"Pantry & Dry Goods", broth:"Pantry & Dry Goods", stock:"Pantry & Dry Goods",
+  "chicken broth":"Pantry & Dry Goods", "beef broth":"Pantry & Dry Goods",
+  bean:"Pantry & Dry Goods", lentil:"Pantry & Dry Goods", chickpea:"Pantry & Dry Goods",
+  "canned tomato":"Pantry & Dry Goods", "diced tomato":"Pantry & Dry Goods",
+  "crushed tomato":"Pantry & Dry Goods", oat:"Pantry & Dry Goods", cereal:"Pantry & Dry Goods",
+  quinoa:"Pantry & Dry Goods", couscous:"Pantry & Dry Goods", cornstarch:"Pantry & Dry Goods",
+  "peanut butter":"Pantry & Dry Goods", almond:"Pantry & Dry Goods", walnut:"Pantry & Dry Goods",
+  pecan:"Pantry & Dry Goods", cashew:"Pantry & Dry Goods", sesame:"Pantry & Dry Goods",
+  "chocolate chip":"Pantry & Dry Goods", cocoa:"Pantry & Dry Goods", raisin:"Pantry & Dry Goods",
+  "hot sauce":"Pantry & Dry Goods", sriracha:"Pantry & Dry Goods", worcestershire:"Pantry & Dry Goods",
+  // Frozen
+  frozen:"Frozen", "ice cream":"Frozen",
+  // Bakery
+  bread:"Bakery", bun:"Bakery", roll:"Bakery", tortilla:"Bakery", pita:"Bakery",
+  bagel:"Bakery", croissant:"Bakery", "naan":"Bakery", flatbread:"Bakery",
+};
+
+// ── Unit Normalization ──
+const UNIT_MAP = {
+  cups:"cup", cup:"cup", c:"cup",
+  tablespoons:"tbsp", tablespoon:"tbsp", tbsps:"tbsp", tbsp:"tbsp", tbs:"tbsp",
+  teaspoons:"tsp", teaspoon:"tsp", tsps:"tsp", tsp:"tsp",
+  ounces:"oz", ounce:"oz", oz:"oz",
+  pounds:"lb", pound:"lb", lbs:"lb", lb:"lb",
+  grams:"g", gram:"g", g:"g",
+  kilograms:"kg", kilogram:"kg", kg:"kg",
+  milliliters:"ml", milliliter:"ml", ml:"ml",
+  liters:"l", liter:"l", l:"l",
+  cloves:"clove", clove:"clove",
+  cans:"can", can:"can",
+  bunches:"bunch", bunch:"bunch",
+  heads:"head", head:"head",
+  stalks:"stalk", stalk:"stalk",
+  sprigs:"sprig", sprig:"sprig",
+  slices:"slice", slice:"slice",
+  pieces:"piece", piece:"piece",
+  pinch:"pinch", pinches:"pinch", dash:"dash",
+  packages:"pkg", package:"pkg", pkg:"pkg",
+  bags:"bag", bag:"bag",
+  jars:"jar", jar:"jar",
+  bottles:"bottle", bottle:"bottle",
+  whole:"whole",
+};
+
 // ── Storage helpers ──
 const load = (key, def) => { try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; } };
 const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
@@ -643,15 +749,6 @@ const SYS_RECIPE_GEN = `You are a creative chef. Return ONLY a JSON object:
 const SYS_RECIPE_GEN_3 = `You are a creative chef. Return ONLY a JSON array of exactly 3 recipe objects. Make each recipe meaningfully different in style, cuisine, or technique. Each object must follow this exact shape:
 {"title":"...","description":"One sentence.","prepTime":"15 min","cookTime":"30 min","servings":"4","category":"Dinner","ingredients":["..."],"steps":["..."],"tags":["..."]}`;
 
-const SYS_MEAL_PLAN = `You are a meal planning assistant. Return ONLY a JSON object mapping each date (ISO format YYYY-MM-DD) to an object with meal slots. Use exactly this format:
-{"2026-03-31":{"Breakfast":"recipeId","Lunch":"recipeId","Dinner":"recipeId"},"2026-04-01":{...},...}
-You MUST include every date provided in the date range. Only include a meal key if recipes are available for that meal type.
-Rules: avoid recipes from recent history, prefer quick recipes (≤30min total) for Dinner on easy mode dates.`;
-
-const SYS_GROCERY = `You are a grocery list generator. Given a list of ingredients from multiple recipes, consolidate them (combine duplicates, sum quantities) and categorize each. Return ONLY a JSON array:
-[{"name":"2 cloves garlic","section":"Produce"},{"name":"1 lb chicken breast","section":"Meat & Seafood"},...]
-Sections must be one of: Produce, Meat & Seafood, Dairy & Eggs, Pantry & Dry Goods, Frozen, Bakery, Other.`;
-
 // ── Utility ──
 function parseTotalMinutes(prepTime, cookTime) {
   const parse = str => { if (!str) return 0; const m = str.match(/(\d+)/); return m ? parseInt(m[1]) : 0; };
@@ -668,6 +765,244 @@ function getWeekOf() {
 
 function todayISO() {
   return new Date().toISOString().split("T")[0];
+}
+
+// ── Ingredient Parsing ──
+const FRACTION_MAP = { "½":0.5, "⅓":0.333, "⅔":0.667, "¼":0.25, "¾":0.75, "⅛":0.125, "⅜":0.375, "⅝":0.625, "⅞":0.875 };
+
+function parseIngredient(str) {
+  if (!str || typeof str !== "string") return { quantity: null, unit: null, item: str || "", original: str || "" };
+  const original = str.trim();
+  let s = original.toLowerCase().trim();
+
+  // Extract quantity
+  let quantity = null;
+  // Unicode fractions
+  const fracMatch = s.match(/^(\d+\s*)?([½⅓⅔¼¾⅛⅜⅝⅞])/);
+  if (fracMatch) {
+    const whole = fracMatch[1] ? parseFloat(fracMatch[1]) : 0;
+    quantity = whole + (FRACTION_MAP[fracMatch[2]] || 0);
+    s = s.slice(fracMatch[0].length).trim();
+  } else {
+    // Mixed fraction: "1 1/2" or slash fraction "1/2"
+    const mixedMatch = s.match(/^(\d+)\s+(\d+)\/(\d+)/);
+    if (mixedMatch) {
+      quantity = parseInt(mixedMatch[1]) + parseInt(mixedMatch[2]) / parseInt(mixedMatch[3]);
+      s = s.slice(mixedMatch[0].length).trim();
+    } else {
+      const slashMatch = s.match(/^(\d+)\/(\d+)/);
+      if (slashMatch) {
+        quantity = parseInt(slashMatch[1]) / parseInt(slashMatch[2]);
+        s = s.slice(slashMatch[0].length).trim();
+      } else {
+        // Range: "2-3" or simple number "2" or "1.5"
+        const rangeMatch = s.match(/^(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+        if (rangeMatch) {
+          quantity = parseFloat(rangeMatch[2]); // take higher
+          s = s.slice(rangeMatch[0].length).trim();
+        } else {
+          const numMatch = s.match(/^(\d+(?:\.\d+)?)/);
+          if (numMatch) {
+            quantity = parseFloat(numMatch[1]);
+            s = s.slice(numMatch[0].length).trim();
+          }
+        }
+      }
+    }
+  }
+
+  // Handle parenthetical sizes: "(14 oz)" or "(14.5 oz)"
+  s = s.replace(/\([\d.]+\s*oz\)/i, "").trim();
+  s = s.replace(/\([\d.]+\s*g\)/i, "").trim();
+
+  // Extract unit
+  let unit = null;
+  const unitMatch = s.match(/^([a-z]+\.?)\s/);
+  if (unitMatch && UNIT_MAP[unitMatch[1].replace(/\.$/, "")]) {
+    unit = UNIT_MAP[unitMatch[1].replace(/\.$/, "")];
+    s = s.slice(unitMatch[0].length).trim();
+  }
+
+  // Strip leading "of"
+  s = s.replace(/^of\s+/, "");
+
+  return { quantity, unit, item: s, original };
+}
+
+function normalizeItemName(name) {
+  return name.toLowerCase().trim()
+    .replace(/ies$/, "y")       // berries → berry
+    .replace(/ves$/, "f")       // halves → half
+    .replace(/oes$/, "o")       // tomatoes → tomato
+    .replace(/es$/, "")         // peaches → peach (but not "cheese")
+    .replace(/s$/, "")          // carrots → carrot
+    .replace(/\s+/g, " ");
+}
+
+function consolidateIngredients(ingredients) {
+  const parsed = ingredients.map(parseIngredient);
+  const groups = {};
+
+  parsed.forEach(p => {
+    const key = normalizeItemName(p.item);
+    if (!key) return;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(p);
+  });
+
+  const result = [];
+  Object.entries(groups).forEach(([key, items]) => {
+    // Group by unit within the same item
+    const byUnit = {};
+    items.forEach(item => {
+      const u = item.unit || "_none";
+      if (!byUnit[u]) byUnit[u] = { quantity: 0, items: [], hasNull: false };
+      if (item.quantity !== null) byUnit[u].quantity += item.quantity;
+      else byUnit[u].hasNull = true;
+      byUnit[u].items.push(item);
+    });
+
+    Object.entries(byUnit).forEach(([unit, data]) => {
+      let name;
+      if (data.hasNull || data.quantity === 0) {
+        // Can't consolidate — use original strings
+        data.items.forEach(item => result.push({ name: item.original, item: key }));
+        return;
+      }
+      const qty = data.quantity % 1 === 0 ? data.quantity.toString() : data.quantity.toFixed(1).replace(/\.0$/, "");
+      if (unit === "_none") {
+        name = `${qty} ${data.items[0].item}`;
+      } else {
+        name = `${qty} ${unit}${data.quantity > 1 && !unit.endsWith("s") && unit.length > 2 ? "s" : ""} ${data.items[0].item}`;
+      }
+      result.push({ name, item: key });
+    });
+  });
+
+  return result;
+}
+
+function categorizeIngredient(itemName) {
+  const lower = itemName.toLowerCase();
+  // Check multi-word keys first (longest match)
+  const multiWord = Object.keys(INGREDIENT_SECTION_MAP).filter(k => k.includes(" ")).sort((a, b) => b.length - a.length);
+  for (const key of multiWord) {
+    if (lower.includes(key)) return INGREDIENT_SECTION_MAP[key];
+  }
+  // Then single-word keys
+  for (const key of Object.keys(INGREDIENT_SECTION_MAP)) {
+    if (!key.includes(" ") && lower.includes(key)) return INGREDIENT_SECTION_MAP[key];
+  }
+  return "Other";
+}
+
+// ── Protein Classification ──
+function classifyProtein(recipe) {
+  const text = (recipe.ingredients || []).join(" ").toLowerCase();
+  const matched = [];
+  Object.entries(PROTEIN_KEYWORDS).forEach(([protein, keywords]) => {
+    if (protein === "vegetarian") return;
+    if (keywords.some(kw => {
+      const idx = text.indexOf(kw);
+      if (idx === -1) return false;
+      // Skip "chicken broth", "beef stock", etc.
+      const after = text.slice(idx + kw.length, idx + kw.length + 10);
+      if (/^\s*(broth|stock|bouillon|base)/.test(after)) return false;
+      return true;
+    })) matched.push(protein);
+  });
+  if (matched.length === 0) matched.push("vegetarian");
+  return matched;
+}
+
+function matchesProtein(recipe, preferredProteins) {
+  if (!preferredProteins || preferredProteins.length === 0) return true;
+  const recipeProteins = classifyProtein(recipe);
+  return recipeProteins.some(p => preferredProteins.includes(p));
+}
+
+// ── Deterministic Meal Planner ──
+const MEAL_FILTERS = {
+  category: (r, ctx) => {
+    if (ctx.mealType === "Dinner") return !r.category || r.category === "Dinner" || r.category === "Other";
+    return r.category === ctx.mealType;
+  },
+  easyMode: (r, ctx) => !ctx.isEasyNight || ctx.mealType !== "Dinner" || parseTotalMinutes(r.prepTime, r.cookTime) <= 30,
+  protein: (r, ctx) => ctx.mealType !== "Dinner" || matchesProtein(r, ctx.settings.preferredProteins),
+  excluded: (r, ctx) => !(ctx.settings.excludedIngredients?.length) || !ctx.settings.excludedIngredients.some(ex => (r.ingredients || []).join(" ").toLowerCase().includes(ex.toLowerCase())),
+};
+
+const MEAL_SCORERS = {
+  history: (r, ctx) => ctx.recentTitles.includes(r.title) ? -5 : 0,
+  usedThisWeek: (r, ctx) => ctx.usedThisWeek.has(r.id) ? -8 : 0,
+  adjacency: (r, ctx) => ctx.yesterdayRecipeId === r.id ? -3 : 0,
+  proteinMatch: (r, ctx) => ctx.mealType === "Dinner" && matchesProtein(r, ctx.settings.preferredProteins) ? 2 : 0,
+  variety: () => Math.random() * 2,
+};
+
+function planWeekDeterministic(recipes, activeDates, easyNights, mealHistory, settings, excludedBookIds, books) {
+  const s = { ...DEFAULT_MEAL_SETTINGS, ...settings };
+  const recentTitles = mealHistory.map(h => h.title);
+  const usedThisWeek = new Set();
+  const result = {};
+
+  // Filter out recipes from excluded books
+  let pool = recipes;
+  if (excludedBookIds?.length && books?.length) {
+    const excludedRecipeIds = new Set();
+    books.filter(b => excludedBookIds.includes(b.id)).forEach(b => b.recipeIds.forEach(id => excludedRecipeIds.add(id)));
+    pool = pool.filter(r => !excludedRecipeIds.has(r.id));
+  }
+
+  activeDates.forEach((date, dateIdx) => {
+    result[date] = {};
+    const isEasyNight = (easyNights || []).includes(date);
+
+    (s.mealsToGenerate || MEALS).forEach(mealType => {
+      const ctx = { mealType, isEasyNight, settings: s, recentTitles, usedThisWeek, yesterdayRecipeId: null, dateIdx, date };
+
+      // Get yesterday's recipe for this meal type
+      if (dateIdx > 0) {
+        const prevDate = activeDates[dateIdx - 1];
+        const prevSlot = result[prevDate]?.[mealType];
+        if (prevSlot) ctx.yesterdayRecipeId = prevSlot;
+      }
+
+      // Apply all filters
+      let candidates = pool;
+      Object.values(MEAL_FILTERS).forEach(filter => {
+        candidates = candidates.filter(r => filter(r, ctx));
+      });
+
+      // Fallback: if no candidates after filtering, relax protein filter
+      if (candidates.length === 0) {
+        candidates = pool;
+        Object.entries(MEAL_FILTERS).forEach(([key, filter]) => {
+          if (key !== "protein") candidates = candidates.filter(r => filter(r, ctx));
+        });
+      }
+
+      if (candidates.length === 0) return;
+
+      // Score each candidate
+      const scored = candidates.map(r => {
+        let score = 10;
+        Object.values(MEAL_SCORERS).forEach(scorer => { score += scorer(r, ctx); });
+        return { recipe: r, score };
+      });
+
+      // Pick highest score, random tiebreak
+      scored.sort((a, b) => b.score - a.score);
+      const topScore = scored[0].score;
+      const ties = scored.filter(s => Math.abs(s.score - topScore) < 0.01);
+      const winner = ties[Math.floor(Math.random() * ties.length)].recipe;
+
+      result[date][mealType] = winner.id;
+      usedThisWeek.add(winner.id);
+    });
+  });
+
+  return result;
 }
 
 function addDays(isoDate, n) {
@@ -1078,6 +1413,113 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
   );
 }
 
+// ── Meal Plan Settings Modal ──
+function MealPlanSettingsModal({ settings, onSave, onClose }) {
+  const [prefs, setPrefs] = useState({ ...DEFAULT_MEAL_SETTINGS, ...settings });
+
+  const toggleProtein = (p) => {
+    setPrefs(prev => ({
+      ...prev,
+      preferredProteins: prev.preferredProteins.includes(p)
+        ? prev.preferredProteins.filter(x => x !== p)
+        : [...prev.preferredProteins, p]
+    }));
+  };
+
+  const toggleMeal = (m) => {
+    setPrefs(prev => ({
+      ...prev,
+      mealsToGenerate: prev.mealsToGenerate.includes(m)
+        ? prev.mealsToGenerate.filter(x => x !== m)
+        : [...prev.mealsToGenerate, m]
+    }));
+  };
+
+  const PROTEIN_OPTIONS = [
+    { key: "chicken", label: "Chicken", icon: <ForkKnife size={14} weight="bold" /> },
+    { key: "beef", label: "Beef", icon: <ForkKnife size={14} weight="bold" /> },
+    { key: "pork", label: "Pork", icon: <ForkKnife size={14} weight="bold" /> },
+    { key: "fish", label: "Fish & Seafood", icon: <Fish size={14} weight="bold" /> },
+    { key: "lamb", label: "Lamb", icon: <ForkKnife size={14} weight="bold" /> },
+    { key: "vegetarian", label: "Vegetarian", icon: <Leaf size={14} weight="bold" /> },
+  ];
+
+  return (
+    <div className="pm-modal-bg" onClick={onClose}>
+      <div className="pm-modal" style={{ maxWidth:"480px" }} onClick={e => e.stopPropagation()}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"20px" }}>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", margin:0 }}>
+            <GearSix size={24} weight="bold" style={{ verticalAlign:"middle", marginRight:8 }} />
+            Meal Plan Settings
+          </h2>
+          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text, #1A0A00)" }}><X size={20} weight="bold" /></button>
+        </div>
+
+        {/* Preferred Proteins */}
+        <div style={{ marginBottom:"20px" }}>
+          <label style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"block", marginBottom:"8px" }}>
+            Preferred Proteins
+          </label>
+          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7A5A3A)", marginBottom:"8px" }}>
+            Leave empty for any protein. Select to filter dinner recipes.
+          </p>
+          <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
+            {PROTEIN_OPTIONS.map(p => (
+              <button key={p.key} onClick={() => toggleProtein(p.key)} className="pm-btn"
+                style={{ padding:"6px 12px", fontSize:"12px",
+                  background: prefs.preferredProteins.includes(p.key) ? "#FFD166" : "var(--bg-elevated, #FFF5E6)",
+                  color: prefs.preferredProteins.includes(p.key) ? "#1A0A00" : "var(--text, #1A0A00)",
+                  border: prefs.preferredProteins.includes(p.key) ? "2px solid #1A0A00" : "2px solid var(--border-subtle, rgba(26,10,0,0.2))" }}>
+                {p.icon} <span style={{ marginLeft:4 }}>{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Repeat Avoidance */}
+        <div style={{ marginBottom:"20px" }}>
+          <label style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"block", marginBottom:"8px" }}>
+            Avoid Repeats Within
+          </label>
+          <select value={prefs.repeatAvoidanceDays} onChange={e => setPrefs(prev => ({ ...prev, repeatAvoidanceDays: parseInt(e.target.value) }))}
+            className="pm-input" style={{ fontSize:"13px", padding:"8px 12px", maxWidth:"200px" }}>
+            <option value={7}>1 week</option>
+            <option value={14}>2 weeks</option>
+            <option value={21}>3 weeks</option>
+            <option value={0}>No limit</option>
+          </select>
+        </div>
+
+        {/* Meals to Generate */}
+        <div style={{ marginBottom:"24px" }}>
+          <label style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"block", marginBottom:"8px" }}>
+            Meals to Plan
+          </label>
+          <div style={{ display:"flex", gap:"8px" }}>
+            {MEALS.map(m => (
+              <button key={m} onClick={() => toggleMeal(m)} className="pm-btn"
+                style={{ padding:"8px 16px", fontSize:"13px", flex:1,
+                  background: prefs.mealsToGenerate.includes(m) ? MEAL_COLORS[m] : "var(--bg-elevated, #FFF5E6)",
+                  color: prefs.mealsToGenerate.includes(m) ? (m === "Dinner" ? "#fff" : "#1A0A00") : "var(--text, #1A0A00)",
+                  border: prefs.mealsToGenerate.includes(m) ? "2px solid #1A0A00" : "2px solid var(--border-subtle, rgba(26,10,0,0.2))" }}>
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Save */}
+        <div style={{ display:"flex", gap:"10px" }}>
+          <button onClick={onClose} className="pm-btn pm-btn-ghost" style={{ flex:1, padding:"12px" }}>Cancel</button>
+          <button onClick={() => { onSave(prefs); onClose(); }} className="pm-btn pm-btn-primary" style={{ flex:2, padding:"12px" }}>
+            <FloppyDisk size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Easy Mode Modal ──
 function EasyModeModal({ dates, onConfirm, onCancel }) {
   const [selected, setSelected] = useState([]);
@@ -1152,14 +1594,14 @@ function DateRangePicker({ startDate, endDate, onChange }) {
 }
 
 // ── Meal Calendar Tab ──
-function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, mealHistory, setMealHistory, toast, books = [], mealPlanExcludedBooks = [] }) {
+function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, mealHistory, setMealHistory, toast, books = [], mealPlanExcludedBooks = [], mealPlanSettings = {}, setMealPlanSettings = () => {} }) {
   const [showEasyMode, setShowEasyMode] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [dragOver, setDragOver] = useState(null); // "date-meal"
   const [pickerFor, setPickerFor] = useState(null); // {day: isoDate, meal}
   const [pickerSearch, setPickerSearch] = useState("");
   const [pickerCat, setPickerCat] = useState("All");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const activeDates = dateRangeDates(mealPlan.startDate, mealPlan.endDate);
 
@@ -1196,60 +1638,36 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, me
     setDragOver(null);
   };
 
-  const generateWeek = async (easyNights) => {
+  const generateWeek = (easyNights) => {
     setShowEasyMode(false);
-    setGenerating(true);
 
-    const historyTitles = mealHistory.map(h => h.title);
     const dinnerRecipes = recipes.filter(r => !r.category || r.category === "Dinner" || r.category === "Other");
-    const breakfastRecipes = recipes.filter(r => r.category === "Breakfast");
-    const lunchRecipes = recipes.filter(r => r.category === "Lunch");
-
     if (dinnerRecipes.length < 3) {
-      toast("Add more dinner recipes first!"); setGenerating(false); return;
+      toast("Add more dinner recipes first!"); return;
     }
 
-    const toList = arr => arr.map(r => ({
-      id: r.id, title: r.title,
-      totalTime: parseTotalMinutes(r.prepTime, r.cookTime),
-      isQuick: parseTotalMinutes(r.prepTime, r.cookTime) <= 30
-    }));
+    const result = planWeekDeterministic(recipes, activeDates, easyNights, mealHistory, mealPlanSettings, mealPlanExcludedBooks, books);
 
-    const result = await callClaude(SYS_MEAL_PLAN,
-      `Date range to plan: ${activeDates.join(", ")}
-Dinner recipes: ${JSON.stringify(toList(dinnerRecipes))}
-${breakfastRecipes.length ? `Breakfast recipes: ${JSON.stringify(toList(breakfastRecipes))}` : "No breakfast recipes available."}
-${lunchRecipes.length ? `Lunch recipes: ${JSON.stringify(toList(lunchRecipes))}` : "No lunch recipes available."}
-Recent history (avoid repeats): ${JSON.stringify(historyTitles)}
-Easy mode dates (assign quick Dinner recipes ≤30min): ${JSON.stringify(easyNights)}
-Assign recipes for every date in the range. Only include meal keys where recipes are available.`
-    , 1500);
-
-    if (result) {
-      const newDays = { ...(mealPlan.days || {}) };
-      const newHistory = [...mealHistory];
-      activeDates.forEach(date => {
-        const dayResult = result[date];
-        if (!dayResult) return;
-        newDays[date] = { ...(newDays[date] || {}) };
-        MEALS.forEach(meal => {
-          if (dayResult[meal]) {
-            newDays[date][meal] = [dayResult[meal]];
-            const r = recipes.find(x => x.id === dayResult[meal]);
-            if (r && !newHistory.find(h => h.title === r.title)) {
-              newHistory.push({ title: r.title, addedAt: Date.now() });
-            }
+    const newDays = { ...(mealPlan.days || {}) };
+    const newHistory = [...mealHistory];
+    activeDates.forEach(date => {
+      const dayResult = result[date];
+      if (!dayResult) return;
+      newDays[date] = { ...(newDays[date] || {}) };
+      MEALS.forEach(meal => {
+        if (dayResult[meal]) {
+          newDays[date][meal] = [dayResult[meal]];
+          const r = recipes.find(x => x.id === dayResult[meal]);
+          if (r && !newHistory.find(h => h.title === r.title)) {
+            newHistory.push({ title: r.title, addedAt: Date.now() });
           }
-        });
+        }
       });
-      const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
-      setMealHistory(newHistory.filter(h => h.addedAt > twoWeeksAgo));
-      setMealPlan(prev => ({ ...prev, days: newDays, easyNights }));
-      toast("Plan generated! Drag to adjust.");
-    } else {
-      toast("Couldn't generate plan. Try again!");
-    }
-    setGenerating(false);
+    });
+    const avoidMs = (mealPlanSettings.repeatAvoidanceDays || 14) * 24 * 60 * 60 * 1000;
+    setMealHistory(newHistory.filter(h => h.addedAt > Date.now() - avoidMs));
+    setMealPlan(prev => ({ ...prev, days: newDays, easyNights }));
+    toast("Plan generated! Drag to adjust.");
   };
 
   const activeDatesHaveMeals = activeDates.some(date => {
@@ -1273,9 +1691,13 @@ Assign recipes for every date in the range. Only include meal keys where recipes
           <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", display:"flex", alignItems:"center", gap:"8px" }}><CalendarBlank size={28} weight="bold" /> Meal Plan</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
-          <button onClick={() => setShowEasyMode(true)} disabled={generating || recipes.length === 0} className="pm-btn"
-            style={{ padding:"10px 18px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"14px" }}>
-            {generating ? <><span className="cooking-anim" style={{ fontSize:"16px" }}><CookingPot size={16} weight="bold" /></span> Planning...</> : <><Lightning size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> AI Plan My Dates</>}
+          <button onClick={() => setShowEasyMode(true)} disabled={recipes.length === 0} className="pm-btn"
+            style={{ padding:"10px 18px", background:"#ff5252", color:"#fff", fontSize:"14px" }}>
+            <Lightning size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Plan My Dates
+          </button>
+          <button onClick={() => setShowSettings(true)} className="pm-btn"
+            style={{ padding:"10px 12px", background:"var(--bg-elevated, #FFF5E6)", color:"var(--text, #1A0A00)", fontSize:"14px" }}>
+            <GearSix size={16} weight="bold" />
           </button>
           {activeDatesHaveMeals && <button onClick={() => setShowClearConfirm(true)} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-card, #f5e6c8)", color:"var(--text, #1a1a1a)", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}><Trash size={14} weight="bold" /> Clear</button>}
         </div>
@@ -1358,6 +1780,13 @@ Assign recipes for every date in the range. Only include meal keys where recipes
       </div>
 
       {showEasyMode && <EasyModeModal dates={activeDates} onConfirm={generateWeek} onCancel={() => setShowEasyMode(false)} />}
+
+      {showSettings && <MealPlanSettingsModal settings={mealPlanSettings} onSave={(newSettings) => {
+        save("rv_meal_settings", newSettings);
+        setMealPlanSettings(newSettings);
+        setShowSettings(false);
+        toast("Meal plan settings saved");
+      }} onClose={() => setShowSettings(false)} />}
 
       {showClearConfirm && (
         <div className="pm-modal-bg" onClick={() => setShowClearConfirm(false)}>
@@ -1523,7 +1952,6 @@ function StaplesModal({ staples, onAdd, onRemove, onClose }) {
 
 // ── Grocery List Tab ──
 function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast, staples, onShowStaples }) {
-  const [generating, setGenerating] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [showShare, setShowShare] = useState(false);
   const [groceryStart, setGroceryStart] = useState(mealPlan.startDate);
@@ -1559,25 +1987,30 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
   });
   const uniqueRecipes = plannedRecipes.filter((r,i,a) => a.findIndex(x => x.id === r.id) === i);
 
-  const generateGroceryList = async () => {
+  const generateGroceryList = () => {
     if (uniqueRecipes.length === 0) { toast("Plan some meals first!"); return; }
-    setGenerating(true);
-    try {
-      const allIngredients = uniqueRecipes.flatMap(r => r.ingredients || []);
-      const result = await callClaude(SYS_GROCERY,
-        `Consolidate and categorize these ingredients from ${uniqueRecipes.length} recipes: ${JSON.stringify(allIngredients)}`, 2000);
-      if (result && Array.isArray(result)) {
-        const aiItems = result.map((item, i) => ({ ...item, id: `ai-${i}`, checked: false, skipped: false }));
-        // Merge staples, deduplicating against AI results
-        const aiNames = aiItems.map(i => i.name.toLowerCase().replace(/[\d./½¼¾⅓⅔]+/g, "").trim());
-        const stapleItems = (staples || [])
-          .filter(s => !aiNames.some(n => n.includes(s.name.toLowerCase())))
-          .map((s, i) => ({ name: s.name, section: s.section, id: `staple-${i}`, checked: false, skipped: false, isStaple: true }));
-        setGroceryList({ items: [...aiItems, ...stapleItems], generatedAt: Date.now() });
-        toast("Grocery list ready!");
-      } else { toast("Couldn't generate list. Try again!"); }
-    } catch { toast("Couldn't generate list. Try again!"); }
-    setGenerating(false);
+
+    // Collect all ingredients from planned recipes
+    const allIngredients = uniqueRecipes.flatMap(r => r.ingredients || []);
+
+    // Parse, consolidate, and categorize
+    const consolidated = consolidateIngredients(allIngredients);
+    const items = consolidated.map((entry, i) => ({
+      name: entry.name,
+      section: categorizeIngredient(entry.item || entry.name),
+      id: `item-${i}`,
+      checked: false,
+      skipped: false,
+    }));
+
+    // Merge staples, deduplicating against generated items
+    const itemNames = items.map(i => i.name.toLowerCase().replace(/[\d./½¼¾⅓⅔]+/g, "").trim());
+    const stapleItems = (staples || [])
+      .filter(s => !itemNames.some(n => n.includes(s.name.toLowerCase())))
+      .map((s, i) => ({ name: s.name, section: s.section, id: `staple-${i}`, checked: false, skipped: false, isStaple: true }));
+
+    setGroceryList({ items: [...items, ...stapleItems], generatedAt: Date.now() });
+    toast("Grocery list ready!");
   };
 
   const toggleCheck = (id) => setGroceryList(prev => ({ ...prev, items: prev.items.map(item => item.id === id ? { ...item, checked: !item.checked } : item) }));
@@ -1612,9 +2045,9 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
           <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", display:"flex", alignItems:"center", gap:"8px" }}><ShoppingCart size={28} weight="bold" /> Grocery List</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
-          <button onClick={generateGroceryList} disabled={generating || uniqueRecipes.length === 0} className="pm-btn"
-            style={{ padding:"10px 16px", background: generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"13px" }}>
-            {generating ? "Generating..." : <><Sparkle size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Generate from Meal Plan</>}
+          <button onClick={generateGroceryList} disabled={uniqueRecipes.length === 0} className="pm-btn"
+            style={{ padding:"10px 16px", background: uniqueRecipes.length === 0 ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}>
+            <ListIcon size={14} weight="bold" /> Build from Meal Plan
           </button>
           <button onClick={onShowStaples} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-elevated, #fff)", color:"var(--text, #1a1a1a)", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px", borderColor:"var(--border-subtle, rgba(26,10,0,0.2))" }}><Star size={14} weight="bold" color="#E8421A" /> Staples{staples?.length > 0 ? ` (${staples.length})` : ""}</button>
           {groceryList.items?.length > 0 && <>
@@ -1925,6 +2358,7 @@ export default function CooCheena() {
   const [filterCat, setFilterCat] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [mealPlanExcludedBooks, setMealPlanExcludedBooks] = useState(() => load("rv_excluded_books", []));
+  const [mealPlanSettings, setMealPlanSettings] = useState(() => load("rv_meal_settings", { ...DEFAULT_MEAL_SETTINGS }));
   const [error, setError] = useState("");
   const [rawFoodWarning, setRawFoodWarning] = useState(null);
   const [toxicFoodWarning, setToxicFoodWarning] = useState(null);
@@ -2554,7 +2988,8 @@ export default function CooCheena() {
             <MealCalendarTab recipes={recipes} mealPlan={mealPlan} setMealPlan={setMealPlan}
               onDateRangeChange={handleDateRangeChange}
               mealHistory={mealHistory} setMealHistory={setMealHistory} toast={toast}
-              books={books} mealPlanExcludedBooks={mealPlanExcludedBooks} />
+              books={books} mealPlanExcludedBooks={mealPlanExcludedBooks}
+              mealPlanSettings={mealPlanSettings} setMealPlanSettings={setMealPlanSettings} />
           )}
 
           {/* GROCERY LIST TAB */}
