@@ -700,8 +700,37 @@ const UNIT_MAP = {
   bags:"bag", bag:"bag",
   jars:"jar", jar:"jar",
   bottles:"bottle", bottle:"bottle",
-  whole:"whole",
 };
+
+// Volume units convertible to a common base (teaspoons) for cross-unit summing
+const VOLUME_UNITS_TSP = {
+  tsp: 1,
+  tbsp: 3,
+  "fl oz": 6,
+  cup: 48,
+  pint: 96,
+  quart: 192,
+  gallon: 768,
+  ml: 1 / 4.92892,   // 1 tsp ≈ 4.92892 ml
+  l: 1000 / 4.92892,
+};
+
+// Pick the largest cookbook unit that gives a clean-ish number for a total in teaspoons
+function pickBestVolumeUnit(tsp) {
+  const clean = (n) => Math.abs(n - Math.round(n)) < 0.01;
+  if (tsp >= 48) {
+    const cups = tsp / 48;
+    if (clean(cups * 4) /* quarter-cup multiples */) return { qty: Math.round(cups * 4) / 4, unit: "cup" };
+    return { qty: +cups.toFixed(2), unit: "cup" };
+  }
+  if (tsp >= 3) {
+    const tbsp = tsp / 3;
+    if (clean(tbsp)) return { qty: Math.round(tbsp), unit: "tbsp" };
+    return { qty: +tbsp.toFixed(2), unit: "tbsp" };
+  }
+  if (clean(tsp)) return { qty: Math.round(tsp), unit: "tsp" };
+  return { qty: +tsp.toFixed(2), unit: "tsp" };
+}
 
 // ── Storage helpers ──
 const load = (key, def) => { try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; } };
@@ -801,10 +830,11 @@ const SIZE_MODIFIERS = new Set([
   "young","old","new","seasonal","ripe","tart","sweet","sour","bitter",
   "salty","spicy","mild","strong","weak","light","dark","white","black",
   "red","green","yellow","brown","golden","blonde","clear",
+  "freshly","newly","barely","slightly","lightly","deeply","generously",
 ]);
 
 // Multi-word phrases to remove before tokenization (regex-escaped, hyphens normalized to spaces)
-const MULTI_WORD_PHRASES_RE = /\b(extra virgin|extra large|extra small|extra firm|low sodium|reduced sodium|low fat|fat free|nonfat|no fat|whole grain|whole wheat|grass fed|pasture raised|free range|cage free|bone in|skin on|skinless and boneless|boneless and skinless|room temperature|at room temperature|to taste|for serving|for garnish|for topping|for sprinkling|for drizzling|for brushing|for dusting|as needed|optional|plus more|plus more for serving|plus extra|plus additional|or more to taste|to drizzle|to top|to sprinkle|to garnish|finely chopped|roughly chopped|coarsely chopped|thinly sliced|thickly sliced|finely diced|finely grated|coarsely grated|cut into|broken into|torn into|each cut|each peeled|peeled and chopped|peeled and diced|peeled and minced|peeled and sliced|seeded and diced|seeded and chopped|stemmed and chopped|trimmed and chopped|drained and rinsed|drained and chopped|cooked and crumbled|cooked and shredded|cooked and diced|cut in half|cut in halves|cut in quarters|halved lengthwise|sliced thin|sliced thinly|sliced into rounds|cut into rounds|cut into wedges|cut into strips|cut into pieces|cut into chunks|cut into cubes|cut into florets)\b/g;
+const MULTI_WORD_PHRASES_RE = /\b(extra virgin|extra large|extra small|extra firm|low sodium|reduced sodium|low fat|fat free|nonfat|no fat|whole grain|whole wheat|grass fed|pasture raised|free range|cage free|bone in|skin on|skinless and boneless|boneless and skinless|room temperature|at room temperature|to taste|as needed|optional|plus more|plus more for serving|plus extra|plus additional|or more to taste|to drizzle|to top|to sprinkle|to garnish|freshly grated|freshly chopped|freshly ground|freshly squeezed|freshly picked|finely chopped|roughly chopped|coarsely chopped|thinly sliced|thickly sliced|finely diced|finely grated|coarsely grated|cut into|broken into|torn into|each cut|each peeled|peeled and chopped|peeled and diced|peeled and minced|peeled and sliced|seeded and diced|seeded and chopped|stemmed and chopped|trimmed and chopped|drained and rinsed|drained and chopped|cooked and crumbled|cooked and shredded|cooked and diced|cut in half|cut in halves|cut in quarters|halved lengthwise|sliced thin|sliced thinly|sliced into rounds|cut into rounds|cut into wedges|cut into strips|cut into pieces|cut into chunks|cut into cubes|cut into florets)\b/g;
 
 // Irregular plurals that need special handling
 const IRREGULAR_PLURALS = {
@@ -828,6 +858,12 @@ function cleanItemString(s) {
   s = s.split(";")[0].trim();
   // Normalize hyphens to spaces (so "extra-virgin" tokenizes as two words)
   s = s.replace(/[-–—]/g, " ");
+  // Strip trailing "for X" clauses ("for serving", "for frosting", "for topping", etc.)
+  s = s.replace(/\s+for\s+\w+.*$/i, "");
+  // Strip trailing "or X" alternatives ("milk or water", "broth or stock")
+  s = s.replace(/\s+or\s+\w+.*$/i, "");
+  // Strip trailing percent descriptors ("milk 2%", "yogurt 2% fat")
+  s = s.replace(/\s*\d+(\.\d+)?\s*%.*$/i, "");
   // Remove multi-word phrases
   s = s.replace(MULTI_WORD_PHRASES_RE, " ");
   // Collapse whitespace
@@ -918,14 +954,14 @@ function normalizeItemName(name) {
   let last = words[words.length - 1];
   if (IRREGULAR_PLURALS[last]) {
     last = IRREGULAR_PLURALS[last];
-  } else if (/(x|ch|sh)es$/.test(last)) {
+  } else if (/(x|ch|sh)es$/.test(last) && last.length > 3) {
     last = last.replace(/(x|ch|sh)es$/, "$1");          // boxes → box, dishes → dish
-  } else if (/ies$/.test(last)) {
+  } else if (/ies$/.test(last) && last.length > 3) {
     last = last.replace(/ies$/, "y");                    // berries → berry
-  } else if (/oes$/.test(last)) {
+  } else if (/oes$/.test(last) && last.length > 3) {
     last = last.replace(/oes$/, "o");                    // tomatoes → tomato
-  } else if (/[^aeious]s$/.test(last) && !last.endsWith("ss")) {
-    last = last.replace(/s$/, "");                       // carrots → carrot (but skip "cheese", "swiss")
+  } else if (last.length >= 4 && /s$/.test(last) && !last.endsWith("ss") && !last.endsWith("us") && !last.endsWith("is")) {
+    last = last.replace(/s$/, "");                       // carrots → carrot, avocados → avocado (skip cheese/grass/bus/basis)
   }
   words[words.length - 1] = last;
   return words.join(" ");
@@ -941,15 +977,25 @@ const PLURAL_IRREGULAR = {
   blackberry:"blackberries", anchovy:"anchovies", chili:"chilies",
   goose:"geese", mouse:"mice", foot:"feet", tooth:"teeth", man:"men", woman:"women",
 };
+// Nouns ending in -o that take -oes (not -os) in plural form
+const PLURAL_ES_O = new Set([
+  "tomato","potato","echo","hero","veto","embargo","torpedo","volcano",
+  "buffalo","mosquito","domino","cargo","mango",
+]);
 function pluralizeItem(phrase, count) {
   if (!phrase || count <= 1) return phrase;
   const parts = phrase.split(" ");
   let last = parts[parts.length - 1];
+  // Defensive: if the word is already plural (ends in s) and isn't a known singular irregular,
+  // leave it alone to avoid double-pluralization like "avocadoses" or "yolkses".
+  if (/s$/.test(last) && !PLURAL_IRREGULAR[last] && !last.endsWith("ss")) {
+    return phrase;
+  }
   if (PLURAL_IRREGULAR[last]) last = PLURAL_IRREGULAR[last];
   else if (/[^aeiou]y$/.test(last)) last = last.slice(0, -1) + "ies";
-  else if (/(s|x|z|ch|sh)$/.test(last)) last = last + "es";
-  else if (/[^aeiou]o$/.test(last)) last = last + "es";
-  else if (!/s$/.test(last)) last = last + "s";
+  else if (/(x|z|ch|sh|ss)$/.test(last)) last = last + "es";
+  else if (/o$/.test(last) && PLURAL_ES_O.has(last)) last = last + "es";
+  else last = last + "s";
   parts[parts.length - 1] = last;
   return parts.join(" ");
 }
@@ -965,35 +1011,67 @@ function consolidateIngredients(ingredients) {
     groups[key].push(p);
   });
 
+  const formatQty = (n) => n % 1 === 0 ? n.toString() : (+n.toFixed(2)).toString().replace(/\.?0+$/, "");
+
   const result = [];
   Object.entries(groups).forEach(([key, items]) => {
-    // Group by unit within the same item
-    const byUnit = {};
-    items.forEach(item => {
-      const u = item.unit || "_none";
-      if (!byUnit[u]) byUnit[u] = { quantity: 0, items: [], hasNull: false };
-      if (item.quantity !== null) byUnit[u].quantity += item.quantity;
-      else byUnit[u].hasNull = true;
-      byUnit[u].items.push(item);
-    });
+    // Split the item's parses into three buckets:
+    //  - volume-convertible (unit is in VOLUME_UNITS_TSP) — all summed in teaspoons
+    //  - non-volume quantified (grouped by exact unit string)
+    //  - null-quantity (no number)
+    const volumeItems = [];
+    const nonVolumeByUnit = {};
+    const nullQtyItems = [];
 
-    Object.entries(byUnit).forEach(([unit, data]) => {
-      let name;
-      if (data.hasNull || data.quantity === 0) {
-        // Can't consolidate — use original strings
-        data.items.forEach(item => result.push({ name: item.original, item: key }));
+    items.forEach(p => {
+      if (p.quantity === null) {
+        nullQtyItems.push(p);
         return;
       }
-      const qty = data.quantity % 1 === 0 ? data.quantity.toString() : data.quantity.toFixed(1).replace(/\.0$/, "");
-      const displayItem = data.items[0].item;
+      if (p.unit && Object.prototype.hasOwnProperty.call(VOLUME_UNITS_TSP, p.unit)) {
+        volumeItems.push(p);
+        return;
+      }
+      const u = p.unit || "_none";
+      if (!nonVolumeByUnit[u]) nonVolumeByUnit[u] = { quantity: 0, items: [] };
+      nonVolumeByUnit[u].quantity += p.quantity;
+      nonVolumeByUnit[u].items.push(p);
+    });
+
+    let hasQuantifiedOutput = false;
+
+    // Volume group — sum in teaspoons, pick the best display unit
+    if (volumeItems.length > 0) {
+      const totalTsp = volumeItems.reduce((sum, p) => sum + p.quantity * VOLUME_UNITS_TSP[p.unit], 0);
+      if (totalTsp > 0) {
+        const { qty, unit } = pickBestVolumeUnit(totalTsp);
+        const unitDisplay = pluralizeItem(unit, qty);
+        result.push({ name: `${formatQty(qty)} ${unitDisplay} ${key}`, item: key });
+        hasQuantifiedOutput = true;
+      }
+    }
+
+    // Non-volume quantified groups — emit one line per unit
+    Object.entries(nonVolumeByUnit).forEach(([unit, data]) => {
+      if (data.quantity === 0) return;
+      const qty = formatQty(data.quantity);
+      let name;
       if (unit === "_none") {
-        name = `${qty} ${pluralizeItem(displayItem, data.quantity)}`;
+        name = `${qty} ${pluralizeItem(key, data.quantity)}`;
       } else {
         const unitDisplay = pluralizeItem(unit, data.quantity);
-        name = `${qty} ${unitDisplay} ${displayItem}`;
+        name = `${qty} ${unitDisplay} ${key}`;
       }
       result.push({ name, item: key });
+      hasQuantifiedOutput = true;
     });
+
+    // Null-quantity items — drop entirely if we already have a quantified line for this key,
+    // otherwise collapse them into ONE representative line (shortest original as tiebreak)
+    if (nullQtyItems.length > 0 && !hasQuantifiedOutput) {
+      const rep = nullQtyItems.slice().sort((a, b) => a.original.length - b.original.length)[0];
+      result.push({ name: rep.original, item: key });
+    }
   });
 
   return result;
