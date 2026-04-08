@@ -1771,15 +1771,11 @@ function DateRangePicker({ startDate, endDate, onChange }) {
     <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"var(--bg-card, #fff9ed)", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
       <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap" }}>PLAN DATES</span>
       <div style={{ display:"flex", alignItems:"center", gap:"8px", flex:"1 1 auto", minWidth:0 }}>
-        <div onClick={(e) => { if (e.target === e.currentTarget) startRef.current?.showPicker?.(); }} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
-          <input ref={startRef} type="date" value={startDate} min={today} onChange={handleStart}
-            className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
-        </div>
+        <input ref={startRef} type="date" value={startDate} min={today} onChange={handleStart}
+          className="pm-input" style={{ flex:1, minWidth:0, padding:"6px 10px", fontSize:"13px", cursor:"pointer" }} />
         <ArrowRight size={14} weight="bold" style={{ color:"var(--text-muted, #7A5A3A)", flexShrink:0 }} />
-        <div onClick={(e) => { if (e.target === e.currentTarget) endRef.current?.showPicker?.(); }} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
-          <input ref={endRef} type="date" value={endDate} min={startDate} max={addDays(startDate, 6)} onChange={handleEnd}
-            className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
-        </div>
+        <input ref={endRef} type="date" value={endDate} min={startDate} max={addDays(startDate, 6)} onChange={handleEnd}
+          className="pm-input" style={{ flex:1, minWidth:0, padding:"6px 10px", fontSize:"13px", cursor:"pointer" }} />
         <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap", flexShrink:0 }}>
           {dayCount} day{dayCount !== 1 ? "s" : ""}
         </span>
@@ -2257,15 +2253,11 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
       <div style={{ display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap", background:"var(--bg-card, #fff9ed)", border:"2px solid #1a1a1a", borderRadius:"10px", padding:"10px 14px", marginBottom:"16px", boxShadow:"0 2px 10px rgba(26,10,0,0.06)" }}>
         <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"15px", letterSpacing:"1px", color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap" }}>DATES</span>
         <div style={{ display:"flex", alignItems:"center", gap:"8px", flex:"1 1 auto", minWidth:0 }}>
-          <div onClick={(e) => { if (e.target === e.currentTarget) e.currentTarget.querySelector('input')?.showPicker?.(); }} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
-            <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
-              className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
-          </div>
+          <input type="date" value={groceryStart} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryStart}
+            className="pm-input" style={{ flex:1, minWidth:0, padding:"6px 10px", fontSize:"13px", cursor:"pointer" }} />
           <ArrowRight size={14} weight="bold" style={{ color:"var(--text-muted, #7A5A3A)", flexShrink:0 }} />
-          <div onClick={(e) => { if (e.target === e.currentTarget) e.currentTarget.querySelector('input')?.showPicker?.(); }} style={{ flex:1, minWidth:0, cursor:"pointer" }}>
-            <input type="date" value={groceryEnd} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryEnd}
-              className="pm-input" style={{ padding:"6px 10px", fontSize:"13px", width:"100%", cursor:"pointer" }} />
-          </div>
+          <input type="date" value={groceryEnd} min={mealPlan.startDate} max={mealPlan.endDate} onChange={handleGroceryEnd}
+            className="pm-input" style={{ flex:1, minWidth:0, padding:"6px 10px", fontSize:"13px", cursor:"pointer" }} />
           <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", whiteSpace:"nowrap", flexShrink:0 }}>
             {activeDates.length} day{activeDates.length !== 1 ? "s" : ""}
           </span>
@@ -2310,9 +2302,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
                       style={{ width:"18px", height:"18px", cursor:"pointer", accentColor:"#06d6a0" }}/>
                     <span className="grocery-item-name">{item.name}</span>
                     <button onClick={() => toggleSkip(item.id)}
-                      style={{ background:"var(--bg-card, #f5e6c8)", border:"2px solid #c8b89a", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"var(--text-muted, #7a5c3a)", whiteSpace:"nowrap", transition:"all 0.15s" }}
-                      onMouseEnter={e => { e.currentTarget.style.background="#FFD166"; e.currentTarget.style.borderColor="#1A0A00"; }}
-                      onMouseLeave={e => { e.currentTarget.style.background="#f5e6c8"; e.currentTarget.style.borderColor="#c8b89a"; }}>
+                      style={{ background:"var(--bg-card, #f5e6c8)", border:"2px solid var(--border-subtle, #c8b89a)", borderRadius:"6px", padding:"2px 8px", fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, cursor:"pointer", color:"var(--text-muted, #7a5c3a)", whiteSpace:"nowrap" }}>
                       <Check size={12} weight="bold" style={{ verticalAlign:"middle", marginRight:2 }} /> Have it
                     </button>
                   </div>
