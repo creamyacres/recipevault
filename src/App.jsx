@@ -2536,6 +2536,7 @@ export default function CooCheena() {
 
   const [input, setInput] = useState("");
   const [mode, setMode] = useState("generate");
+  const [lazyCategory, setLazyCategory] = useState("Dinner");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
   const [previews, setPreviews] = useState([]); // 3-option idea results
@@ -2828,6 +2829,16 @@ export default function CooCheena() {
     setLoading(false);
   };
 
+  const handleLazyPick = async () => {
+    setLoading(true); setError(""); setPreview(null); setPreviews([]);
+    try {
+      const result = await callClaude(SYS_RECIPE_GEN, `Surprise me with a creative, delicious ${lazyCategory} recipe. Don't pick anything too basic — make it interesting!`, 1500);
+      if (!result?.title) throw new Error();
+      setPreview({ ...result, id: Date.now() });
+    } catch { setError("Couldn't think of anything! Try again."); }
+    setLoading(false);
+  };
+
   const handleSave = async (recipe) => {
     if (!user) return;
     const dbRecipe = {
@@ -2988,11 +2999,11 @@ export default function CooCheena() {
                   <span style={{color:"#E8421A"}}>What</span><br/>Are You<br/><span className="outline-text" style={{WebkitTextStroke:"2px var(--text, #1A0A00)", color:"transparent", letterSpacing:"4px"}}>Cooking?</span>
                 </h2>
                 <p style={{ fontFamily:"'Nunito',sans-serif", color:"var(--text-muted, #7A5A3A)", fontSize:"14px", fontWeight:700, marginBottom:"20px" }}>
-                  {mode === "manual" ? "Fill in your recipe details below." : "Paste a URL or describe what you want to make!"}
+                  {mode === "manual" ? "Fill in your recipe details below." : mode === "lazy" ? "Pick a meal type and I'll choose something for you!" : "Paste a URL or describe what you want to make!"}
                 </p>
               </div>
               <div style={{ display:"flex", gap:"10px", marginBottom:"24px", flexWrap:"wrap" }}>
-                {[{ val:"generate", label:"From Idea", icon: <Lightbulb size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"url", label:"From URL", icon: <LinkIcon size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"manual", label:"From Memory", icon: <Brain size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }].map(m => (
+                {[{ val:"generate", label:"From Idea", icon: <Lightbulb size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"url", label:"From URL", icon: <LinkIcon size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"manual", label:"From Memory", icon: <Brain size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> }, { val:"lazy", label:"I'm Lazy, Pick For Me", icon: <span style={{ marginRight:4 }}>🎲</span> }].map(m => (
                   <button key={m.val} onClick={() => { setMode(m.val); setPreview(null); setPreviews([]); setError(""); }}
                     className="pm-btn"
                     style={{ padding:"11px 22px", background: mode === m.val ? "#E8421A" : "var(--bg-elevated, #FFF5E6)", color: mode === m.val ? "#fff" : "var(--text, #1A0A00)", borderColor: mode === m.val ? "#E8421A" : "var(--border-subtle, #1A0A00)" }}>
@@ -3009,8 +3020,36 @@ export default function CooCheena() {
                   onCancel={() => { setMode("generate"); }} />
               )}
 
+              {/* Lazy mode — category picker */}
+              {mode === "lazy" && (
+                <div>
+                  <div style={{ display:"flex", gap:"10px", marginBottom:"20px", flexWrap:"wrap" }}>
+                    {["Breakfast","Lunch","Dinner","Dessert","Snacks"].map(cat => (
+                      <button key={cat} onClick={() => { setLazyCategory(cat); setPreview(null); setError(""); }}
+                        className="pm-btn"
+                        style={{ padding:"10px 20px", background: lazyCategory === cat ? "#FFD166" : "var(--bg-elevated, #FFF5E6)", color:"#1A0A00", borderColor: lazyCategory === cat ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.3))", fontFamily:"'Bebas Neue',cursive", fontSize:"18px", letterSpacing:"1px" }}>
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={handleLazyPick} disabled={loading} className="pm-btn"
+                    style={{ padding:"14px 32px", background: loading ? "#C4A882" : "#E8421A", color:"#fff", borderColor: loading ? "#C4A882" : "#E8421A", fontFamily:"'Bebas Neue',cursive", fontSize:"22px", letterSpacing:"2px", marginBottom:"28px" }}>
+                    {loading ? "Thinking..." : "🎲 Pick For Me!"}
+                  </button>
+                  {error && <div style={{ textAlign:"center", marginBottom:"18px" }}><span style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"#E8421A", fontSize:"14px", background:"var(--bg-elevated, #fff)", border:"3px solid #E8421A", borderRadius:"8px", padding:"6px 16px", display:"inline-block" }}>{error}</span></div>}
+                  {loading && <div style={{ textAlign:"center", padding:"50px 0" }}><div className="cooking-anim"><CookingPot size={44} weight="bold" color="#E8421A" /></div><p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"2px", color:"var(--text, #1A0A00)", marginTop:"14px" }}>Finding something good...</p></div>}
+                  {preview && !loading && (
+                    <div>
+                      <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"15px", fontWeight:800, color:"var(--text, #1A0A00)", marginBottom:"12px", textAlign:"center", display:"flex", alignItems:"center", justifyContent:"center", gap:"6px" }}><Sparkle size={16} weight="bold" color="#E8421A" /> How does this sound?</p>
+                      <RecipeCard recipe={preview} onClick={() => setSelected(preview)} onDelete={() => setPreview(null)} wobble="wobble-1" />
+                      <p style={{ textAlign:"center", fontSize:"11px", fontFamily:"'Nunito',sans-serif", fontWeight:800, color:"var(--text-muted, #7A5A3A)", marginTop:"8px", textTransform:"uppercase", letterSpacing:"0.5px" }}>Click the card to view details & save — or roll again!</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* AI input bar (idea + url modes) */}
-              {mode !== "manual" && (<>
+              {mode !== "manual" && mode !== "lazy" && (<>
               <div style={{ display:"flex", marginBottom:"28px", border:"3px solid #1A0A00", maxWidth:"560px", borderRadius:"12px", overflow:"hidden", boxShadow:"0 4px 16px rgba(26,10,0,0.08)" }}>
                 <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()}
                   placeholder={mode === "url" ? "https://www.allrecipes.com/recipe/..." : "e.g. lemon pasta, chicken + spinach..."}
