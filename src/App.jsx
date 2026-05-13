@@ -2441,6 +2441,117 @@ function AuthScreen({ onAuth }) {
 }
 
 // ── Feedback Widget ──
+function HouseholdModal({ inviteCode, householdPartner, onLinked, onUnlinked, onClose, toast }) {
+  const [joinCode, setJoinCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(inviteCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleJoin = async () => {
+    if (joinCode.trim().length !== 8) return;
+    setLoading(true); setError("");
+    const { data, error: rpcError } = await supabase.rpc("join_household", { code: joinCode.trim().toUpperCase() });
+    if (rpcError || data?.error) {
+      setError(data?.error || "Something went wrong. Try again.");
+    } else {
+      toast("Household linked! You now share recipes with your partner.");
+      onLinked(data.household_id);
+    }
+    setLoading(false);
+  };
+
+  const handleLeave = async () => {
+    if (!confirm("Are you sure? You'll keep your own recipes and books, but lose access to shared meal plans and grocery lists.")) return;
+    setLoading(true);
+    const { data, error: rpcError } = await supabase.rpc("leave_household");
+    if (rpcError || data?.error) {
+      toast("Something went wrong.");
+    } else {
+      toast("Unlinked from household. Your recipes are safe.");
+      onUnlinked(data.household_id);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="pm-modal-bg" onClick={onClose}>
+      <div className="pm-modal" style={{ maxWidth:"480px" }} onClick={e => e.stopPropagation()}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"20px" }}>
+          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"flex", alignItems:"center", gap:"8px" }}>
+            <LinkIcon size={22} weight="bold" />Household
+          </h2>
+          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text, #1A0A00)" }}><X size={20} weight="bold" /></button>
+        </div>
+
+        {householdPartner ? (
+          <div>
+            <div style={{ background:"#FFD166", border:"3px solid #1A0A00", borderRadius:"12px", padding:"18px", marginBottom:"20px", textAlign:"center" }}>
+              <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"1px", color:"#1A0A00" }}>You're linked! 🔗</p>
+              <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"#7A5A3A", marginTop:"4px" }}>
+                You and your partner share recipes, meal plans, and grocery lists.
+              </p>
+            </div>
+            <button onClick={handleLeave} disabled={loading} className="pm-btn"
+              style={{ width:"100%", padding:"12px", background:"transparent", color:"#E8421A", borderColor:"#E8421A", fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:800 }}>
+              {loading ? "..." : "Unlink Household"}
+            </button>
+          </div>
+        ) : (
+          <>
+            <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", marginBottom:"24px", lineHeight:1.6 }}>
+              Link your account with a partner to share your recipe library, meal plan, and grocery list.
+            </p>
+
+            <div style={{ marginBottom:"24px" }}>
+              <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"8px" }}>1 — Share your code with your partner</p>
+              <div style={{ display:"flex", gap:"8px", alignItems:"stretch" }}>
+                <div style={{ flex:1, background:"#1A0A00", color:"#FFD166", fontFamily:"'Bebas Neue',cursive", fontSize:"30px", letterSpacing:"8px", textAlign:"center", padding:"14px 12px", borderRadius:"10px", border:"3px solid #1A0A00" }}>
+                  {inviteCode}
+                </div>
+                <button onClick={handleCopy} className="pm-btn"
+                  style={{ padding:"12px 16px", background: copied ? "#06d6a0" : "var(--bg-elevated, #FFF5E6)", borderColor: copied ? "#06d6a0" : "#1A0A00", color:"#1A0A00" }}>
+                  {copied ? <Check size={18} weight="bold" /> : <ClipboardText size={18} weight="bold" />}
+                </button>
+              </div>
+              <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"11px", fontWeight:700, color:"var(--text-muted, #7A5A3A)", marginTop:"6px" }}>
+                8-character code · one-time use
+              </p>
+            </div>
+
+            <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"24px" }}>
+              <div style={{ flex:1, height:"2px", background:"rgba(26,10,0,0.1)" }} />
+              <span style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"14px", letterSpacing:"1px", color:"var(--text-muted, #7A5A3A)" }}>or</span>
+              <div style={{ flex:1, height:"2px", background:"rgba(26,10,0,0.1)" }} />
+            </div>
+
+            <div>
+              <p style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", marginBottom:"8px" }}>2 — Enter your partner's code</p>
+              <div style={{ display:"flex", gap:"8px" }}>
+                <input value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())}
+                  placeholder="XXXXXXXX" maxLength={8}
+                  className="pm-input"
+                  style={{ flex:1, fontFamily:"'Bebas Neue',cursive", fontSize:"24px", letterSpacing:"6px", textAlign:"center" }}
+                  onKeyDown={e => e.key === "Enter" && handleJoin()} />
+                <button onClick={handleJoin} disabled={loading || joinCode.length !== 8} className="pm-btn"
+                  style={{ padding:"12px 20px", background: joinCode.length === 8 ? "#E8421A" : "var(--bg-elevated, #FFF5E6)", color: joinCode.length === 8 ? "#fff" : "var(--text-muted, #7A5A3A)", borderColor: joinCode.length === 8 ? "#E8421A" : "rgba(26,10,0,0.3)" }}>
+                  {loading ? "..." : "Link!"}
+                </button>
+              </div>
+              {error && <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, color:"#E8421A", marginTop:"8px" }}>{error}</p>}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function FeedbackWidget({ user }) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState("General");
@@ -2553,6 +2664,11 @@ export default function CooCheena() {
   const [dragRecipe, setDragRecipe] = useState(null);
   const { msg: toastMsg, show: toastShow, toast } = useToast();
 
+  const [householdId, setHouseholdId] = useState(null);
+  const [householdPartner, setHouseholdPartner] = useState(false);
+  const [inviteCode, setInviteCode] = useState(null);
+  const [showHouseholdModal, setShowHouseholdModal] = useState(false);
+
   // ── Dark mode toggle ──
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
@@ -2591,9 +2707,27 @@ export default function CooCheena() {
   useEffect(() => {
     if (!user) return;
     const loadUserData = async () => {
+      // Step 0: Resolve household_id for this user
+      const { data: memberRow } = await supabase
+        .from("household_members")
+        .select("household_id, households(invite_code, invite_used)")
+        .eq("user_id", user.id)
+        .single();
+      if (!memberRow) {
+        // No household yet — backfill hasn't run or DB not migrated yet
+        console.warn("CooCheena: no household found for user. Run the 001_households migration.");
+        return;
+      }
+      const hId = memberRow.household_id;
+      setHouseholdId(hId);
+      setInviteCode(memberRow.households?.invite_code ?? null);
+      const { data: otherMembers } = await supabase
+        .from("household_members").select("user_id").eq("household_id", hId).neq("user_id", user.id);
+      setHouseholdPartner((otherMembers?.length ?? 0) > 0);
+
       // Load recipes
       const { data: recipesData } = await supabase.from("recipes")
-        .select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+        .select("*").eq("household_id", hId).order("created_at", { ascending: false });
       if (recipesData) {
         setRecipes(recipesData.map(r => ({
           id: r.id, title: r.title, description: r.description,
@@ -2604,7 +2738,7 @@ export default function CooCheena() {
       }
 
       // Load meal plans — merge days from ALL saved plans so no data is lost
-      supabase.from("meal_plans").select("*").eq("user_id", user.id)
+      supabase.from("meal_plans").select("*").eq("household_id", hId)
         .then(({ data: plans }) => {
           try {
             if (!plans || plans.length === 0) return;
@@ -2637,30 +2771,32 @@ export default function CooCheena() {
               : addDays(today, 6);
             setMealPlan({ startDate: start, endDate, days: mergedDays, easyNights: latestEasyNights });
             // Load grocery list for the current week
-            supabase.from("grocery_lists").select("*").eq("user_id", user.id).eq("week_of", start).single()
+            supabase.from("grocery_lists").select("*").eq("household_id", hId).eq("week_of", start).single()
               .then(({ data: gl }) => { if (gl) setGroceryList({ items: gl.items || [] }); });
           } finally {
             setMealPlanLoaded(true);
           }
         });
 
-      // Load grocery staples
+      // Load grocery staples (stays per-user — personal preference)
       supabase.from("grocery_staples").select("*").eq("user_id", user.id).order("section")
         .then(({ data: staplesData }) => { if (staplesData) setStaples(staplesData.map(s => ({ id: s.id, name: s.name, section: s.section }))); });
 
       // Load recipe books
       const { data: booksData } = await supabase.from("recipe_books")
-        .select("*").eq("user_id", user.id).order("created_at");
+        .select("*").eq("household_id", hId).order("created_at");
 
       const seededKey = `rv2_seeded_${user.id}`;
-      if (booksData && booksData.length === 0 && !localStorage.getItem(seededKey)) {
-        // New user — seed a starter recipe + "Getting Started" book
+      const isAloneInHousehold = (otherMembers?.length ?? 0) === 0;
+      if (booksData && booksData.length === 0 && !localStorage.getItem(seededKey) && isAloneInHousehold) {
+        // New solo user — seed a starter recipe + "Getting Started" book
         localStorage.setItem(seededKey, "1");
         const starterRecipe = await callClaude(SYS_RECIPE_GEN,
           "Create a recipe for: Classic Spaghetti Carbonara");
         if (starterRecipe?.title) {
           const { data: savedRecipe } = await supabase.from("recipes").insert({
-            user_id: user.id, title: starterRecipe.title, description: starterRecipe.description,
+            user_id: user.id, household_id: hId,
+            title: starterRecipe.title, description: starterRecipe.description,
             prep_time: starterRecipe.prepTime, cook_time: starterRecipe.cookTime,
             servings: starterRecipe.servings, category: starterRecipe.category || "Dinner",
             ingredients: starterRecipe.ingredients || [], steps: starterRecipe.steps || [],
@@ -2669,7 +2805,7 @@ export default function CooCheena() {
           if (savedRecipe) {
             setRecipes(prev => [{ id: savedRecipe.id, ...starterRecipe, _saved: true }, ...prev]);
             const { data: newBook } = await supabase.from("recipe_books").insert({
-              user_id: user.id, name: "Getting Started", emoji: "Star",
+              user_id: user.id, household_id: hId, name: "Getting Started", emoji: "Star",
               recipe_ids: [savedRecipe.id]
             }).select().single();
             if (newBook) {
@@ -2684,7 +2820,7 @@ export default function CooCheena() {
         const migrated = booksData.map(b => {
           const newEmoji = EMOJI_TO_ICON[b.emoji];
           if (newEmoji) {
-            supabase.from("recipe_books").update({ emoji: newEmoji }).eq("id", b.id).then(() => {});
+            supabase.from("recipe_books").update({ emoji: newEmoji }).eq("id", b.id).eq("household_id", hId).then(() => {});
           }
           return { id: b.id, name: b.name, emoji: newEmoji || b.emoji, recipeIds: b.recipe_ids || [] };
         });
@@ -2699,27 +2835,27 @@ export default function CooCheena() {
 
   // ── Sync meal plan to Supabase (only after initial load to avoid race wipe) ──
   useEffect(() => {
-    if (!user || !mealPlan.startDate || !mealPlanLoaded) return;
+    if (!user || !householdId || !mealPlan.startDate || !mealPlanLoaded) return;
     const savePlan = async () => {
       // Delete all existing plans then save the canonical state as one row
       // This prevents stale rows from resurrecting deleted meals on reload
-      await supabase.from("meal_plans").delete().eq("user_id", user.id).neq("week_of", mealPlan.startDate);
+      await supabase.from("meal_plans").delete().eq("household_id", householdId).neq("week_of", mealPlan.startDate);
       const { error } = await supabase.from("meal_plans").upsert({
-        user_id: user.id, week_of: mealPlan.startDate,
+        user_id: user.id, household_id: householdId, week_of: mealPlan.startDate,
         days: mealPlan.days || {}, easy_mode_nights: mealPlan.easyNights || []
-      }, { onConflict: "user_id,week_of" });
+      }, { onConflict: "household_id,week_of" });
       if (error) console.error("Failed to save meal plan:", error);
     };
     savePlan();
-  }, [mealPlan, user, mealPlanLoaded]);
+  }, [mealPlan, user, householdId, mealPlanLoaded]);
 
   // ── Sync grocery list to Supabase ──
   useEffect(() => {
-    if (!user || !mealPlan.startDate) return;
+    if (!user || !householdId || !mealPlan.startDate) return;
     supabase.from("grocery_lists").upsert({
-      user_id: user.id, week_of: mealPlan.startDate, items: groceryList.items || []
-    }, { onConflict: "user_id,week_of" });
-  }, [groceryList, user]);
+      user_id: user.id, household_id: householdId, week_of: mealPlan.startDate, items: groceryList.items || []
+    }, { onConflict: "household_id,week_of" });
+  }, [groceryList, user, householdId]);
 
   // ── Update date range — preserve all existing meals, just shift the view ──
   const handleDateRangeChange = (startDate, endDate) => {
@@ -2729,6 +2865,7 @@ export default function CooCheena() {
   const signOut = async () => {
     await supabase.auth.signOut();
     const start = todayISO();
+    setHouseholdId(null); setHouseholdPartner(false); setInviteCode(null);
     setRecipes([]); setMealPlan({ startDate: start, endDate: addDays(start, 6), days: {}, easyNights: [] });
     setGroceryList({ items: [] }); setStaples([]); setBooks([]); setActiveBook(null);
     toast("Signed out!");
@@ -2736,9 +2873,9 @@ export default function CooCheena() {
 
   // ── Book helpers ──
   const createBook = async () => {
-    if (!newBookName.trim() || !user) return;
+    if (!newBookName.trim() || !user || !householdId) return;
     const { data, error: err } = await supabase.from("recipe_books").insert({
-      user_id: user.id, name: newBookName.trim(), emoji: newBookEmoji, recipe_ids: []
+      user_id: user.id, household_id: householdId, name: newBookName.trim(), emoji: newBookEmoji, recipe_ids: []
     }).select().single();
     if (!err && data) {
       setBooks(prev => [...prev, { id: data.id, name: data.name, emoji: data.emoji, recipeIds: data.recipe_ids || [] }]);
@@ -2748,8 +2885,8 @@ export default function CooCheena() {
   };
 
   const deleteBook = async (bookId) => {
-    if (!user) return;
-    await supabase.from("recipe_books").delete().eq("id", bookId).eq("user_id", user.id);
+    if (!user || !householdId) return;
+    await supabase.from("recipe_books").delete().eq("id", bookId).eq("household_id", householdId);
     setBooks(prev => prev.filter(b => b.id !== bookId));
     if (activeBook === bookId) setActiveBook(null);
     toast("Book deleted.");
@@ -2776,13 +2913,13 @@ export default function CooCheena() {
   };
 
   const toggleRecipeInBook = async (bookId, recipeId) => {
-    if (!user) return;
+    if (!user || !householdId) return;
     const book = books.find(b => b.id === bookId);
     if (!book) return;
     const inBook = book.recipeIds.includes(recipeId);
     const newIds = inBook ? book.recipeIds.filter(id => id !== recipeId) : [...book.recipeIds, recipeId];
     const { error: err } = await supabase.from("recipe_books")
-      .update({ recipe_ids: newIds }).eq("id", bookId).eq("user_id", user.id);
+      .update({ recipe_ids: newIds }).eq("id", bookId).eq("household_id", householdId);
     if (!err) {
       setBooks(prev => prev.map(b => b.id === bookId ? { ...b, recipeIds: newIds } : b));
     }
@@ -2840,17 +2977,18 @@ export default function CooCheena() {
   };
 
   const handleSave = async (recipe) => {
-    if (!user) return;
+    if (!user || !householdId) return;
     const dbRecipe = {
-      user_id: user.id, title: recipe.title, description: recipe.description,
+      user_id: user.id, household_id: householdId,
+      title: recipe.title, description: recipe.description,
       prep_time: recipe.prepTime, cook_time: recipe.cookTime, servings: recipe.servings,
       category: recipe.category, ingredients: recipe.ingredients || [],
       steps: recipe.steps || [], tags: recipe.tags || [], website: recipe.website || ""
     };
     const isUUID = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
     if (recipe.id && isUUID(recipe.id)) {
-      const { user_id: _uid, ...updateFields } = dbRecipe;
-      const { error } = await supabase.from("recipes").update(updateFields).eq("id", recipe.id).eq("user_id", user.id);
+      const { user_id: _uid, household_id: _hid, ...updateFields } = dbRecipe;
+      const { error } = await supabase.from("recipes").update(updateFields).eq("id", recipe.id).eq("household_id", householdId);
       if (!error) {
         setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, ...recipe } : r));
         toast("Recipe updated!");
@@ -2888,8 +3026,8 @@ export default function CooCheena() {
   };
 
   const handleDelete = async (id) => {
-    if (!user) return;
-    await supabase.from("recipes").delete().eq("id", id).eq("user_id", user.id);
+    if (!user || !householdId) return;
+    await supabase.from("recipes").delete().eq("id", id).eq("household_id", householdId);
     setRecipes(prev => prev.filter(r => r.id !== id));
     toast("Recipe deleted.");
   };
@@ -2960,6 +3098,11 @@ export default function CooCheena() {
                 style={{ padding:"8px 12px", fontSize:"16px", marginLeft:"4px", background: darkMode ? "#FFD166" : "#2a2018", color: darkMode ? "#1A0A00" : "#FFD166", borderColor: darkMode ? "#1A0A00" : "#3a2a1a", lineHeight:1, display:"flex", alignItems:"center", justifyContent:"center" }}
                 title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
                 {darkMode ? <Sun size={18} weight="bold" /> : <Moon size={18} weight="bold" />}
+              </button>
+              <button onClick={() => setShowHouseholdModal(true)} className="pm-btn"
+                style={{ padding:"8px 16px", background: householdPartner ? "#FFD166" : "var(--bg-elevated, rgba(255,255,255,0.7))", color:"var(--text, #1A0A00)", fontSize:"13px", borderColor: householdPartner ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))" }}>
+                <LinkIcon size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} />
+                {householdPartner ? "Household ✓" : "Link Partner"}
               </button>
               <button onClick={signOut} className="pm-btn"
                 style={{ padding:"8px 16px", background:"#1A0A00", color:"#fff", fontSize:"13px" }}>
@@ -3313,11 +3456,25 @@ export default function CooCheena() {
 
       {/* Staples modal */}
       {showStaplesModal && <StaplesModal staples={staples} onAdd={addStaple} onRemove={removeStaple} onClose={() => setShowStaplesModal(false)} />}
+      {showHouseholdModal && (
+        <HouseholdModal
+          inviteCode={inviteCode}
+          householdPartner={householdPartner}
+          onLinked={() => { setShowHouseholdModal(false); window.location.reload(); }}
+          onUnlinked={() => { setShowHouseholdModal(false); window.location.reload(); }}
+          onClose={() => setShowHouseholdModal(false)}
+          toast={toast}
+        />
+      )}
 
       {/* Mobile hamburger slide-out */}
       {menuOpen && (
         <div className="pm-hamburger-overlay" onClick={() => setMenuOpen(false)}>
           <div className="pm-hamburger-panel" onClick={e => e.stopPropagation()}>
+            <button className="pm-hamburger-panel-item" onClick={() => { setShowHouseholdModal(true); setMenuOpen(false); }}>
+              <LinkIcon size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} />
+              {householdPartner ? "Household ✓" : "Link Partner"}
+            </button>
             <button className="pm-hamburger-panel-item" onClick={() => { setShowStaplesModal(true); setMenuOpen(false); }}>
               <Star size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Grocery Staples
             </button>
