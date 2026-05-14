@@ -1609,112 +1609,6 @@ function RecipeModal({ recipe, onClose, onSave, books = [], onToggleBook }) {
 }
 
 // ── Meal Plan Settings Modal ──
-function MealPlanSettingsModal({ settings, onSave, onClose }) {
-  const [prefs, setPrefs] = useState({ ...DEFAULT_MEAL_SETTINGS, ...settings });
-
-  const toggleProtein = (p) => {
-    setPrefs(prev => ({
-      ...prev,
-      preferredProteins: prev.preferredProteins.includes(p)
-        ? prev.preferredProteins.filter(x => x !== p)
-        : [...prev.preferredProteins, p]
-    }));
-  };
-
-  const toggleMeal = (m) => {
-    setPrefs(prev => ({
-      ...prev,
-      mealsToGenerate: prev.mealsToGenerate.includes(m)
-        ? prev.mealsToGenerate.filter(x => x !== m)
-        : [...prev.mealsToGenerate, m]
-    }));
-  };
-
-  const PROTEIN_OPTIONS = [
-    { key: "chicken", label: "Chicken", icon: <ForkKnife size={14} weight="bold" /> },
-    { key: "beef", label: "Beef", icon: <ForkKnife size={14} weight="bold" /> },
-    { key: "pork", label: "Pork", icon: <ForkKnife size={14} weight="bold" /> },
-    { key: "fish", label: "Fish & Seafood", icon: <Fish size={14} weight="bold" /> },
-    { key: "lamb", label: "Lamb", icon: <ForkKnife size={14} weight="bold" /> },
-    { key: "vegetarian", label: "Vegetarian", icon: <Leaf size={14} weight="bold" /> },
-  ];
-
-  return (
-    <div className="pm-modal-bg" onClick={onClose}>
-      <div className="pm-modal" style={{ maxWidth:"480px" }} onClick={e => e.stopPropagation()}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"20px" }}>
-          <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"28px", letterSpacing:"1px", color:"var(--text, #1A0A00)", margin:0 }}>
-            <GearSix size={24} weight="bold" style={{ verticalAlign:"middle", marginRight:8 }} />
-            Meal Plan Settings
-          </h2>
-          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", color:"var(--text, #1A0A00)" }}><X size={20} weight="bold" /></button>
-        </div>
-
-        {/* Preferred Proteins */}
-        <div style={{ marginBottom:"20px" }}>
-          <label style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"block", marginBottom:"8px" }}>
-            Preferred Proteins
-          </label>
-          <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7A5A3A)", marginBottom:"8px" }}>
-            Leave empty for any protein. Select to filter dinner recipes.
-          </p>
-          <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
-            {PROTEIN_OPTIONS.map(p => (
-              <button key={p.key} onClick={() => toggleProtein(p.key)} className="pm-btn"
-                style={{ padding:"6px 12px", fontSize:"12px",
-                  background: prefs.preferredProteins.includes(p.key) ? "#FFD166" : "var(--bg-elevated, #FFF5E6)",
-                  color: prefs.preferredProteins.includes(p.key) ? "#1A0A00" : "var(--text, #1A0A00)",
-                  border: prefs.preferredProteins.includes(p.key) ? "2px solid #1A0A00" : "2px solid var(--border-subtle, rgba(26,10,0,0.2))" }}>
-                {p.icon} <span style={{ marginLeft:4 }}>{p.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Repeat Avoidance */}
-        <div style={{ marginBottom:"20px" }}>
-          <label style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"block", marginBottom:"8px" }}>
-            Avoid Repeats Within
-          </label>
-          <select value={prefs.repeatAvoidanceDays} onChange={e => setPrefs(prev => ({ ...prev, repeatAvoidanceDays: parseInt(e.target.value) }))}
-            className="pm-input" style={{ fontSize:"13px", padding:"8px 12px", maxWidth:"200px" }}>
-            <option value={7}>1 week</option>
-            <option value={14}>2 weeks</option>
-            <option value={21}>3 weeks</option>
-            <option value={0}>No limit</option>
-          </select>
-        </div>
-
-        {/* Meals to Generate */}
-        <div style={{ marginBottom:"24px" }}>
-          <label style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"16px", letterSpacing:"1px", color:"var(--text, #1A0A00)", display:"block", marginBottom:"8px" }}>
-            Meals to Plan
-          </label>
-          <div style={{ display:"flex", gap:"8px" }}>
-            {MEALS.map(m => (
-              <button key={m} onClick={() => toggleMeal(m)} className="pm-btn"
-                style={{ padding:"8px 16px", fontSize:"13px", flex:1,
-                  background: prefs.mealsToGenerate.includes(m) ? MEAL_COLORS[m] : "var(--bg-elevated, #FFF5E6)",
-                  color: prefs.mealsToGenerate.includes(m) ? (m === "Dinner" ? "#fff" : "#1A0A00") : "var(--text, #1A0A00)",
-                  border: prefs.mealsToGenerate.includes(m) ? "2px solid #1A0A00" : "2px solid var(--border-subtle, rgba(26,10,0,0.2))" }}>
-                {m}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Save */}
-        <div style={{ display:"flex", gap:"10px" }}>
-          <button onClick={onClose} className="pm-btn pm-btn-ghost" style={{ flex:1, padding:"12px" }}>Cancel</button>
-          <button onClick={() => { onSave(prefs); onClose(); }} className="pm-btn pm-btn-primary" style={{ flex:2, padding:"12px" }}>
-            <FloppyDisk size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Save Settings
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Easy Mode Modal ──
 function EasyModeModal({ dates, onConfirm, onCancel }) {
   const [selected, setSelected] = useState([]);
@@ -1785,14 +1679,13 @@ function DateRangePicker({ startDate, endDate, onChange }) {
 }
 
 // ── Meal Calendar Tab ──
-function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, mealHistory, setMealHistory, toast, books = [], mealPlanExcludedBooks = [], mealPlanSettings = {}, setMealPlanSettings = () => {} }) {
+function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, mealHistory, setMealHistory, toast, books = [], mealPlanExcludedBooks = [], mealPlanSettings = {}, setMealPlanSettings = () => {}, onOpenSettings = () => {} }) {
   const [showEasyMode, setShowEasyMode] = useState(false);
   const [dragOver, setDragOver] = useState(null); // "date-meal"
   const [pickerFor, setPickerFor] = useState(null); // {day: isoDate, meal}
   const [pickerSearch, setPickerSearch] = useState("");
   const [pickerCat, setPickerCat] = useState("All");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
 
   const activeDates = dateRangeDates(mealPlan.startDate, mealPlan.endDate);
 
@@ -1886,7 +1779,7 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, me
             style={{ padding:"10px 18px", background:"#ff5252", color:"#fff", fontSize:"14px" }}>
             <Lightning size={16} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} /> Plan My Dates
           </button>
-          <button onClick={() => setShowSettings(true)} className="pm-btn"
+          <button onClick={onOpenSettings} className="pm-btn"
             style={{ padding:"10px 12px", background:"var(--bg-elevated, #FFF5E6)", color:"var(--text, #1A0A00)", fontSize:"14px" }}>
             <GearSix size={16} weight="bold" />
           </button>
@@ -1972,12 +1865,6 @@ function MealCalendarTab({ recipes, mealPlan, setMealPlan, onDateRangeChange, me
 
       {showEasyMode && <EasyModeModal dates={activeDates} onConfirm={generateWeek} onCancel={() => setShowEasyMode(false)} />}
 
-      {showSettings && <MealPlanSettingsModal settings={mealPlanSettings} onSave={(newSettings) => {
-        save("rv_meal_settings", newSettings);
-        setMealPlanSettings(newSettings);
-        setShowSettings(false);
-        toast("Meal plan settings saved");
-      }} onClose={() => setShowSettings(false)} />}
 
       {showClearConfirm && (
         <div className="pm-modal-bg" onClick={() => setShowClearConfirm(false)}>
@@ -3094,15 +2981,10 @@ export default function CooCheena() {
                   {t.icon}{t.label}
                 </button>
               ))}
-              <button onClick={() => setDarkMode(d => !d)} className="pm-btn"
-                style={{ padding:"8px 12px", fontSize:"16px", marginLeft:"4px", background: darkMode ? "#FFD166" : "#2a2018", color: darkMode ? "#1A0A00" : "#FFD166", borderColor: darkMode ? "#1A0A00" : "#3a2a1a", lineHeight:1, display:"flex", alignItems:"center", justifyContent:"center" }}
-                title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
-                {darkMode ? <Sun size={18} weight="bold" /> : <Moon size={18} weight="bold" />}
-              </button>
-              <button onClick={() => setShowHouseholdModal(true)} className="pm-btn"
-                style={{ padding:"8px 12px", background: householdPartner ? "#FFD166" : "var(--bg-elevated, rgba(255,255,255,0.7))", color:"var(--text, #1A0A00)", fontSize:"12px", borderColor: householdPartner ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))", whiteSpace:"nowrap" }}>
-                <LinkIcon size={13} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} />
-                {householdPartner ? "Household ✓" : "Link Partner"}
+              <button onClick={() => setTab("settings")} className="pm-btn"
+                style={{ padding:"8px 12px", marginLeft:"4px", background: tab === "settings" ? "#FFD166" : "var(--bg-elevated, rgba(255,255,255,0.7))", color:"var(--text, #1A0A00)", borderColor: tab === "settings" ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))", lineHeight:1, display:"flex", alignItems:"center", justifyContent:"center" }}
+                title="Settings">
+                <GearSix size={18} weight="bold" />
               </button>
               <button onClick={signOut} className="pm-btn"
                 style={{ padding:"8px 12px", background:"#1A0A00", color:"#fff", fontSize:"12px", whiteSpace:"nowrap" }}>
@@ -3356,7 +3238,8 @@ export default function CooCheena() {
               onDateRangeChange={handleDateRangeChange}
               mealHistory={mealHistory} setMealHistory={setMealHistory} toast={toast}
               books={books} mealPlanExcludedBooks={mealPlanExcludedBooks}
-              mealPlanSettings={mealPlanSettings} setMealPlanSettings={setMealPlanSettings} />
+              mealPlanSettings={mealPlanSettings} setMealPlanSettings={setMealPlanSettings}
+              onOpenSettings={() => setTab("settings")} />
           )}
 
           {/* GROCERY LIST TAB */}
@@ -3364,6 +3247,148 @@ export default function CooCheena() {
             <GroceryListTab recipes={recipes} mealPlan={mealPlan}
               groceryList={groceryList} setGroceryList={setGroceryList} toast={toast}
               staples={staples} onShowStaples={() => setShowStaplesModal(true)} />
+          )}
+
+          {/* SETTINGS TAB */}
+          {tab === "settings" && (
+            <div style={{ maxWidth:"640px", margin:"0 auto", paddingBottom:"40px" }}>
+              <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"56px", lineHeight:0.9, letterSpacing:"2px", color:"var(--text, #1A0A00)", marginBottom:"32px" }}>
+                <GearSix size={44} weight="bold" style={{ verticalAlign:"middle", marginRight:"12px" }} />
+                Settings
+              </h2>
+
+              {/* ── Account ── */}
+              <div style={{ marginBottom:"36px" }}>
+                <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", borderBottom:"2px solid rgba(26,10,0,0.1)", paddingBottom:"8px", marginBottom:"4px" }}>Account</h3>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 0", borderBottom:"1px solid rgba(26,10,0,0.06)" }}>
+                  <div>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"var(--text, #1A0A00)" }}>Email</p>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"13px", color:"var(--text-muted, #7A5A3A)", marginTop:"2px" }}>{user?.email}</p>
+                  </div>
+                </div>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 0", borderBottom:"1px solid rgba(26,10,0,0.06)" }}>
+                  <div>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"var(--text, #1A0A00)" }}>Password</p>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7A5A3A)", marginTop:"2px" }}>Send a reset link to your email</p>
+                  </div>
+                  <button className="pm-btn" onClick={async () => {
+                    await supabase.auth.resetPasswordForEmail(user.email);
+                    toast("Reset email sent!");
+                  }} style={{ padding:"8px 16px", fontSize:"13px", whiteSpace:"nowrap" }}>
+                    Change Password
+                  </button>
+                </div>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 0" }}>
+                  <div>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"#E8421A" }}>Sign Out</p>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7A5A3A)", marginTop:"2px" }}>Sign out of your account</p>
+                  </div>
+                  <button className="pm-btn" onClick={signOut}
+                    style={{ padding:"8px 16px", fontSize:"13px", background:"#1A0A00", color:"#fff", whiteSpace:"nowrap" }}>
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Household ── */}
+              <div style={{ marginBottom:"36px" }}>
+                <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", borderBottom:"2px solid rgba(26,10,0,0.1)", paddingBottom:"8px", marginBottom:"4px" }}>Household</h3>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 0", borderBottom:"1px solid rgba(26,10,0,0.06)" }}>
+                  <div>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"var(--text, #1A0A00)" }}>Partner</p>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7A5A3A)", marginTop:"2px" }}>
+                      {householdPartner ? "Linked — you share recipes, meal plans, and grocery lists" : "Not linked — share everything with a partner"}
+                    </p>
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+                    {householdPartner && (
+                      <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", fontWeight:800, background:"#FFD166", color:"#1A0A00", border:"2px solid #1A0A00", borderRadius:"6px", padding:"3px 8px", whiteSpace:"nowrap" }}>Linked ✓</span>
+                    )}
+                    <button className="pm-btn" onClick={() => setShowHouseholdModal(true)}
+                      style={{ padding:"8px 16px", fontSize:"13px", whiteSpace:"nowrap" }}>
+                      {householdPartner ? "Manage" : "Link Partner"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Appearance ── */}
+              <div style={{ marginBottom:"36px" }}>
+                <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", borderBottom:"2px solid rgba(26,10,0,0.1)", paddingBottom:"8px", marginBottom:"4px" }}>Appearance</h3>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 0" }}>
+                  <div>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"var(--text, #1A0A00)" }}>Dark Mode</p>
+                    <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7A5A3A)", marginTop:"2px" }}>Switch between light and dark theme</p>
+                  </div>
+                  <button onClick={() => setDarkMode(d => !d)} className="pm-btn"
+                    style={{ padding:"8px 16px", fontSize:"13px", background: darkMode ? "#FFD166" : "var(--bg-elevated, #FFF5E6)", color:"var(--text, #1A0A00)", whiteSpace:"nowrap" }}>
+                    {darkMode
+                      ? <><Sun size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} />Light Mode</>
+                      : <><Moon size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} />Dark Mode</>}
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Meal Plan Preferences ── */}
+              <div style={{ marginBottom:"36px" }}>
+                <h3 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"20px", letterSpacing:"1px", color:"var(--text, #1A0A00)", borderBottom:"2px solid rgba(26,10,0,0.1)", paddingBottom:"8px", marginBottom:"4px" }}>Meal Plan Preferences</h3>
+
+                {/* Meals to plan */}
+                <div style={{ padding:"14px 0", borderBottom:"1px solid rgba(26,10,0,0.06)" }}>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>Meals to Plan</p>
+                  <div style={{ display:"flex", gap:"8px" }}>
+                    {MEALS.map(m => (
+                      <button key={m} onClick={() => setMealPlanSettings(prev => {
+                        const next = { ...prev, mealsToGenerate: prev.mealsToGenerate.includes(m) ? prev.mealsToGenerate.filter(x => x !== m) : [...prev.mealsToGenerate, m] };
+                        save("rv_meal_settings", next); return next;
+                      })} className="pm-btn"
+                        style={{ padding:"8px 16px", fontSize:"13px", flex:1,
+                          background: mealPlanSettings.mealsToGenerate.includes(m) ? MEAL_COLORS[m] : "var(--bg-elevated, #FFF5E6)",
+                          color: mealPlanSettings.mealsToGenerate.includes(m) ? (m === "Dinner" ? "#fff" : "#1A0A00") : "var(--text, #1A0A00)",
+                          border: mealPlanSettings.mealsToGenerate.includes(m) ? "2px solid #1A0A00" : "2px solid var(--border-subtle, rgba(26,10,0,0.2))" }}>
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preferred proteins */}
+                <div style={{ padding:"14px 0", borderBottom:"1px solid rgba(26,10,0,0.06)" }}>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"var(--text, #1A0A00)", marginBottom:"4px" }}>Preferred Proteins</p>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontSize:"12px", color:"var(--text-muted, #7A5A3A)", marginBottom:"10px" }}>Leave empty for any. Select to filter dinner recipes.</p>
+                  <div style={{ display:"flex", gap:"6px", flexWrap:"wrap" }}>
+                    {[{ key:"chicken", label:"Chicken" }, { key:"beef", label:"Beef" }, { key:"pork", label:"Pork" }, { key:"fish", label:"Fish & Seafood" }, { key:"lamb", label:"Lamb" }, { key:"vegetarian", label:"Vegetarian" }].map(p => (
+                      <button key={p.key} onClick={() => setMealPlanSettings(prev => {
+                        const next = { ...prev, preferredProteins: prev.preferredProteins.includes(p.key) ? prev.preferredProteins.filter(x => x !== p.key) : [...prev.preferredProteins, p.key] };
+                        save("rv_meal_settings", next); return next;
+                      })} className="pm-btn"
+                        style={{ padding:"6px 12px", fontSize:"12px",
+                          background: mealPlanSettings.preferredProteins.includes(p.key) ? "#FFD166" : "var(--bg-elevated, #FFF5E6)",
+                          color:"var(--text, #1A0A00)",
+                          border: mealPlanSettings.preferredProteins.includes(p.key) ? "2px solid #1A0A00" : "2px solid var(--border-subtle, rgba(26,10,0,0.2))" }}>
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Avoid repeats */}
+                <div style={{ padding:"14px 0" }}>
+                  <p style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:"14px", color:"var(--text, #1A0A00)", marginBottom:"10px" }}>Avoid Repeats Within</p>
+                  <select value={mealPlanSettings.repeatAvoidanceDays}
+                    onChange={e => setMealPlanSettings(prev => {
+                      const next = { ...prev, repeatAvoidanceDays: parseInt(e.target.value) };
+                      save("rv_meal_settings", next); return next;
+                    })}
+                    className="pm-input" style={{ fontSize:"13px", padding:"8px 12px", maxWidth:"200px" }}>
+                    <option value={7}>1 week</option>
+                    <option value={14}>2 weeks</option>
+                    <option value={21}>3 weeks</option>
+                    <option value={0}>No limit</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           )}
 
         </main>
@@ -3471,15 +3496,11 @@ export default function CooCheena() {
       {menuOpen && (
         <div className="pm-hamburger-overlay" onClick={() => setMenuOpen(false)}>
           <div className="pm-hamburger-panel" onClick={e => e.stopPropagation()}>
-            <button className="pm-hamburger-panel-item" onClick={() => { setShowHouseholdModal(true); setMenuOpen(false); }}>
-              <LinkIcon size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} />
-              {householdPartner ? "Household ✓" : "Link Partner"}
+            <button className="pm-hamburger-panel-item" onClick={() => { setTab("settings"); setMenuOpen(false); }}>
+              <GearSix size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Settings
             </button>
             <button className="pm-hamburger-panel-item" onClick={() => { setShowStaplesModal(true); setMenuOpen(false); }}>
               <Star size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Grocery Staples
-            </button>
-            <button className="pm-hamburger-panel-item" onClick={() => { setDarkMode(d => !d); setMenuOpen(false); }}>
-              {darkMode ? <><Sun size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Light Mode</> : <><Moon size={18} weight="bold" style={{ marginRight:8, verticalAlign:"middle" }} /> Dark Mode</>}
             </button>
             <button className="pm-hamburger-panel-item danger" onClick={() => { signOut(); setMenuOpen(false); }}>
               Sign Out
