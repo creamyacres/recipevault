@@ -373,7 +373,7 @@ const STYLES = `
   }
 
   /* ── Mobile nav ── */
-  .pm-desktop-nav { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .pm-desktop-nav { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; }
   .pm-hamburger-btn { display: none; }
   .pm-bottom-nav { display: none; }
 
@@ -3100,12 +3100,12 @@ export default function CooCheena() {
                 {darkMode ? <Sun size={18} weight="bold" /> : <Moon size={18} weight="bold" />}
               </button>
               <button onClick={() => setShowHouseholdModal(true)} className="pm-btn"
-                style={{ padding:"8px 16px", background: householdPartner ? "#FFD166" : "var(--bg-elevated, rgba(255,255,255,0.7))", color:"var(--text, #1A0A00)", fontSize:"13px", borderColor: householdPartner ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))" }}>
-                <LinkIcon size={14} weight="bold" style={{ marginRight:4, verticalAlign:"middle" }} />
+                style={{ padding:"8px 12px", background: householdPartner ? "#FFD166" : "var(--bg-elevated, rgba(255,255,255,0.7))", color:"var(--text, #1A0A00)", fontSize:"12px", borderColor: householdPartner ? "#1A0A00" : "var(--border-subtle, rgba(26,10,0,0.2))", whiteSpace:"nowrap" }}>
+                <LinkIcon size={13} weight="bold" style={{ marginRight:3, verticalAlign:"middle" }} />
                 {householdPartner ? "Household ✓" : "Link Partner"}
               </button>
               <button onClick={signOut} className="pm-btn"
-                style={{ padding:"8px 16px", background:"#1A0A00", color:"#fff", fontSize:"13px" }}>
+                style={{ padding:"8px 12px", background:"#1A0A00", color:"#fff", fontSize:"12px", whiteSpace:"nowrap" }}>
                 Sign Out
               </button>
             </nav>
