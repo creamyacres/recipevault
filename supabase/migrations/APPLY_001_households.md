@@ -121,3 +121,9 @@ Expected: each user has a unique `household_id` and an 8-character `invite_code`
 ## Done
 
 Once all checks pass, merge the `fix/meal-plan-persistence` branch on GitHub. Cloudflare Pages will auto-deploy within ~2 minutes and the app will be live with household sharing enabled.
+
+---
+
+## Follow-ups
+
+- **`002_fix_join_household_case.sql`** — patches a case-mismatch bug in the original `join_household` RPC where uppercased user input never matched lowercase-stored invite codes. Run the entire file in the Supabase SQL editor. Safe to re-run.

@@ -67,7 +67,7 @@ DECLARE
 BEGIN
   SELECT id INTO target_hh
   FROM households
-  WHERE invite_code = upper(code) AND invite_used = false;
+  WHERE invite_code = lower(code) AND invite_used = false;
 
   IF target_hh IS NULL THEN
     RETURN jsonb_build_object('error', 'Invalid or already-used invite code');
