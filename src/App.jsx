@@ -1051,20 +1051,26 @@ function consolidateIngredients(ingredients) {
       }
     }
 
-    // Non-volume quantified groups — emit one line per unit
-    Object.entries(nonVolumeByUnit).forEach(([unit, data]) => {
-      if (data.quantity === 0) return;
+    // Non-volume quantified groups — combine into a SINGLE line per ingredient.
+    // e.g. "2 cloves garlic" + "1 head garlic" → "2 cloves + 1 head garlic"
+    // and "2 large onions" + "1 medium onion" → "2 large + 1 medium onion"
+    const nonVolumeEntries = Object.entries(nonVolumeByUnit).filter(([, data]) => data.quantity !== 0);
+    if (nonVolumeEntries.length === 1) {
+      const [unit, data] = nonVolumeEntries[0];
       const qty = formatQty(data.quantity);
-      let name;
-      if (unit === "_none") {
-        name = `${qty} ${pluralizeItem(key, data.quantity)}`;
-      } else {
-        const unitDisplay = pluralizeItem(unit, data.quantity);
-        name = `${qty} ${unitDisplay} ${key}`;
-      }
+      const name = unit === "_none"
+        ? `${qty} ${pluralizeItem(key, data.quantity)}`
+        : `${qty} ${pluralizeItem(unit, data.quantity)} ${key}`;
       result.push({ name, item: key });
       hasQuantifiedOutput = true;
-    });
+    } else if (nonVolumeEntries.length > 1) {
+      const parts = nonVolumeEntries.map(([unit, data]) => {
+        const qty = formatQty(data.quantity);
+        return unit === "_none" ? qty : `${qty} ${pluralizeItem(unit, data.quantity)}`;
+      });
+      result.push({ name: `${parts.join(" + ")} ${key}`, item: key });
+      hasQuantifiedOutput = true;
+    }
 
     // Null-quantity items — drop entirely if we already have a quantified line for this key,
     // otherwise collapse them into ONE representative line (shortest original as tiebreak)
@@ -2081,10 +2087,12 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
       skipped: false,
     }));
 
-    // Merge staples, deduplicating against generated items
-    const itemNames = items.map(i => i.name.toLowerCase().replace(/[\d./½¼¾⅓⅔]+/g, "").trim());
+    // Merge staples, deduplicating against generated items by normalized name
+    // (substring matching was too fragile: "salt" staple was being removed when
+    // any recipe contained "sea salt")
+    const generatedKeys = new Set(consolidated.map(c => normalizeItemName(c.item || c.name)));
     const stapleItems = (staples || [])
-      .filter(s => !itemNames.some(n => n.includes(s.name.toLowerCase())))
+      .filter(s => !generatedKeys.has(normalizeItemName(s.name)))
       .map((s, i) => ({ name: s.name, section: s.section, id: `staple-${i}`, checked: false, skipped: false, isStaple: true }));
 
     setGroceryList({ items: [...items, ...stapleItems], generatedAt: Date.now() });
