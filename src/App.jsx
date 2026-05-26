@@ -778,6 +778,29 @@ const SYS_RECIPE_GEN = `You are a creative chef. Return ONLY a JSON object:
 const SYS_RECIPE_GEN_3 = `You are a creative chef. Return ONLY a JSON array of exactly 3 recipe objects. Make each recipe meaningfully different in style, cuisine, or technique. Each object must follow this exact shape:
 {"title":"...","description":"One sentence.","prepTime":"15 min","cookTime":"30 min","servings":"4","category":"Dinner","ingredients":["..."],"steps":["..."],"tags":["..."]}`;
 
+const SYS_GROCERY_NORMALIZE = `You normalize ingredient names for a grocery list. Input: a JSON array of raw ingredient strings from one or more recipes (each may have a quantity, unit, and modifiers).
+
+For each input string, return a normalized canonical name — the base shopping-list item only. Examples:
+  "1 clove garlic, minced"        -> "garlic"
+  "2 cloves fresh garlic"         -> "garlic"
+  "1 garlic clove"                -> "garlic"
+  "1 cup whole milk"              -> "milk"
+  "Greek-style yogurt, plain"     -> "greek yogurt"
+  "1 can crushed tomatoes"        -> "crushed tomatoes"
+  "2 lbs boneless chicken breast" -> "chicken breast"
+  "1 tbsp extra virgin olive oil" -> "olive oil"
+
+Rules:
+- Use singular form
+- Lowercase
+- Strip prep words (minced, chopped, diced, etc.) and pure size/quality adjectives (fresh, large, ripe, organic)
+- KEEP distinguishing variant words that matter for shopping (e.g. "brown rice" stays "brown rice", "crushed tomatoes" stays "crushed tomatoes" — these are different products at the store than plain rice or plain tomatoes)
+- Keep cuisine descriptors only when they identify a distinct product (e.g. "greek yogurt", "italian sausage")
+- Do NOT include quantity, unit, or container ("can", "jar", "package")
+- Return EXACTLY one normalized name per input, same order
+
+Return ONLY a JSON object: {"normalized": ["...", "...", ...]}`;
+
 // ── Utility ──
 function parseTotalMinutes(prepTime, cookTime) {
   const parse = str => { if (!str) return 0; const m = str.match(/(\d+)/); return m ? parseInt(m[1]) : 0; };
@@ -998,6 +1021,31 @@ function pluralizeItem(phrase, count) {
   else last = last + "s";
   parts[parts.length - 1] = last;
   return parts.join(" ");
+}
+
+// AI-normalize raw ingredient strings to canonical names so different
+// phrasings collapse into a single grocery line. Returns rebuilt strings
+// that preserve the original quantity + unit prefix but swap in the
+// normalized name as the item. Returns null on failure — callers should
+// fall back to the raw list.
+async function normalizeIngredientsWithAI(rawIngredients) {
+  if (!rawIngredients || rawIngredients.length === 0) return [];
+  try {
+    const result = await callClaude(SYS_GROCERY_NORMALIZE, JSON.stringify(rawIngredients), 2500);
+    const normalized = result?.normalized;
+    if (!Array.isArray(normalized) || normalized.length !== rawIngredients.length) return null;
+    return rawIngredients.map((raw, i) => {
+      const parsed = parseIngredient(raw);
+      const canon = String(normalized[i] || "").trim();
+      if (!canon) return raw;
+      const qty = parsed.quantity !== null ? String(parsed.quantity) + " " : "";
+      const unit = parsed.unit ? parsed.unit + " " : "";
+      return `${qty}${unit}${canon}`.trim();
+    });
+  } catch (e) {
+    console.error("AI ingredient normalization failed:", e);
+    return null;
+  }
 }
 
 function consolidateIngredients(ingredients) {
@@ -2040,6 +2088,7 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
   const [showShare, setShowShare] = useState(false);
   const [groceryStart, setGroceryStart] = useState(mealPlan.startDate);
   const [groceryEnd, setGroceryEnd] = useState(mealPlan.endDate);
+  const [generating, setGenerating] = useState(false);
 
   // Keep grocery date range in sync when meal plan date range changes
   useEffect(() => {
@@ -2071,14 +2120,21 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
   });
   const uniqueRecipes = plannedRecipes.filter((r,i,a) => a.findIndex(x => x.id === r.id) === i);
 
-  const generateGroceryList = () => {
+  const generateGroceryList = async () => {
     if (uniqueRecipes.length === 0) { toast("Plan some meals first!"); return; }
+    setGenerating(true);
 
     // Collect all ingredients from planned recipes
     const allIngredients = uniqueRecipes.flatMap(r => r.ingredients || []);
 
+    // AI-normalize ingredient names so semantic duplicates collapse
+    // (e.g. "1 garlic clove" + "2 cloves fresh garlic" → both become "garlic")
+    // Falls back to raw strings if Claude fails or returns malformed data.
+    const aiNormalized = await normalizeIngredientsWithAI(allIngredients);
+    const sourceList = aiNormalized || allIngredients;
+
     // Parse, consolidate, and categorize
-    const consolidated = consolidateIngredients(allIngredients);
+    const consolidated = consolidateIngredients(sourceList);
     const items = consolidated.map((entry, i) => ({
       name: entry.name,
       section: categorizeIngredient(entry.item || entry.name),
@@ -2096,7 +2152,8 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
       .map((s, i) => ({ name: s.name, section: s.section, id: `staple-${i}`, checked: false, skipped: false, isStaple: true }));
 
     setGroceryList({ items: [...items, ...stapleItems], generatedAt: Date.now() });
-    toast("Grocery list ready!");
+    setGenerating(false);
+    toast(aiNormalized ? "Grocery list ready!" : "Grocery list ready (offline mode)!");
   };
 
   const toggleCheck = (id) => setGroceryList(prev => ({ ...prev, items: prev.items.map(item => item.id === id ? { ...item, checked: !item.checked } : item) }));
@@ -2131,9 +2188,9 @@ function GroceryListTab({ recipes, mealPlan, groceryList, setGroceryList, toast,
           <h2 style={{ fontFamily:"'Bebas Neue',cursive", fontSize:"32px", letterSpacing:"1px", color:"#1A0A00", display:"flex", alignItems:"center", gap:"8px" }}><ShoppingCart size={28} weight="bold" /> Grocery List</h2>
         </div>
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
-          <button onClick={generateGroceryList} disabled={uniqueRecipes.length === 0} className="pm-btn"
-            style={{ padding:"10px 16px", background: uniqueRecipes.length === 0 ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}>
-            <ListIcon size={14} weight="bold" /> Build from Meal Plan
+          <button onClick={generateGroceryList} disabled={uniqueRecipes.length === 0 || generating} className="pm-btn"
+            style={{ padding:"10px 16px", background: uniqueRecipes.length === 0 || generating ? "#c8b89a" : "#ff5252", color:"#fff", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px" }}>
+            <ListIcon size={14} weight="bold" /> {generating ? "Consolidating..." : "Build from Meal Plan"}
           </button>
           <button onClick={onShowStaples} className="pm-btn" style={{ padding:"10px 14px", background:"var(--bg-elevated, #fff)", color:"var(--text, #1a1a1a)", fontSize:"13px", display:"inline-flex", alignItems:"center", gap:"4px", borderColor:"var(--border-subtle, rgba(26,10,0,0.2))" }}><Star size={14} weight="bold" color="#E8421A" /> Staples{staples?.length > 0 ? ` (${staples.length})` : ""}</button>
           {groceryList.items?.length > 0 && <>
